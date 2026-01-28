@@ -91,145 +91,19 @@ img { max-width: 100%; height: auto; }
    HERO SECTION
    ======================================== */
 .hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 50%, var(--primary-dark) 100%); }
-
-/* Elementos táticos de fundo */
-.hero-overlay {
+.hero-bg {
     position: absolute;
     inset: 0;
-    overflow: hidden;
+    background: url('hero-bg.png') center center / cover no-repeat;
 }
-
-/* Campo de futebol sutil */
-.hero-overlay::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    height: 60%;
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 0;
-}
-
-/* Círculo central */
-.hero-overlay::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 150px;
-    height: 150px;
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 50%;
-}
-
-.field-lines {
-    position: absolute;
-    inset: 0;
-}
-
-/* Elementos táticos flutuantes */
-.field-lines::before {
+.hero-bg::after {
     content: '';
     position: absolute;
     inset: 0;
-    background-image:
-        /* Setas de movimento - direita */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='rgba(247,147,30,0.15)' stroke-width='2'%3E%3Cpath d='M5 12h14M12 5l7 7-7 7'/%3E%3C/svg%3E"),
-        /* Setas de movimento - diagonal */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='35' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='2'%3E%3Cpath d='M7 17L17 7M17 7H7M17 7v10'/%3E%3C/svg%3E"),
-        /* Triângulo tático */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 24 24' fill='none' stroke='rgba(45,138,66,0.12)' stroke-width='1'%3E%3Cpolygon points='12,2 22,20 2,20'/%3E%3C/svg%3E"),
-        /* Círculo jogador */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='rgba(247,147,30,0.1)' stroke='rgba(247,147,30,0.2)' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3C/svg%3E"),
-        /* Losango formação */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='1'%3E%3Crect x='4' y='4' width='16' height='16' transform='rotate(45 12 12)'/%3E%3C/svg%3E"),
-        /* Gráfico radar */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 100 100' fill='none' stroke='rgba(45,138,66,0.08)' stroke-width='1'%3E%3Cpolygon points='50,10 90,35 80,80 20,80 10,35'/%3E%3Cpolygon points='50,25 75,40 68,70 32,70 25,40'/%3E%3C/svg%3E"),
-        /* Linha de passe */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50' viewBox='0 0 100 50' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1' stroke-dasharray='5,5'%3E%3Cpath d='M0,25 Q50,0 100,25'/%3E%3C/svg%3E"),
-        /* Barra de progresso */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='10' viewBox='0 0 60 10'%3E%3Crect x='0' y='3' width='60' height='4' rx='2' fill='rgba(255,255,255,0.03)'/%3E%3Crect x='0' y='3' width='40' height='4' rx='2' fill='rgba(247,147,30,0.1)'/%3E%3C/svg%3E");
-    background-position:
-        5% 15%,
-        92% 25%,
-        15% 75%,
-        88% 70%,
-        45% 85%,
-        75% 15%,
-        25% 40%,
-        70% 60%;
-    background-size:
-        40px 40px,
-        35px 35px,
-        60px 60px,
-        20px 20px,
-        45px 45px,
-        80px 80px,
-        100px 50px,
-        60px 10px;
-    background-repeat: no-repeat;
-    animation: floatElements 20s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(26,26,46,0.7) 0%, rgba(22,33,62,0.5) 50%, rgba(13,61,22,0.6) 100%);
 }
-
-.field-lines::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-        /* Mais setas */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 24 24' fill='none' stroke='rgba(247,147,30,0.12)' stroke-width='2'%3E%3Cpath d='M12 19V5M5 12l7-7 7 7'/%3E%3C/svg%3E"),
-        /* Círculo pequeno */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3C/svg%3E"),
-        /* X marcação */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='25' height='25' viewBox='0 0 24 24' fill='none' stroke='rgba(45,138,66,0.15)' stroke-width='2'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E"),
-        /* Triângulo pequeno */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 24 24' fill='rgba(247,147,30,0.08)' stroke='none'%3E%3Cpolygon points='12,4 20,18 4,18'/%3E%3C/svg%3E"),
-        /* Hexágono formação */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'%3E%3Cpolygon points='50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5'/%3E%3C/svg%3E"),
-        /* Seta curva */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='rgba(247,147,30,0.1)' stroke-width='1.5'%3E%3Cpath d='M3 12a9 9 0 1 0 9-9M12 3v6l4-3'/%3E%3C/svg%3E"),
-        /* Gráfico de linha */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='40' viewBox='0 0 70 40' fill='none' stroke='rgba(45,138,66,0.1)' stroke-width='1.5'%3E%3Cpath d='M5,35 L20,20 L35,28 L50,10 L65,15'/%3E%3Ccircle cx='20' cy='20' r='2' fill='rgba(247,147,30,0.2)'/%3E%3Ccircle cx='35' cy='28' r='2' fill='rgba(247,147,30,0.2)'/%3E%3Ccircle cx='50' cy='10' r='2' fill='rgba(247,147,30,0.2)'/%3E%3C/svg%3E"),
-        /* Retângulo área */
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'%3E%3Crect x='2' y='2' width='36' height='26' rx='2'/%3E%3C/svg%3E");
-    background-position:
-        8% 60%,
-        35% 20%,
-        60% 80%,
-        85% 45%,
-        20% 90%,
-        95% 85%,
-        55% 30%,
-        30% 55%;
-    background-size:
-        30px 30px,
-        15px 15px,
-        25px 25px,
-        30px 30px,
-        50px 50px,
-        50px 50px,
-        70px 40px,
-        40px 30px;
-    background-repeat: no-repeat;
-    animation: floatElements2 25s ease-in-out infinite reverse;
-}
-
-@keyframes floatElements {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-    25% { transform: translate(10px, -10px) rotate(1deg); opacity: 0.8; }
-    50% { transform: translate(5px, 5px) rotate(-1deg); opacity: 1; }
-    75% { transform: translate(-10px, -5px) rotate(1deg); opacity: 0.9; }
-}
-
-@keyframes floatElements2 {
-    0%, 100% { transform: translate(0, 0); opacity: 0.8; }
-    33% { transform: translate(-8px, 8px); opacity: 1; }
-    66% { transform: translate(8px, -8px); opacity: 0.9; }
-}
+.hero-overlay { display: none; }
+.field-lines { display: none; }
 .hero-content { position: relative; text-align: center; color: var(--white); padding: var(--space-xl); max-width: 900px; }
 .hero-badge { display: inline-flex; align-items: center; gap: var(--space-sm); background: rgba(247, 147, 30, 0.2); border: 1px solid var(--accent); padding: var(--space-sm) var(--space-lg); border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 500; margin-bottom: var(--space-xl); animation: fadeInDown 0.8s ease; }
 .hero-badge i { color: var(--accent); }
