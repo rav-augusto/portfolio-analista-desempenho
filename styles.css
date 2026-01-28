@@ -267,6 +267,7 @@ img { max-width: 100%; height: auto; }
 .image-frame:hover { transform: rotate(0); }
 .placeholder-photo { aspect-ratio: 3/4; background: linear-gradient(135deg, var(--gray-200), var(--gray-300)); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray-500); gap: var(--space-sm); }
 .placeholder-photo i { font-size: 4rem; }
+.profile-photo { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: var(--radius-lg); }
 .cbf-badge { position: absolute; bottom: -20px; right: -20px; background: var(--white); padding: var(--space-md); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; align-items: center; gap: var(--space-xs); }
 .cbf-icon { width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 1.5rem; }
 .cbf-badge span { font-size: 0.75rem; font-weight: 600; color: var(--gray-600); }
