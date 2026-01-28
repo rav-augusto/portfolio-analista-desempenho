@@ -1,6 +1,6 @@
 # RESUMO DO PROJETO - OLHAR DA BASE
 
-## Data: 27/01/2026
+## Última atualização: 27/01/2026 (noite)
 
 ---
 
@@ -11,6 +11,33 @@
 | **Site Público** | https://olhardabase.vercel.app/ |
 | **Repositório** | https://github.com/rav-augusto/portfolio-analista-desempenho |
 | **Painel Vercel** | https://vercel.com/rav-augustos-projects/portfolio-analista-desempenho |
+
+---
+
+## O QUE FOI FEITO HOJE (27/01)
+
+### Site
+- [x] Criado site completo HTML/CSS/JS
+- [x] Logo: "Augusto Nunes"
+- [x] Background profissional com campo, heatmap e gráficos
+- [x] Overlay escuro para melhor contraste
+- [x] Foto de perfil adicionada
+- [x] Removido badge "Licença B CBF"
+- [x] Removido "TCL Disponível"
+- [x] Atualizado texto da seção Sobre
+- [x] Contato: rav.augusto@gmail.com | (43) 9 9112-7447
+- [x] Removido LinkedIn e Instagram (Instagram será criado depois)
+
+### Hospedagem
+- [x] Repositório GitHub criado (rav-augusto)
+- [x] Deploy no Vercel configurado
+- [x] Domínio: olhardabase.vercel.app
+- [x] Git configurado (rav.augusto@gmail.com)
+
+### Conta GitHub separada
+- [x] Limpeza de credenciais do Windows
+- [x] Configuração para conta pessoal (rav-augusto)
+- [x] Separação da conta profissional (augusto@talkall.com.br)
 
 ---
 
