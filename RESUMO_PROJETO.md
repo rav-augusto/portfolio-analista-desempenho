@@ -1,6 +1,16 @@
-# RESUMO DO PROJETO - PORTFÓLIO ANALISTA DE DESEMPENHO
+# RESUMO DO PROJETO - OLHAR DA BASE
 
-## Data: 26/01/2026
+## Data: 27/01/2026
+
+---
+
+## SITE NO AR
+
+| Item | Link |
+|------|------|
+| **Site Público** | https://olhardabase.vercel.app/ |
+| **Repositório** | https://github.com/rav-augusto/portfolio-analista-desempenho |
+| **Painel Vercel** | https://vercel.com/rav-augustos-projects/portfolio-analista-desempenho |
 
 ---
 

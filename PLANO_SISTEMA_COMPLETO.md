@@ -1,6 +1,16 @@
-# PLANO DO SISTEMA COMPLETO - PLATAFORMA DE ANÁLISE DE DESEMPENHO
+# PLANO DO SISTEMA COMPLETO - OLHAR DA BASE
 
 ## Data: 27/01/2026
+
+---
+
+## SITE NO AR
+
+| Item | Link |
+|------|------|
+| **Site Público** | https://olhardabase.vercel.app/ |
+| **Repositório** | https://github.com/rav-augusto/portfolio-analista-desempenho |
+| **Painel Vercel** | https://vercel.com/rav-augustos-projects/portfolio-analista-desempenho |
 
 ---
 
