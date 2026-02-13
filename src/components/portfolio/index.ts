@@ -1,0 +1,6 @@
+export { HeroSection } from './HeroSection'
+export { SobreSection } from './SobreSection'
+export { CompetenciasSection } from './CompetenciasSection'
+export { AnalisesSection } from './AnalisesSection'
+export { MetodologiaSection } from './MetodologiaSection'
+export { ContatoSection } from './ContatoSection'
