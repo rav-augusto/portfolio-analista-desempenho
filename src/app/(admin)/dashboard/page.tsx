@@ -154,14 +154,6 @@ export default function DashboardPage() {
     loadData()
   }, [supabase])
 
-  const cards = [
-    { title: 'Clubes', value: stats.clubes, icon: Shield, href: '/clubes', bgColor: '#3b82f6' },
-    { title: 'Atletas', value: stats.atletas, icon: Users, href: '/atletas', bgColor: '#6366f1' },
-    { title: 'Jogos', value: stats.jogos, icon: Gamepad2, href: '/jogos', bgColor: '#22c55e' },
-    { title: 'Analises', value: stats.analises, icon: FileBarChart, href: '/analises', bgColor: '#f97316' },
-    { title: 'Avaliacoes', value: stats.avaliacoes, icon: Star, href: '/avaliacoes', bgColor: '#a855f7' }
-  ]
-
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00')
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -172,6 +164,20 @@ export default function DashboardPage() {
                  av.inteligencia + av.um_contra_um + av.atitude + av.potencial
     return (soma / 8).toFixed(1)
   }
+
+  // Calcular estatisticas extras
+  const jogosStats = ultimosJogos.reduce((acc, jogo) => {
+    if (jogo.placar_clube !== null && jogo.placar_adversario !== null) {
+      if (jogo.placar_clube > jogo.placar_adversario) acc.vitorias++
+      else if (jogo.placar_clube < jogo.placar_adversario) acc.derrotas++
+      else acc.empates++
+    }
+    return acc
+  }, { vitorias: 0, derrotas: 0, empates: 0 })
+
+  const mediaGeral = ultimasAvaliacoes.length > 0
+    ? (ultimasAvaliacoes.reduce((acc, av) => acc + parseFloat(calcularMedia(av)), 0) / ultimasAvaliacoes.length).toFixed(1)
+    : '0.0'
 
   // Dados para grafico de categorias (cores vibrantes para dark mode)
   const categoriasLabels = atletasPorCategoria.map(a => a.categoria || 'Sem categoria')
@@ -214,15 +220,15 @@ export default function DashboardPage() {
           color: '#94a3b8'
         },
         grid: {
-          color: '#334155'
+          display: false
         }
       },
       x: {
         ticks: {
-          color: '#94a3b8'
+          color: '#e2e8f0'
         },
         grid: {
-          color: '#334155'
+          display: false
         }
       }
     }
@@ -254,39 +260,153 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        {cards.map((card) => (
-          <Link
-            key={card.title}
-            href={card.href}
-            className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: card.bgColor }}
-              >
-                <card.icon className="w-5 h-5 text-white" />
+        {/* Clubes */}
+        <Link
+          href="/clubes"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#3b82f6' }}>
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-slate-400 text-xs">Clubes</p>
+                <p className="text-2xl font-bold text-slate-100">{loading ? '-' : stats.clubes}</p>
               </div>
             </div>
-            <p className="text-slate-400 text-sm">{card.title}</p>
-            <p className="text-2xl font-bold text-slate-100">
-              {loading ? '-' : card.value}
-            </p>
-          </Link>
-        ))}
+            <div className="text-right">
+              <p className="text-xs text-slate-500">cadastrados</p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Atletas */}
+        <Link
+          href="/atletas"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#6366f1' }}>
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-slate-400 text-xs">Atletas</p>
+                <p className="text-2xl font-bold text-slate-100">{loading ? '-' : stats.atletas}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-indigo-400">{atletasPorPosicao.length} posicoes</p>
+              <p className="text-xs text-indigo-400">{atletasPorCategoria.length} categorias</p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Jogos */}
+        <Link
+          href="/jogos"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#22c55e' }}>
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-slate-400 text-xs">Jogos</p>
+                <p className="text-2xl font-bold text-slate-100">{loading ? '-' : stats.jogos}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-bold" style={{ color: '#86efac' }}>{jogosStats.vitorias} vitorias</p>
+              <p className="text-xs font-bold" style={{ color: '#fde047' }}>{jogosStats.empates} empates</p>
+              <p className="text-xs font-bold" style={{ color: '#fca5a5' }}>{jogosStats.derrotas} derrotas</p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Analises */}
+        <Link
+          href="/analises"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#f97316' }}>
+                <FileBarChart className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-slate-400 text-xs">Analises</p>
+                <p className="text-2xl font-bold text-slate-100">{loading ? '-' : stats.analises}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-orange-400">de jogos</p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Avaliacoes */}
+        <Link
+          href="/avaliacoes"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#a855f7' }}>
+                <Star className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-slate-400 text-xs">Avaliacoes</p>
+                <p className="text-2xl font-bold text-slate-100">{loading ? '-' : stats.avaliacoes}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-purple-400">de atletas</p>
+              {parseFloat(mediaGeral) > 0 && (
+                <p className="text-xs text-purple-400 flex items-center gap-1 justify-end">
+                  <Activity className="w-3 h-3" /> {mediaGeral}
+                </p>
+              )}
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* Graficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Atletas por Categoria */}
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <div className="flex items-center gap-2 mb-4">
             <Target className="w-5 h-5 text-amber-500" />
             <h2 className="text-lg font-bold text-slate-100">Atletas por Categoria</h2>
           </div>
-          <div className="h-64">
+          <div className="space-y-3 max-h-64 overflow-y-auto">
             {atletasPorCategoria.length > 0 ? (
-              <Doughnut data={chartCategorias} options={doughnutOptions} />
+              atletasPorCategoria.map((item, index) => {
+                const maxCount = Math.max(...atletasPorCategoria.map(a => a.count))
+                const percentage = (item.count / maxCount) * 100
+                const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#22d3ee']
+                return (
+                  <div key={item.categoria} className="flex items-center gap-3">
+                    <span className="text-sm text-slate-300 truncate" style={{ width: '100px', minWidth: '100px' }}>{item.categoria || 'Sem categoria'}</span>
+                    <div className="flex-1 h-6 rounded-full overflow-hidden" style={{ backgroundColor: '#334155' }}>
+                      <div
+                        className="h-full rounded-full flex items-center justify-end pr-2"
+                        style={{ width: `${percentage}%`, backgroundColor: colors[index % colors.length] }}
+                      >
+                        <span className="text-xs font-bold text-slate-900">{item.count}</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
             ) : (
               <div className="h-full flex items-center justify-center text-slate-500">
                 Nenhum dado disponivel
@@ -296,14 +416,31 @@ export default function DashboardPage() {
         </div>
 
         {/* Atletas por Posicao */}
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-5 h-5 text-amber-500" />
             <h2 className="text-lg font-bold text-slate-100">Atletas por Posicao</h2>
           </div>
-          <div className="h-64">
+          <div className="space-y-3 max-h-64 overflow-y-auto">
             {atletasPorPosicao.length > 0 ? (
-              <Bar data={chartPosicoes} options={chartOptions} />
+              atletasPorPosicao.slice(0, 8).map((item, index) => {
+                const maxCount = Math.max(...atletasPorPosicao.map(a => a.count))
+                const percentage = (item.count / maxCount) * 100
+                const colors = ['#34d399', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa', '#22d3ee', '#f87171', '#4ade80']
+                return (
+                  <div key={item.posicao} className="flex items-center gap-3">
+                    <span className="text-sm text-slate-300 truncate" style={{ width: '100px', minWidth: '100px' }}>{item.posicao || 'Sem posicao'}</span>
+                    <div className="flex-1 h-6 rounded-full overflow-hidden" style={{ backgroundColor: '#334155' }}>
+                      <div
+                        className="h-full rounded-full flex items-center justify-end pr-2"
+                        style={{ width: `${percentage}%`, backgroundColor: colors[index % colors.length] }}
+                      >
+                        <span className="text-xs font-bold text-slate-900">{item.count}</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
             ) : (
               <div className="h-full flex items-center justify-center text-slate-500">
                 Nenhum dado disponivel
@@ -316,8 +453,8 @@ export default function DashboardPage() {
       {/* Listas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Ultimos Jogos */}
-        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-          <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+        <div className="rounded-2xl shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid #475569' }}>
             <div className="flex items-center gap-2">
               <Gamepad2 className="w-5 h-5 text-green-500" />
               <h2 className="font-bold text-slate-100">Ultimos Jogos</h2>
@@ -326,7 +463,7 @@ export default function DashboardPage() {
               Ver todos <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="divide-y divide-slate-700">
+          <div className="divide-y divide-slate-600">
             {ultimosJogos.length === 0 ? (
               <div className="p-6 text-center text-slate-500">
                 Nenhum jogo cadastrado
@@ -336,7 +473,10 @@ export default function DashboardPage() {
                 <Link
                   key={jogo.id}
                   href={`/jogos/${jogo.id}`}
-                  className="p-4 flex items-center justify-between hover:bg-slate-700 transition-colors"
+                  className="p-4 flex items-center justify-between transition-colors cursor-pointer"
+                  style={{ backgroundColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-900/50 rounded-xl flex items-center justify-center">
@@ -376,8 +516,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Ultimas Avaliacoes */}
-        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-          <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+        <div className="rounded-2xl shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid #475569' }}>
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-purple-500" />
               <h2 className="font-bold text-slate-100">Ultimas Avaliacoes</h2>
@@ -386,7 +526,7 @@ export default function DashboardPage() {
               Ver todas <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="divide-y divide-slate-700">
+          <div className="divide-y divide-slate-600">
             {ultimasAvaliacoes.length === 0 ? (
               <div className="p-6 text-center text-slate-500">
                 Nenhuma avaliacao cadastrada
@@ -396,7 +536,10 @@ export default function DashboardPage() {
                 <Link
                   key={av.id}
                   href={`/avaliacoes/${av.id}`}
-                  className="p-4 flex items-center justify-between hover:bg-slate-700 transition-colors"
+                  className="p-4 flex items-center justify-between transition-colors cursor-pointer"
+                  style={{ backgroundColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-900/50 rounded-xl flex items-center justify-center">
@@ -430,38 +573,71 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
-        <h2 className="text-lg font-bold text-slate-100 mb-4">Acoes Rapidas</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Link
-            href="/clubes/novo"
-            className="flex flex-col items-center gap-2 p-4 bg-blue-900/30 rounded-xl hover:bg-blue-900/50 transition-colors text-center"
-          >
-            <Shield className="w-6 h-6 text-blue-400" />
-            <span className="text-sm font-medium text-slate-300">Novo Clube</span>
-          </Link>
-          <Link
-            href="/atletas/novo"
-            className="flex flex-col items-center gap-2 p-4 bg-indigo-900/30 rounded-xl hover:bg-indigo-900/50 transition-colors text-center"
-          >
-            <Users className="w-6 h-6 text-indigo-400" />
-            <span className="text-sm font-medium text-slate-300">Novo Atleta</span>
-          </Link>
-          <Link
-            href="/jogos/novo"
-            className="flex flex-col items-center gap-2 p-4 bg-green-900/30 rounded-xl hover:bg-green-900/50 transition-colors text-center"
-          >
-            <Gamepad2 className="w-6 h-6 text-green-400" />
-            <span className="text-sm font-medium text-slate-300">Novo Jogo</span>
-          </Link>
-          <Link
-            href="/avaliacoes/nova"
-            className="flex flex-col items-center gap-2 p-4 bg-purple-900/30 rounded-xl hover:bg-purple-900/50 transition-colors text-center"
-          >
-            <Star className="w-6 h-6 text-purple-400" />
-            <span className="text-sm font-medium text-slate-300">Nova Avaliacao</span>
-          </Link>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Link
+          href="/clubes/novo"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: '#3b82f6' }}
+            >
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm">Adicionar</p>
+          <p className="text-lg font-bold text-slate-100">Novo Clube</p>
+        </Link>
+        <Link
+          href="/atletas/novo"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: '#6366f1' }}
+            >
+              <Users className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm">Adicionar</p>
+          <p className="text-lg font-bold text-slate-100">Novo Atleta</p>
+        </Link>
+        <Link
+          href="/jogos/novo"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: '#22c55e' }}
+            >
+              <Gamepad2 className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm">Adicionar</p>
+          <p className="text-lg font-bold text-slate-100">Novo Jogo</p>
+        </Link>
+        <Link
+          href="/avaliacoes/nova"
+          className="rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: '#a855f7' }}
+            >
+              <Star className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm">Adicionar</p>
+          <p className="text-lg font-bold text-slate-100">Nova Avaliacao</p>
+        </Link>
       </div>
     </div>
   )

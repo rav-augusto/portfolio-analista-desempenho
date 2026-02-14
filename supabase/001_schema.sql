@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS jogos (
     clube_id UUID REFERENCES clubes(id) ON DELETE CASCADE,
     competicao VARCHAR(255) NOT NULL,
     fase VARCHAR(100),
+    categoria VARCHAR(50),
     data_jogo DATE NOT NULL,
     local VARCHAR(255),
     adversario VARCHAR(255) NOT NULL,
@@ -87,6 +88,9 @@ CREATE TABLE IF NOT EXISTS jogos (
     video_url VARCHAR(500),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- MIGRACAO: Adicionar campo categoria aos jogos (executar se tabela ja existir)
+-- ALTER TABLE jogos ADD COLUMN IF NOT EXISTS categoria VARCHAR(50);
 
 -- =============================================
 -- TABELA: analises_jogo
@@ -175,6 +179,48 @@ CREATE TABLE IF NOT EXISTS avaliacoes_atleta (
     -- Campo para descrever contexto quando não for jogo (treino/geral)
     contexto_treino VARCHAR(500),
 
+    -- Observacoes por dimensao CBF
+    obs_forca TEXT,
+    obs_velocidade TEXT,
+    obs_tecnica TEXT,
+    obs_dinamica TEXT,
+    obs_inteligencia TEXT,
+    obs_um_contra_um TEXT,
+    obs_atitude TEXT,
+    obs_potencial TEXT,
+
+    -- 6 Principios Ofensivos (notas 0.5 a 5.0)
+    penetracao DECIMAL(2,1) CHECK (penetracao >= 0.5 AND penetracao <= 5.0),
+    cobertura_ofensiva DECIMAL(2,1) CHECK (cobertura_ofensiva >= 0.5 AND cobertura_ofensiva <= 5.0),
+    espaco_com_bola DECIMAL(2,1) CHECK (espaco_com_bola >= 0.5 AND espaco_com_bola <= 5.0),
+    espaco_sem_bola DECIMAL(2,1) CHECK (espaco_sem_bola >= 0.5 AND espaco_sem_bola <= 5.0),
+    mobilidade DECIMAL(2,1) CHECK (mobilidade >= 0.5 AND mobilidade <= 5.0),
+    unidade_ofensiva DECIMAL(2,1) CHECK (unidade_ofensiva >= 0.5 AND unidade_ofensiva <= 5.0),
+
+    -- Observacoes por principio ofensivo
+    obs_penetracao TEXT,
+    obs_cobertura_ofensiva TEXT,
+    obs_espaco_com_bola TEXT,
+    obs_espaco_sem_bola TEXT,
+    obs_mobilidade TEXT,
+    obs_unidade_ofensiva TEXT,
+
+    -- 6 Principios Defensivos (notas 0.5 a 5.0)
+    contencao DECIMAL(2,1) CHECK (contencao >= 0.5 AND contencao <= 5.0),
+    cobertura_defensiva DECIMAL(2,1) CHECK (cobertura_defensiva >= 0.5 AND cobertura_defensiva <= 5.0),
+    equilibrio_recuperacao DECIMAL(2,1) CHECK (equilibrio_recuperacao >= 0.5 AND equilibrio_recuperacao <= 5.0),
+    equilibrio_defensivo DECIMAL(2,1) CHECK (equilibrio_defensivo >= 0.5 AND equilibrio_defensivo <= 5.0),
+    concentracao_def DECIMAL(2,1) CHECK (concentracao_def >= 0.5 AND concentracao_def <= 5.0),
+    unidade_defensiva DECIMAL(2,1) CHECK (unidade_defensiva >= 0.5 AND unidade_defensiva <= 5.0),
+
+    -- Observacoes por principio defensivo
+    obs_contencao TEXT,
+    obs_cobertura_defensiva TEXT,
+    obs_equilibrio_recuperacao TEXT,
+    obs_equilibrio_defensivo TEXT,
+    obs_concentracao_def TEXT,
+    obs_unidade_defensiva TEXT,
+
     pontos_fortes TEXT,
     pontos_desenvolver TEXT,
     observacoes TEXT,
@@ -183,6 +229,40 @@ CREATE TABLE IF NOT EXISTS avaliacoes_atleta (
 
 -- MIGRACAO: Adicionar campo contexto_treino (executar se tabela ja existir)
 -- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS contexto_treino VARCHAR(500);
+
+-- MIGRACAO: Adicionar campos OFE/DEF (executar se tabela ja existir)
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_forca TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_velocidade TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_tecnica TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_dinamica TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_inteligencia TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_um_contra_um TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_atitude TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_potencial TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS penetracao DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS cobertura_ofensiva DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS espaco_com_bola DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS espaco_sem_bola DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS mobilidade DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS unidade_ofensiva DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_penetracao TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_cobertura_ofensiva TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_espaco_com_bola TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_espaco_sem_bola TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_mobilidade TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_unidade_ofensiva TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS contencao DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS cobertura_defensiva DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS equilibrio_recuperacao DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS equilibrio_defensivo DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS concentracao_def DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS unidade_defensiva DECIMAL(2,1);
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_contencao TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_cobertura_defensiva TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_equilibrio_recuperacao TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_equilibrio_defensivo TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_concentracao_def TEXT;
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS obs_unidade_defensiva TEXT;
 
 -- =============================================
 -- TABELA: prints_taticos

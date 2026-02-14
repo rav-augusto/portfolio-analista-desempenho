@@ -285,7 +285,7 @@ export default function EditarAtletaPage() {
                 <button
                   type="button"
                   onClick={handleCropConfirm}
-                  className="flex-1 px-4 py-2 text-white bg-amber-500 rounded-xl hover:bg-amber-600 transition-colors"
+                  className="flex-1 px-4 py-2 text-white bg-amber-500 rounded-xl hover:bg-amber-400 transition-colors"
                 >
                   <Check className="w-4 h-4 inline mr-2" />
                   Confirmar
@@ -606,7 +606,7 @@ export default function EditarAtletaPage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 bg-amber-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

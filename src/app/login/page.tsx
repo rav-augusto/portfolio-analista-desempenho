@@ -52,7 +52,7 @@ export default function LoginPage() {
             </div>
             <div>
               <span className="block text-2xl font-bold text-white">Olhar da Base</span>
-              <span className="block text-sm text-slate-400">Performance Analysis</span>
+              <span className="block text-sm text-slate-300">Performance Analysis</span>
             </div>
           </div>
 
@@ -61,7 +61,7 @@ export default function LoginPage() {
             <span className="text-amber-500">vantagem competitiva</span>
           </h1>
 
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-300 text-lg">
             Plataforma de analise de desempenho para desenvolvimento de atletas de base.
           </p>
         </div>
@@ -79,34 +79,36 @@ export default function LoginPage() {
           </div>
 
           {/* Form Card */}
-          <div className="bg-slate-800 rounded-3xl shadow-2xl p-8 lg:p-10 border border-slate-700">
+          <div className="rounded-3xl shadow-2xl p-8 lg:p-10" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-100">Bem-vindo de volta</h2>
-              <p className="text-slate-400 mt-1">Entre para acessar o painel admin</p>
+              <h2 className="text-2xl font-bold" style={{ color: '#ffffff' }}>Bem-vindo de volta</h2>
+              <p className="mt-1" style={{ color: '#cbd5e1' }}>Entre para acessar o painel admin</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-amber-500 mb-1.5">Email</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#f59e0b' }}>Email</label>
                 <input
                   type="email"
                   placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                  className="w-full px-4 py-3 rounded-xl focus:outline-none"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569', color: '#f1f5f9' }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-amber-500 mb-1.5">Senha</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#f59e0b' }}>Senha</label>
                 <input
                   type="password"
                   placeholder="Digite sua senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                  className="w-full px-4 py-3 rounded-xl focus:outline-none"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569', color: '#f1f5f9' }}
                 />
               </div>
 
@@ -119,7 +121,8 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50"
+                style={{ backgroundColor: '#f59e0b', color: '#0f172a' }}
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -136,7 +139,8 @@ export default function LoginPage() {
           {/* Back Link */}
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 mt-8 text-gray-400 hover:text-white transition-colors"
+            className="flex items-center justify-center gap-2 mt-8 hover:text-white transition-colors"
+            style={{ color: '#cbd5e1' }}
           >
             <ArrowLeft className="w-4 h-4" />
             Voltar ao site

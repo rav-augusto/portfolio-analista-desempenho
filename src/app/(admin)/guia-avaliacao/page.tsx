@@ -84,7 +84,7 @@ export default function GuiaAvaliacaoPage() {
               {/* Passo 0 */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">0</div>
+                  <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center text-sm font-bold">0</div>
                   <h3 className="text-lg font-semibold text-slate-100">Contexto do Jogo</h3>
                 </div>
                 <div className="bg-slate-700 rounded-xl p-4 ml-11">
@@ -113,7 +113,7 @@ export default function GuiaAvaliacaoPage() {
               {/* Passo 1 */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">1</div>
+                  <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center text-sm font-bold">1</div>
                   <h3 className="text-lg font-semibold text-slate-100">Filmagem Util</h3>
                   <Video className="w-5 h-5 text-slate-500" />
                 </div>
@@ -138,7 +138,7 @@ export default function GuiaAvaliacaoPage() {
               {/* Passo 2 */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">2</div>
+                  <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center text-sm font-bold">2</div>
                   <h3 className="text-lg font-semibold text-slate-100">Tagging (Marcacao de Lances)</h3>
                   <Target className="w-5 h-5 text-slate-500" />
                 </div>
@@ -164,7 +164,7 @@ export default function GuiaAvaliacaoPage() {
               {/* Passo 3 */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">3</div>
+                  <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center text-sm font-bold">3</div>
                   <h3 className="text-lg font-semibold text-slate-100">Clipes Curtos e "Ensinaveis"</h3>
                 </div>
                 <div className="bg-slate-700 rounded-xl p-4 ml-11">
@@ -189,7 +189,7 @@ export default function GuiaAvaliacaoPage() {
               {/* Passo 4 */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">4</div>
+                  <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center text-sm font-bold">4</div>
                   <h3 className="text-lg font-semibold text-slate-100">Relatorio</h3>
                   <FileText className="w-5 h-5 text-slate-500" />
                 </div>
@@ -197,15 +197,15 @@ export default function GuiaAvaliacaoPage() {
                   <p className="text-sm text-slate-400 mb-3">Base nao e relatorio gigante: e <strong>clareza</strong>.</p>
                   <ul className="space-y-2 text-sm text-slate-300">
                     <li className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded bg-amber-500 text-white flex items-center justify-center text-xs font-bold">5</span>
+                      <span className="w-6 h-6 rounded bg-amber-500 text-slate-900 flex items-center justify-center text-xs font-bold">5</span>
                       <span>pontos do time</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded bg-amber-500 text-white flex items-center justify-center text-xs font-bold">3</span>
+                      <span className="w-6 h-6 rounded bg-amber-500 text-slate-900 flex items-center justify-center text-xs font-bold">3</span>
                       <span>pontos por setor (defesa/meio/ataque) ou por funcao</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded bg-amber-500 text-white flex items-center justify-center text-xs font-bold">3</span>
+                      <span className="w-6 h-6 rounded bg-amber-500 text-slate-900 flex items-center justify-center text-xs font-bold">3</span>
                       <span>metas de treino "treinaveis" (o treinador consegue aplicar amanha)</span>
                     </li>
                   </ul>

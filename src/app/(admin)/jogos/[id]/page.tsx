@@ -11,14 +11,29 @@ type Clube = {
   nome: string
 }
 
+const categorias = [
+  'Sub-9',
+  'Sub-10',
+  'Sub-11',
+  'Sub-12',
+  'Sub-13',
+  'Sub-14',
+  'Sub-15',
+  'Sub-16',
+  'Sub-17',
+  'Sub-20',
+  'Profissional'
+]
+
 export default function EditarJogoPage() {
   const [clubes, setClubes] = useState<Clube[]>([])
   const [clubeId, setClubeId] = useState('')
   const [adversario, setAdversario] = useState('')
   const [dataJogo, setDataJogo] = useState('')
   const [local, setLocal] = useState('')
-  const [competicao, setCompetição] = useState('')
+  const [competicao, setCompeticao] = useState('')
   const [fase, setFase] = useState('')
+  const [categoria, setCategoria] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
   const [placarClube, setPlacarClube] = useState('')
   const [placarAdversario, setPlacarAdversario] = useState('')
@@ -48,8 +63,9 @@ export default function EditarJogoPage() {
       setAdversario(jogo.adversario)
       setDataJogo(jogo.data_jogo)
       setLocal(jogo.local || '')
-      setCompetição(jogo.competicao)
+      setCompeticao(jogo.competicao)
       setFase(jogo.fase || '')
+      setCategoria(jogo.categoria || '')
       setVideoUrl(jogo.video_url || '')
       setPlacarClube(jogo.placar_clube?.toString() || '')
       setPlacarAdversario(jogo.placar_adversario?.toString() || '')
@@ -69,9 +85,10 @@ export default function EditarJogoPage() {
         clube_id: clubeId,
         adversario,
         data_jogo: dataJogo,
-        local,
+        local: local || null,
         competicao,
         fase: fase || null,
+        categoria: categoria || null,
         video_url: videoUrl || null,
         placar_clube: placarClube ? parseInt(placarClube) : null,
         placar_adversario: placarAdversario ? parseInt(placarAdversario) : null
@@ -114,21 +131,40 @@ export default function EditarJogoPage() {
       {/* Form */}
       <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-amber-500 mb-2">
-              Clube *
-            </label>
-            <select
-              value={clubeId}
-              onChange={(e) => setClubeId(e.target.value)}
-              required
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-            >
-              <option value="">Selecione um clube</option>
-              {clubes.map((clube) => (
-                <option key={clube.id} value={clube.id}>{clube.nome}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-amber-500 mb-2">
+                Clube *
+              </label>
+              <select
+                value={clubeId}
+                onChange={(e) => setClubeId(e.target.value)}
+                required
+                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              >
+                <option value="">Selecione um clube</option>
+                {clubes.map((clube) => (
+                  <option key={clube.id} value={clube.id}>{clube.nome}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-amber-500 mb-2">
+                Categoria *
+              </label>
+              <select
+                value={categoria}
+                onChange={(e) => setCategoria(e.target.value)}
+                required
+                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              >
+                <option value="">Selecione a categoria</option>
+                {categorias.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
@@ -179,7 +215,7 @@ export default function EditarJogoPage() {
               <input
                 type="text"
                 value={competicao}
-                onChange={(e) => setCompetição(e.target.value)}
+                onChange={(e) => setCompeticao(e.target.value)}
                 required
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
               />
@@ -256,7 +292,7 @@ export default function EditarJogoPage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 bg-amber-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

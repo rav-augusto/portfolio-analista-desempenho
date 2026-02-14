@@ -736,7 +736,7 @@ export default function EditarAnalisePage() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-amber-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

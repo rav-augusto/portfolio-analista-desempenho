@@ -26,7 +26,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
       {/* Navbar */}
       <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`} id="navbar">
         <div className="nav-container">
@@ -763,6 +763,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   )
 }

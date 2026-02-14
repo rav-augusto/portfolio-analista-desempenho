@@ -64,7 +64,7 @@ export default function ClubesPage() {
         </div>
         <Link
           href="/clubes/novo"
-          className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-xl font-medium hover:bg-amber-600 transition-colors"
+          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors"
         >
           <Plus className="w-5 h-5" />
           Novo Clube

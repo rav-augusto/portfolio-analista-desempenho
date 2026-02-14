@@ -462,7 +462,7 @@ export default function CompararAtletasPage() {
               onClick={() => setActiveView(tab.id as any)}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 activeView === tab.id
-                  ? 'bg-amber-500 text-white'
+                  ? 'bg-amber-500 text-slate-900'
                   : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
               }`}
             >

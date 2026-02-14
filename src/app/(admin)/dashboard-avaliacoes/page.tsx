@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, Star, TrendingUp, BarChart3, Target, UserPlus, RefreshCw, ThumbsUp, ThumbsDown, Calendar, ArrowUp, ArrowDown, Minus } from 'lucide-react'
+import { Users, Star, TrendingUp, BarChart3, Target, UserPlus, RefreshCw, Calendar, ArrowUp, ArrowDown, Minus, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import {
   Chart as ChartJS,
@@ -36,6 +36,7 @@ type Avaliacao = {
   id: string
   atleta_id: string
   data_avaliacao: string
+  // CBF
   forca: number | null
   velocidade: number | null
   tecnica: number | null
@@ -44,6 +45,21 @@ type Avaliacao = {
   um_contra_um: number | null
   atitude: number | null
   potencial: number | null
+  // OFE
+  penetracao: number | null
+  cobertura_ofensiva: number | null
+  espaco_com_bola: number | null
+  espaco_sem_bola: number | null
+  mobilidade: number | null
+  unidade_ofensiva: number | null
+  // DEF
+  contencao: number | null
+  cobertura_defensiva: number | null
+  equilibrio_recuperacao: number | null
+  equilibrio_defensivo: number | null
+  concentracao_def: number | null
+  unidade_defensiva: number | null
+  // Outros
   pontos_fortes: string | null
   pontos_desenvolver: string | null
   observacoes: string | null
@@ -61,7 +77,8 @@ type Clube = {
   nome: string
 }
 
-type BenchmarkValues = {
+
+type BenchmarkValuesCBF = {
   forca: number
   velocidade: number
   tecnica: number
@@ -72,22 +89,63 @@ type BenchmarkValues = {
   potencial: number
 }
 
+type BenchmarkValuesOFE = {
+  penetracao: number
+  cobertura_ofensiva: number
+  espaco_com_bola: number
+  espaco_sem_bola: number
+  mobilidade: number
+  unidade_ofensiva: number
+}
+
+type BenchmarkValuesDEF = {
+  contencao: number
+  cobertura_defensiva: number
+  equilibrio_recuperacao: number
+  equilibrio_defensivo: number
+  concentracao_def: number
+  unidade_defensiva: number
+}
+
 type AtletaExterno = {
   nome: string
   posicao: string
-  valores: BenchmarkValues
+  valoresCBF: BenchmarkValuesCBF
+  valoresOFE: BenchmarkValuesOFE
+  valoresDEF: BenchmarkValuesDEF
 }
 
-const dimensoes = [
-  { key: 'forca', label: 'Forca', color: '#ef4444', icon: '💪' },
-  { key: 'velocidade', label: 'Velocidade', color: '#f97316', icon: '⚡' },
-  { key: 'tecnica', label: 'Tecnica', color: '#eab308', icon: '🎯' },
-  { key: 'dinamica', label: 'Dinamica', color: '#22c55e', icon: '🔄' },
-  { key: 'inteligencia', label: 'Inteligencia', color: '#06b6d4', icon: '🧠' },
-  { key: 'um_contra_um', label: '1 contra 1', color: '#3b82f6', icon: '⚔️' },
-  { key: 'atitude', label: 'Atitude', color: '#8b5cf6', icon: '🔥' },
-  { key: 'potencial', label: 'Potencial', color: '#ec4899', icon: '⭐' }
+const dimensoesCBF = [
+  { key: 'forca', label: 'Forca', shortLabel: 'FOR', color: '#ef4444', icon: '💪' },
+  { key: 'velocidade', label: 'Velocidade', shortLabel: 'VEL', color: '#f97316', icon: '⚡' },
+  { key: 'tecnica', label: 'Tecnica', shortLabel: 'TEC', color: '#eab308', icon: '🎯' },
+  { key: 'dinamica', label: 'Dinamica', shortLabel: 'DIN', color: '#22c55e', icon: '🔄' },
+  { key: 'inteligencia', label: 'Inteligencia', shortLabel: 'INT', color: '#06b6d4', icon: '🧠' },
+  { key: 'um_contra_um', label: '1 contra 1', shortLabel: '1v1', color: '#3b82f6', icon: '⚔️' },
+  { key: 'atitude', label: 'Atitude', shortLabel: 'ATI', color: '#8b5cf6', icon: '🔥' },
+  { key: 'potencial', label: 'Potencial', shortLabel: 'POT', color: '#ec4899', icon: '⭐' }
 ]
+
+const dimensoesOFE = [
+  { key: 'penetracao', label: 'Penetracao', shortLabel: 'PEN', color: '#22c55e', icon: '↗️' },
+  { key: 'cobertura_ofensiva', label: 'Cobertura Ofensiva', shortLabel: 'COF', color: '#22c55e', icon: '🔗' },
+  { key: 'espaco_com_bola', label: 'Espaco c/ Bola', shortLabel: 'ECB', color: '#22c55e', icon: '⚽' },
+  { key: 'espaco_sem_bola', label: 'Espaco s/ Bola', shortLabel: 'ESB', color: '#22c55e', icon: '👟' },
+  { key: 'mobilidade', label: 'Mobilidade', shortLabel: 'MOB', color: '#22c55e', icon: '🏃' },
+  { key: 'unidade_ofensiva', label: 'Unidade Ofensiva', shortLabel: 'UOF', color: '#22c55e', icon: '🎯' }
+]
+
+const dimensoesDEF = [
+  { key: 'contencao', label: 'Contencao', shortLabel: 'CON', color: '#ef4444', icon: '🛡️' },
+  { key: 'cobertura_defensiva', label: 'Cobertura Defensiva', shortLabel: 'CDF', color: '#ef4444', icon: '🔒' },
+  { key: 'equilibrio_recuperacao', label: 'Equilibrio Recup.', shortLabel: 'ERE', color: '#ef4444', icon: '⚖️' },
+  { key: 'equilibrio_defensivo', label: 'Equilibrio Def.', shortLabel: 'EDF', color: '#ef4444', icon: '🧱' },
+  { key: 'concentracao_def', label: 'Concentracao', shortLabel: 'CNC', color: '#ef4444', icon: '🎯' },
+  { key: 'unidade_defensiva', label: 'Unidade Defensiva', shortLabel: 'UDF', color: '#ef4444', icon: '🏰' }
+]
+
+// Todas as dimensoes combinadas
+const dimensoesGeral = [...dimensoesCBF, ...dimensoesOFE, ...dimensoesDEF]
 
 const posicoes = [
   'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro', 'Volante',
@@ -95,7 +153,7 @@ const posicoes = [
 ]
 
 // Benchmarks de referencia por posicao (valores ideais/esperados)
-const benchmarksPorPosicao: Record<string, BenchmarkValues> = {
+const benchmarksCBFPorPosicao: Record<string, BenchmarkValuesCBF> = {
   'Goleiro': { forca: 3.5, velocidade: 3.0, tecnica: 3.5, dinamica: 3.0, inteligencia: 4.0, um_contra_um: 4.0, atitude: 4.0, potencial: 3.5 },
   'Lateral Direito': { forca: 3.5, velocidade: 4.0, tecnica: 3.5, dinamica: 4.0, inteligencia: 3.5, um_contra_um: 3.5, atitude: 4.0, potencial: 3.5 },
   'Lateral Esquerdo': { forca: 3.5, velocidade: 4.0, tecnica: 3.5, dinamica: 4.0, inteligencia: 3.5, um_contra_um: 3.5, atitude: 4.0, potencial: 3.5 },
@@ -109,15 +167,71 @@ const benchmarksPorPosicao: Record<string, BenchmarkValues> = {
   'Atacante': { forca: 3.5, velocidade: 4.0, tecnica: 4.0, dinamica: 4.0, inteligencia: 3.5, um_contra_um: 4.0, atitude: 3.5, potencial: 4.0 }
 }
 
-const defaultBenchmark: BenchmarkValues = { forca: 3.5, velocidade: 3.5, tecnica: 3.5, dinamica: 3.5, inteligencia: 3.5, um_contra_um: 3.5, atitude: 3.5, potencial: 3.5 }
+const benchmarksOFEPorPosicao: Record<string, BenchmarkValuesOFE> = {
+  'Goleiro': { penetracao: 2.0, cobertura_ofensiva: 2.5, espaco_com_bola: 3.0, espaco_sem_bola: 2.0, mobilidade: 2.0, unidade_ofensiva: 3.0 },
+  'Lateral Direito': { penetracao: 4.0, cobertura_ofensiva: 3.5, espaco_com_bola: 3.5, espaco_sem_bola: 4.0, mobilidade: 4.0, unidade_ofensiva: 3.5 },
+  'Lateral Esquerdo': { penetracao: 4.0, cobertura_ofensiva: 3.5, espaco_com_bola: 3.5, espaco_sem_bola: 4.0, mobilidade: 4.0, unidade_ofensiva: 3.5 },
+  'Zagueiro': { penetracao: 2.5, cobertura_ofensiva: 3.0, espaco_com_bola: 3.0, espaco_sem_bola: 2.5, mobilidade: 2.5, unidade_ofensiva: 3.5 },
+  'Volante': { penetracao: 3.0, cobertura_ofensiva: 4.0, espaco_com_bola: 3.5, espaco_sem_bola: 3.5, mobilidade: 3.0, unidade_ofensiva: 4.0 },
+  'Meio-Campo': { penetracao: 3.5, cobertura_ofensiva: 4.0, espaco_com_bola: 4.0, espaco_sem_bola: 4.0, mobilidade: 3.5, unidade_ofensiva: 4.5 },
+  'Meia Atacante': { penetracao: 4.0, cobertura_ofensiva: 3.5, espaco_com_bola: 4.5, espaco_sem_bola: 4.0, mobilidade: 4.0, unidade_ofensiva: 4.0 },
+  'Ponta Direita': { penetracao: 4.5, cobertura_ofensiva: 3.0, espaco_com_bola: 4.0, espaco_sem_bola: 4.5, mobilidade: 4.5, unidade_ofensiva: 3.5 },
+  'Ponta Esquerda': { penetracao: 4.5, cobertura_ofensiva: 3.0, espaco_com_bola: 4.0, espaco_sem_bola: 4.5, mobilidade: 4.5, unidade_ofensiva: 3.5 },
+  'Centroavante': { penetracao: 4.5, cobertura_ofensiva: 3.0, espaco_com_bola: 3.5, espaco_sem_bola: 4.0, mobilidade: 4.5, unidade_ofensiva: 3.5 },
+  'Atacante': { penetracao: 4.5, cobertura_ofensiva: 3.0, espaco_com_bola: 4.0, espaco_sem_bola: 4.5, mobilidade: 4.5, unidade_ofensiva: 3.5 }
+}
 
-const calcularMediaBenchmark = (b: BenchmarkValues) => {
+const benchmarksDEFPorPosicao: Record<string, BenchmarkValuesDEF> = {
+  'Goleiro': { contencao: 4.0, cobertura_defensiva: 4.5, equilibrio_recuperacao: 3.5, equilibrio_defensivo: 4.0, concentracao_def: 4.5, unidade_defensiva: 4.0 },
+  'Lateral Direito': { contencao: 3.5, cobertura_defensiva: 3.5, equilibrio_recuperacao: 4.0, equilibrio_defensivo: 3.5, concentracao_def: 3.5, unidade_defensiva: 3.5 },
+  'Lateral Esquerdo': { contencao: 3.5, cobertura_defensiva: 3.5, equilibrio_recuperacao: 4.0, equilibrio_defensivo: 3.5, concentracao_def: 3.5, unidade_defensiva: 3.5 },
+  'Zagueiro': { contencao: 4.5, cobertura_defensiva: 4.5, equilibrio_recuperacao: 4.0, equilibrio_defensivo: 4.5, concentracao_def: 4.5, unidade_defensiva: 4.5 },
+  'Volante': { contencao: 4.0, cobertura_defensiva: 4.0, equilibrio_recuperacao: 4.0, equilibrio_defensivo: 4.0, concentracao_def: 4.0, unidade_defensiva: 4.5 },
+  'Meio-Campo': { contencao: 3.5, cobertura_defensiva: 3.5, equilibrio_recuperacao: 3.5, equilibrio_defensivo: 3.5, concentracao_def: 3.5, unidade_defensiva: 4.0 },
+  'Meia Atacante': { contencao: 3.0, cobertura_defensiva: 3.0, equilibrio_recuperacao: 3.5, equilibrio_defensivo: 3.0, concentracao_def: 3.0, unidade_defensiva: 3.5 },
+  'Ponta Direita': { contencao: 3.0, cobertura_defensiva: 3.0, equilibrio_recuperacao: 3.5, equilibrio_defensivo: 3.0, concentracao_def: 3.0, unidade_defensiva: 3.0 },
+  'Ponta Esquerda': { contencao: 3.0, cobertura_defensiva: 3.0, equilibrio_recuperacao: 3.5, equilibrio_defensivo: 3.0, concentracao_def: 3.0, unidade_defensiva: 3.0 },
+  'Centroavante': { contencao: 3.0, cobertura_defensiva: 2.5, equilibrio_recuperacao: 3.0, equilibrio_defensivo: 2.5, concentracao_def: 3.0, unidade_defensiva: 3.0 },
+  'Atacante': { contencao: 3.0, cobertura_defensiva: 2.5, equilibrio_recuperacao: 3.0, equilibrio_defensivo: 3.0, concentracao_def: 3.0, unidade_defensiva: 3.0 }
+}
+
+const defaultBenchmarkCBF: BenchmarkValuesCBF = { forca: 3.5, velocidade: 3.5, tecnica: 3.5, dinamica: 3.5, inteligencia: 3.5, um_contra_um: 3.5, atitude: 3.5, potencial: 3.5 }
+const defaultBenchmarkOFE: BenchmarkValuesOFE = { penetracao: 3.5, cobertura_ofensiva: 3.5, espaco_com_bola: 3.5, espaco_sem_bola: 3.5, mobilidade: 3.5, unidade_ofensiva: 3.5 }
+const defaultBenchmarkDEF: BenchmarkValuesDEF = { contencao: 3.5, cobertura_defensiva: 3.5, equilibrio_recuperacao: 3.5, equilibrio_defensivo: 3.5, concentracao_def: 3.5, unidade_defensiva: 3.5 }
+
+const calcularMediaBenchmarkCBF = (b: BenchmarkValuesCBF) => {
   return Object.values(b).reduce((a, v) => a + v, 0) / Object.values(b).length
 }
 
-const calcularMedia = (a: Avaliacao) => {
-  const valores = dimensoes.map(d => a[d.key as keyof Avaliacao] as number || 0)
-  return valores.reduce((acc, v) => acc + v, 0) / valores.length
+const calcularMediaBenchmarkOFE = (b: BenchmarkValuesOFE) => {
+  return Object.values(b).reduce((a, v) => a + v, 0) / Object.values(b).length
+}
+
+const calcularMediaBenchmarkDEF = (b: BenchmarkValuesDEF) => {
+  return Object.values(b).reduce((a, v) => a + v, 0) / Object.values(b).length
+}
+
+const calcularMediaCBF = (a: Avaliacao) => {
+  const valores = dimensoesCBF.map(d => a[d.key as keyof Avaliacao] as number || 0).filter(v => v > 0)
+  return valores.length > 0 ? valores.reduce((acc, v) => acc + v, 0) / valores.length : 0
+}
+
+const calcularMediaOFE = (a: Avaliacao) => {
+  const valores = dimensoesOFE.map(d => a[d.key as keyof Avaliacao] as number || 0).filter(v => v > 0)
+  return valores.length > 0 ? valores.reduce((acc, v) => acc + v, 0) / valores.length : 0
+}
+
+const calcularMediaDEF = (a: Avaliacao) => {
+  const valores = dimensoesDEF.map(d => a[d.key as keyof Avaliacao] as number || 0).filter(v => v > 0)
+  return valores.length > 0 ? valores.reduce((acc, v) => acc + v, 0) / valores.length : 0
+}
+
+const calcularMediaGeral = (a: Avaliacao) => {
+  const cbf = calcularMediaCBF(a)
+  const ofe = calcularMediaOFE(a)
+  const def = calcularMediaDEF(a)
+  const count = (cbf > 0 ? 1 : 0) + (ofe > 0 ? 1 : 0) + (def > 0 ? 1 : 0)
+  return count > 0 ? (cbf + ofe + def) / count : 0
 }
 
 export default function DashboardAvaliacoesPage() {
@@ -130,8 +244,11 @@ export default function DashboardAvaliacoesPage() {
   const [atletaExterno, setAtletaExterno] = useState<AtletaExterno>({
     nome: '',
     posicao: '',
-    valores: { ...defaultBenchmark }
+    valoresCBF: { ...defaultBenchmarkCBF },
+    valoresOFE: { ...defaultBenchmarkOFE },
+    valoresDEF: { ...defaultBenchmarkDEF }
   })
+  const [activeTab, setActiveTab] = useState<'geral' | 'cbf' | 'ofe' | 'def'>('geral')
   const supabase = createClient()
 
   useEffect(() => {
@@ -187,19 +304,30 @@ export default function DashboardAvaliacoesPage() {
     return atletasComAvaliacao.find(a => a.atleta?.id === atletaSelecionado)
   }, [atletasComAvaliacao, atletaSelecionado])
 
-  // Benchmark para a posicao do atleta selecionado
-  const benchmarkAtual = useMemo(() => {
-    if (!atletaAtual?.atleta?.posicao) return defaultBenchmark
-    return benchmarksPorPosicao[atletaAtual.atleta.posicao] || defaultBenchmark
+
+  // Benchmarks para a posicao do atleta selecionado
+  const benchmarkAtualCBF = useMemo(() => {
+    if (!atletaAtual?.atleta?.posicao) return defaultBenchmarkCBF
+    return benchmarksCBFPorPosicao[atletaAtual.atleta.posicao] || defaultBenchmarkCBF
   }, [atletaAtual])
 
-  // Calcular diferenca do atleta em relacao ao benchmark
-  const analiseDetalhada = useMemo(() => {
+  const benchmarkAtualOFE = useMemo(() => {
+    if (!atletaAtual?.atleta?.posicao) return defaultBenchmarkOFE
+    return benchmarksOFEPorPosicao[atletaAtual.atleta.posicao] || defaultBenchmarkOFE
+  }, [atletaAtual])
+
+  const benchmarkAtualDEF = useMemo(() => {
+    if (!atletaAtual?.atleta?.posicao) return defaultBenchmarkDEF
+    return benchmarksDEFPorPosicao[atletaAtual.atleta.posicao] || defaultBenchmarkDEF
+  }, [atletaAtual])
+
+  // Calcular diferenca do atleta em relacao ao benchmark (por categoria)
+  const analiseDetalhadaCBF = useMemo(() => {
     if (!atletaAtual) return null
 
-    const analise = dimensoes.map(d => {
+    const analise = dimensoesCBF.map(d => {
       const valorAtleta = atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0
-      const valorBenchmark = benchmarkAtual[d.key as keyof BenchmarkValues]
+      const valorBenchmark = benchmarkAtualCBF[d.key as keyof BenchmarkValuesCBF]
       const diferenca = valorAtleta - valorBenchmark
       return {
         ...d,
@@ -212,74 +340,177 @@ export default function DashboardAvaliacoesPage() {
 
     const pontosFortes = analise.filter(a => a.status === 'acima').sort((a, b) => b.diferenca - a.diferenca)
     const pontosADesenvolver = analise.filter(a => a.status === 'abaixo').sort((a, b) => a.diferenca - b.diferenca)
-    const dentroDaMedia = analise.filter(a => a.status === 'dentro')
 
-    const mediaAtleta = calcularMedia(atletaAtual.avaliacao)
-    const mediaBenchmark = calcularMediaBenchmark(benchmarkAtual)
+    const mediaAtleta = calcularMediaCBF(atletaAtual.avaliacao)
+    const mediaBenchmark = calcularMediaBenchmarkCBF(benchmarkAtualCBF)
 
-    return {
-      dimensoes: analise,
-      pontosFortes,
-      pontosADesenvolver,
-      dentroDaMedia,
-      mediaAtleta,
-      mediaBenchmark,
-      diferencaMedia: mediaAtleta - mediaBenchmark
+    return { dimensoes: analise, pontosFortes, pontosADesenvolver, mediaAtleta, mediaBenchmark, diferencaMedia: mediaAtleta - mediaBenchmark }
+  }, [atletaAtual, benchmarkAtualCBF])
+
+  const analiseDetalhadaOFE = useMemo(() => {
+    if (!atletaAtual) return null
+
+    const analise = dimensoesOFE.map(d => {
+      const valorAtleta = atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0
+      const valorBenchmark = benchmarkAtualOFE[d.key as keyof BenchmarkValuesOFE]
+      const diferenca = valorAtleta - valorBenchmark
+      return {
+        ...d,
+        valor: valorAtleta,
+        benchmark: valorBenchmark,
+        diferenca,
+        status: diferenca >= 0.5 ? 'acima' : diferenca <= -0.5 ? 'abaixo' : 'dentro'
+      }
+    })
+
+    const pontosFortes = analise.filter(a => a.status === 'acima').sort((a, b) => b.diferenca - a.diferenca)
+    const pontosADesenvolver = analise.filter(a => a.status === 'abaixo').sort((a, b) => a.diferenca - b.diferenca)
+
+    const mediaAtleta = calcularMediaOFE(atletaAtual.avaliacao)
+    const mediaBenchmark = calcularMediaBenchmarkOFE(benchmarkAtualOFE)
+
+    return { dimensoes: analise, pontosFortes, pontosADesenvolver, mediaAtleta, mediaBenchmark, diferencaMedia: mediaAtleta - mediaBenchmark }
+  }, [atletaAtual, benchmarkAtualOFE])
+
+  const analiseDetalhadaDEF = useMemo(() => {
+    if (!atletaAtual) return null
+
+    const analise = dimensoesDEF.map(d => {
+      const valorAtleta = atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0
+      const valorBenchmark = benchmarkAtualDEF[d.key as keyof BenchmarkValuesDEF]
+      const diferenca = valorAtleta - valorBenchmark
+      return {
+        ...d,
+        valor: valorAtleta,
+        benchmark: valorBenchmark,
+        diferenca,
+        status: diferenca >= 0.5 ? 'acima' : diferenca <= -0.5 ? 'abaixo' : 'dentro'
+      }
+    })
+
+    const pontosFortes = analise.filter(a => a.status === 'acima').sort((a, b) => b.diferenca - a.diferenca)
+    const pontosADesenvolver = analise.filter(a => a.status === 'abaixo').sort((a, b) => a.diferenca - b.diferenca)
+
+    const mediaAtleta = calcularMediaDEF(atletaAtual.avaliacao)
+    const mediaBenchmark = calcularMediaBenchmarkDEF(benchmarkAtualDEF)
+
+    return { dimensoes: analise, pontosFortes, pontosADesenvolver, mediaAtleta, mediaBenchmark, diferencaMedia: mediaAtleta - mediaBenchmark }
+  }, [atletaAtual, benchmarkAtualDEF])
+
+  // Analise detalhada GERAL (combina todas)
+  const analiseDetalhadaGeral = useMemo(() => {
+    if (!atletaAtual) return null
+
+    // Funcao para obter benchmark de qualquer dimensao
+    const getBenchmarkValue = (key: string) => {
+      if (key in benchmarkAtualCBF) return (benchmarkAtualCBF as Record<string, number>)[key]
+      if (key in benchmarkAtualOFE) return (benchmarkAtualOFE as Record<string, number>)[key]
+      if (key in benchmarkAtualDEF) return (benchmarkAtualDEF as Record<string, number>)[key]
+      return 3.5
     }
-  }, [atletaAtual, benchmarkAtual])
 
-  // Dados do radar comparativo
+    const analise = dimensoesGeral.map(d => {
+      const valorAtleta = atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0
+      const valorBenchmark = getBenchmarkValue(d.key)
+      const diferenca = valorAtleta - valorBenchmark
+      return {
+        ...d,
+        valor: valorAtleta,
+        benchmark: valorBenchmark,
+        diferenca,
+        status: diferenca >= 0.5 ? 'acima' : diferenca <= -0.5 ? 'abaixo' : 'dentro'
+      }
+    })
+
+    const pontosFortes = analise.filter(a => a.status === 'acima' && a.valor > 0).sort((a, b) => b.diferenca - a.diferenca)
+    const pontosADesenvolver = analise.filter(a => a.status === 'abaixo' && a.valor > 0).sort((a, b) => a.diferenca - b.diferenca)
+
+    // Media geral (somente valores preenchidos)
+    const valoresPreenchidos = analise.filter(a => a.valor > 0)
+    const mediaAtleta = valoresPreenchidos.length > 0 ? valoresPreenchidos.reduce((acc, a) => acc + a.valor, 0) / valoresPreenchidos.length : 0
+    const mediaBenchmark = valoresPreenchidos.length > 0 ? valoresPreenchidos.reduce((acc, a) => acc + a.benchmark, 0) / valoresPreenchidos.length : 0
+
+    return { dimensoes: analise, pontosFortes, pontosADesenvolver, mediaAtleta, mediaBenchmark, diferencaMedia: mediaAtleta - mediaBenchmark }
+  }, [atletaAtual, benchmarkAtualCBF, benchmarkAtualOFE, benchmarkAtualDEF])
+
+  // Analise atual baseada na tab selecionada
+  const analiseDetalhada = activeTab === 'geral' ? analiseDetalhadaGeral : activeTab === 'cbf' ? analiseDetalhadaCBF : activeTab === 'ofe' ? analiseDetalhadaOFE : analiseDetalhadaDEF
+  const dimensoesAtivas = activeTab === 'geral' ? dimensoesGeral : activeTab === 'cbf' ? dimensoesCBF : activeTab === 'ofe' ? dimensoesOFE : dimensoesDEF
+
+  // Dados do radar comparativo (baseado na tab ativa)
   const radarData = useMemo(() => {
     const datasets = []
+    const dims = activeTab === 'geral' ? dimensoesGeral : activeTab === 'cbf' ? dimensoesCBF : activeTab === 'ofe' ? dimensoesOFE : dimensoesDEF
+    const corPrincipal = activeTab === 'geral' ? 'rgba(59, 130, 246, 1)' : activeTab === 'cbf' ? 'rgba(245, 158, 11, 1)' : activeTab === 'ofe' ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
+    const corBg = activeTab === 'geral' ? 'rgba(59, 130, 246, 0.2)' : activeTab === 'cbf' ? 'rgba(245, 158, 11, 0.2)' : activeTab === 'ofe' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+
+    // Combinar benchmarks para GERAL
+    const getBenchmarkValue = (key: string) => {
+      if (key in benchmarkAtualCBF) return (benchmarkAtualCBF as Record<string, number>)[key]
+      if (key in benchmarkAtualOFE) return (benchmarkAtualOFE as Record<string, number>)[key]
+      if (key in benchmarkAtualDEF) return (benchmarkAtualDEF as Record<string, number>)[key]
+      return 3.5
+    }
 
     if (atletaAtual) {
       datasets.push({
         label: atletaAtual.atleta?.nome || 'Atleta',
-        data: dimensoes.map(d => atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0),
-        backgroundColor: 'rgba(245, 158, 11, 0.2)',
-        borderColor: 'rgba(245, 158, 11, 1)',
+        data: dims.map(d => atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0),
+        backgroundColor: corBg,
+        borderColor: corPrincipal,
         borderWidth: 2,
-        pointBackgroundColor: 'rgba(245, 158, 11, 1)'
+        pointBackgroundColor: corPrincipal
       })
 
       datasets.push({
         label: `Benchmark (${atletaAtual.atleta?.posicao || 'Geral'})`,
-        data: dimensoes.map(d => benchmarkAtual[d.key as keyof BenchmarkValues]),
+        data: dims.map(d => getBenchmarkValue(d.key)),
         backgroundColor: 'rgba(100, 116, 139, 0.1)',
-        borderColor: 'rgba(148, 163, 184, 0.8)',
+        borderColor: 'rgba(148, 163, 184, 0.6)',
         borderWidth: 2,
         borderDash: [5, 5],
-        pointBackgroundColor: 'rgba(148, 163, 184, 0.8)'
+        pointBackgroundColor: 'rgba(148, 163, 184, 0.6)'
       })
     }
 
-    if (mostrarAtletaExterno && atletaExterno.nome) {
+    if (mostrarAtletaExterno && atletaExterno.nome && activeTab !== 'geral') {
+      const externoValores = activeTab === 'cbf' ? atletaExterno.valoresCBF : activeTab === 'ofe' ? atletaExterno.valoresOFE : atletaExterno.valoresDEF
       datasets.push({
         label: atletaExterno.nome,
-        data: dimensoes.map(d => atletaExterno.valores[d.key as keyof BenchmarkValues]),
-        backgroundColor: 'rgba(34, 197, 94, 0.2)',
-        borderColor: 'rgba(34, 197, 94, 1)',
+        data: dims.map(d => (externoValores as Record<string, number>)[d.key]),
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: 'rgba(59, 130, 246, 1)',
         borderWidth: 2,
-        pointBackgroundColor: 'rgba(34, 197, 94, 1)'
+        pointBackgroundColor: 'rgba(59, 130, 246, 1)'
       })
     }
 
-    return { labels: dimensoes.map(d => d.label), datasets }
-  }, [atletaAtual, benchmarkAtual, mostrarAtletaExterno, atletaExterno])
+    return { labels: dims.map(d => d.shortLabel), datasets }
+  }, [atletaAtual, benchmarkAtualCBF, benchmarkAtualOFE, benchmarkAtualDEF, mostrarAtletaExterno, atletaExterno, activeTab])
 
-  // Grafico de barras comparativo (atleta vs benchmark)
+  // Grafico de barras comparativo (atleta vs benchmark) baseado na tab ativa
   const barComparativoData = useMemo(() => {
     if (!atletaAtual) return { labels: [], datasets: [] }
 
+    const dims = activeTab === 'geral' ? dimensoesGeral : activeTab === 'cbf' ? dimensoesCBF : activeTab === 'ofe' ? dimensoesOFE : dimensoesDEF
+
+    // Funcao para obter benchmark de qualquer dimensao
+    const getBenchmarkValue = (key: string) => {
+      if (key in benchmarkAtualCBF) return (benchmarkAtualCBF as Record<string, number>)[key]
+      if (key in benchmarkAtualOFE) return (benchmarkAtualOFE as Record<string, number>)[key]
+      if (key in benchmarkAtualDEF) return (benchmarkAtualDEF as Record<string, number>)[key]
+      return 3.5
+    }
+
     return {
-      labels: dimensoes.map(d => d.label),
+      labels: dims.map(d => d.shortLabel),
       datasets: [
         {
           label: 'Atleta',
-          data: dimensoes.map(d => atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0),
-          backgroundColor: dimensoes.map(d => {
+          data: dims.map(d => atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0),
+          backgroundColor: dims.map(d => {
             const valor = atletaAtual.avaliacao[d.key as keyof Avaliacao] as number || 0
-            const bench = benchmarkAtual[d.key as keyof BenchmarkValues]
+            const bench = getBenchmarkValue(d.key)
             if (valor >= bench + 0.5) return 'rgba(34, 197, 94, 0.8)'
             if (valor <= bench - 0.5) return 'rgba(249, 115, 22, 0.8)'
             return 'rgba(59, 130, 246, 0.8)'
@@ -288,17 +519,21 @@ export default function DashboardAvaliacoesPage() {
         },
         {
           label: 'Benchmark',
-          data: dimensoes.map(d => benchmarkAtual[d.key as keyof BenchmarkValues]),
+          data: dims.map(d => getBenchmarkValue(d.key)),
           backgroundColor: 'rgba(100, 116, 139, 0.4)',
           borderWidth: 0
         }
       ]
     }
-  }, [atletaAtual, benchmarkAtual])
+  }, [atletaAtual, benchmarkAtualCBF, benchmarkAtualOFE, benchmarkAtualDEF, activeTab])
 
-  // Grafico de evolucao (historico)
+  // Grafico de evolucao (historico) baseado na tab ativa
   const evolucaoData = useMemo(() => {
     if (avaliacoesDoAtleta.length < 2) return null
+
+    const calcFunc = activeTab === 'geral' ? calcularMediaGeral : activeTab === 'cbf' ? calcularMediaCBF : activeTab === 'ofe' ? calcularMediaOFE : calcularMediaDEF
+    const cor = activeTab === 'geral' ? 'rgba(59, 130, 246, 1)' : activeTab === 'cbf' ? 'rgba(245, 158, 11, 1)' : activeTab === 'ofe' ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
+    const corBg = activeTab === 'geral' ? 'rgba(59, 130, 246, 0.1)' : activeTab === 'cbf' ? 'rgba(245, 158, 11, 0.1)' : activeTab === 'ofe' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'
 
     return {
       labels: avaliacoesDoAtleta.map(a => {
@@ -307,24 +542,42 @@ export default function DashboardAvaliacoesPage() {
       }),
       datasets: [
         {
-          label: 'Media Geral',
-          data: avaliacoesDoAtleta.map(a => calcularMedia(a)),
-          borderColor: 'rgba(245, 158, 11, 1)',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          label: activeTab === 'geral' ? 'Media Geral' : activeTab === 'cbf' ? 'Media CBF' : activeTab === 'ofe' ? 'Media OFE' : 'Media DEF',
+          data: avaliacoesDoAtleta.map(a => calcFunc(a)),
+          borderColor: cor,
+          backgroundColor: corBg,
           tension: 0.3,
           fill: true
         }
       ]
     }
-  }, [avaliacoesDoAtleta])
+  }, [avaliacoesDoAtleta, activeTab])
 
-  // Media por posicao (visao geral)
+  // Media por posicao (visao geral) baseada na tab ativa
   const mediaPorPosicao = useMemo(() => {
     const posicaoMap = new Map<string, number[]>()
+    const calcFunc = activeTab === 'geral' ? calcularMediaGeral : activeTab === 'cbf' ? calcularMediaCBF : activeTab === 'ofe' ? calcularMediaOFE : calcularMediaDEF
+
+    // Funcao para calcular benchmark combinado por posicao
+    const calcBenchmarkPorPosicao = (posicao: string) => {
+      if (activeTab === 'geral') {
+        const cbf = calcularMediaBenchmarkCBF(benchmarksCBFPorPosicao[posicao] || defaultBenchmarkCBF)
+        const ofe = calcularMediaBenchmarkOFE(benchmarksOFEPorPosicao[posicao] || defaultBenchmarkOFE)
+        const def = calcularMediaBenchmarkDEF(benchmarksDEFPorPosicao[posicao] || defaultBenchmarkDEF)
+        return (cbf + ofe + def) / 3
+      } else if (activeTab === 'cbf') {
+        return calcularMediaBenchmarkCBF(benchmarksCBFPorPosicao[posicao] || defaultBenchmarkCBF)
+      } else if (activeTab === 'ofe') {
+        return calcularMediaBenchmarkOFE(benchmarksOFEPorPosicao[posicao] || defaultBenchmarkOFE)
+      } else {
+        return calcularMediaBenchmarkDEF(benchmarksDEFPorPosicao[posicao] || defaultBenchmarkDEF)
+      }
+    }
 
     atletasComAvaliacao.forEach(({ atleta, avaliacao }) => {
       if (!atleta?.posicao) return
-      const media = calcularMedia(avaliacao)
+      const media = calcFunc(avaliacao)
+      if (media === 0) return // Pular se nao tiver dados
       if (!posicaoMap.has(atleta.posicao)) {
         posicaoMap.set(atleta.posicao, [])
       }
@@ -335,29 +588,34 @@ export default function DashboardAvaliacoesPage() {
       posicao,
       media: medias.reduce((a, b) => a + b, 0) / medias.length,
       count: medias.length,
-      benchmark: calcularMediaBenchmark(benchmarksPorPosicao[posicao] || defaultBenchmark)
+      benchmark: calcBenchmarkPorPosicao(posicao)
     })).sort((a, b) => b.media - a.media)
-  }, [atletasComAvaliacao])
+  }, [atletasComAvaliacao, activeTab])
 
-  const barPosicaoData = useMemo(() => ({
-    labels: mediaPorPosicao.map(p => p.posicao),
-    datasets: [
-      {
-        label: 'Media dos Atletas',
-        data: mediaPorPosicao.map(p => p.media),
-        backgroundColor: 'rgba(245, 158, 11, 0.7)',
-        borderColor: 'rgba(245, 158, 11, 1)',
-        borderWidth: 1
-      },
-      {
-        label: 'Benchmark',
-        data: mediaPorPosicao.map(p => p.benchmark),
-        backgroundColor: 'rgba(100, 116, 139, 0.5)',
-        borderColor: 'rgba(148, 163, 184, 1)',
-        borderWidth: 1
-      }
-    ]
-  }), [mediaPorPosicao])
+  const barPosicaoData = useMemo(() => {
+    const cor = activeTab === 'geral' ? 'rgba(59, 130, 246, 0.7)' : activeTab === 'cbf' ? 'rgba(245, 158, 11, 0.7)' : activeTab === 'ofe' ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)'
+    const corBorder = activeTab === 'geral' ? 'rgba(59, 130, 246, 1)' : activeTab === 'cbf' ? 'rgba(245, 158, 11, 1)' : activeTab === 'ofe' ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'
+
+    return {
+      labels: mediaPorPosicao.map(p => p.posicao),
+      datasets: [
+        {
+          label: 'Media dos Atletas',
+          data: mediaPorPosicao.map(p => p.media),
+          backgroundColor: cor,
+          borderColor: corBorder,
+          borderWidth: 1
+        },
+        {
+          label: 'Benchmark',
+          data: mediaPorPosicao.map(p => p.benchmark),
+          backgroundColor: 'rgba(100, 116, 139, 0.4)',
+          borderColor: 'rgba(148, 163, 184, 0.8)',
+          borderWidth: 1
+        }
+      ]
+    }
+  }, [mediaPorPosicao, activeTab])
 
   const radarOptions = {
     responsive: true,
@@ -366,14 +624,14 @@ export default function DashboardAvaliacoesPage() {
       r: {
         min: 0,
         max: 5,
-        ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8' },
-        pointLabels: { font: { size: 11 }, color: '#e2e8f0' },
-        grid: { color: '#334155' },
-        angleLines: { color: '#334155' }
+        ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8', backdropColor: 'transparent' },
+        pointLabels: { font: { size: 11, weight: 'bold' as const }, color: '#e2e8f0' },
+        grid: { color: 'rgba(148, 163, 184, 0.2)' },
+        angleLines: { color: 'rgba(148, 163, 184, 0.2)' }
       }
     },
     plugins: {
-      legend: { position: 'bottom' as const, labels: { boxWidth: 12, padding: 15, color: '#e2e8f0' } }
+      legend: { position: 'bottom' as const, labels: { boxWidth: 12, padding: 15, color: '#e2e8f0', font: { weight: 'bold' as const } } }
     }
   }
 
@@ -382,8 +640,8 @@ export default function DashboardAvaliacoesPage() {
     maintainAspectRatio: false,
     indexAxis: 'y' as const,
     scales: {
-      x: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: '#334155' } },
-      y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+      x: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+      y: { ticks: { color: '#e2e8f0', font: { weight: 'bold' as const } }, grid: { display: false } }
     },
     plugins: {
       legend: { position: 'bottom' as const, labels: { boxWidth: 12, color: '#e2e8f0' } }
@@ -394,11 +652,11 @@ export default function DashboardAvaliacoesPage() {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: '#334155' } },
-      x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+      y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+      x: { ticks: { color: '#e2e8f0', font: { weight: 'bold' as const, size: 11 } }, grid: { display: false } }
     },
     plugins: {
-      legend: { position: 'bottom' as const, labels: { boxWidth: 12, color: '#e2e8f0' } }
+      legend: { position: 'bottom' as const, labels: { boxWidth: 12, color: '#e2e8f0', font: { weight: 'bold' as const } } }
     }
   }
 
@@ -406,18 +664,32 @@ export default function DashboardAvaliacoesPage() {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: '#334155' } },
-      x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+      y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+      x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
     },
     plugins: {
       legend: { display: false }
     }
   }
 
-  const handleExternoChange = (key: keyof BenchmarkValues, value: number) => {
+  const handleExternoCBFChange = (key: keyof BenchmarkValuesCBF, value: number) => {
     setAtletaExterno(prev => ({
       ...prev,
-      valores: { ...prev.valores, [key]: value }
+      valoresCBF: { ...prev.valoresCBF, [key]: value }
+    }))
+  }
+
+  const handleExternoOFEChange = (key: keyof BenchmarkValuesOFE, value: number) => {
+    setAtletaExterno(prev => ({
+      ...prev,
+      valoresOFE: { ...prev.valoresOFE, [key]: value }
+    }))
+  }
+
+  const handleExternoDEFChange = (key: keyof BenchmarkValuesDEF, value: number) => {
+    setAtletaExterno(prev => ({
+      ...prev,
+      valoresDEF: { ...prev.valoresDEF, [key]: value }
     }))
   }
 
@@ -439,15 +711,17 @@ export default function DashboardAvaliacoesPage() {
         </div>
         <Link
           href="/avaliacoes/nova"
-          className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-xl font-medium hover:bg-amber-600 transition-colors"
+          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors"
         >
-          <Star className="w-5 h-5" />
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#f59e0b" stroke="#0f172a" strokeWidth="1">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
           Nova Avaliacao
         </Link>
       </div>
 
       {/* Filtros e Selecao */}
-      <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-6">
+      <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-1">Filtrar por Clube</label>
@@ -480,13 +754,71 @@ export default function DashboardAvaliacoesPage() {
         </div>
       </div>
 
+      {/* Tabs GERAL / CBF / OFE / DEF */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setActiveTab('geral')}
+          style={activeTab === 'geral' ? { backgroundColor: '#3b82f6', color: '#ffffff' } : {}}
+          className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-medium transition-all shadow-lg ${
+            activeTab === 'geral'
+              ? ''
+              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700'
+          }`}
+        >
+          <span className="text-lg">📊</span>
+          <span className="hidden sm:inline">GERAL (20)</span>
+          <span className="sm:hidden">GERAL</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('cbf')}
+          style={activeTab === 'cbf' ? { backgroundColor: '#f59e0b', color: '#0f172a' } : {}}
+          className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-medium transition-all shadow-lg ${
+            activeTab === 'cbf'
+              ? ''
+              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700'
+          }`}
+        >
+          <span className="text-lg">⚽</span>
+          <span className="hidden sm:inline">CBF (8)</span>
+          <span className="sm:hidden">CBF</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('ofe')}
+          style={activeTab === 'ofe' ? { backgroundColor: '#22c55e', color: '#0f172a' } : {}}
+          className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-medium transition-all shadow-lg ${
+            activeTab === 'ofe'
+              ? ''
+              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700'
+          }`}
+        >
+          <span className="text-lg">↗️</span>
+          <span className="hidden sm:inline">OFE (6)</span>
+          <span className="sm:hidden">OFE</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('def')}
+          style={activeTab === 'def' ? { backgroundColor: '#ef4444', color: '#0f172a' } : {}}
+          className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-medium transition-all shadow-lg ${
+            activeTab === 'def'
+              ? ''
+              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700'
+          }`}
+        >
+          <span className="text-lg">🛡️</span>
+          <span className="hidden sm:inline">DEF (6)</span>
+          <span className="sm:hidden">DEF</span>
+        </button>
+      </div>
+
       {!atletaSelecionado ? (
         <>
           {/* Estado inicial - mostrar visao geral */}
           <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <Target className="w-5 h-5 text-amber-500" />
-              <h3 className="text-lg font-semibold text-slate-100">Comparativo por Posicao</h3>
+              <Target className={`w-5 h-5 ${activeTab === 'geral' ? 'text-blue-500' : activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`} />
+              <h3 className="text-lg font-semibold text-slate-100">
+                Comparativo por Posicao - {activeTab === 'geral' ? 'Visao Geral' : activeTab === 'cbf' ? 'Dimensoes CBF' : activeTab === 'ofe' ? 'Principios Ofensivos' : 'Principios Defensivos'}
+              </h3>
             </div>
             <p className="text-sm text-slate-400 mb-4">
               Media dos seus atletas avaliados comparada com o benchmark de referencia para cada posicao
@@ -550,8 +882,10 @@ export default function DashboardAvaliacoesPage() {
                 </div>
                 <div className="flex gap-4 sm:gap-6">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-amber-500">{analiseDetalhada.mediaAtleta.toFixed(1)}</p>
-                    <p className="text-xs text-slate-400">Media</p>
+                    <p className={`text-3xl font-bold ${activeTab === 'geral' ? 'text-blue-500' : activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`}>
+                      {analiseDetalhada.mediaAtleta.toFixed(1)}
+                    </p>
+                    <p className="text-xs text-slate-400">Media {activeTab === 'geral' ? 'Geral' : activeTab.toUpperCase()}</p>
                   </div>
                   <div className="text-center">
                     <p className={`text-2xl font-bold ${analiseDetalhada.diferencaMedia >= 0 ? 'text-green-400' : 'text-orange-400'}`}>
@@ -564,83 +898,137 @@ export default function DashboardAvaliacoesPage() {
             </div>
           )}
 
-          {/* Pontos Fortes e A Desenvolver */}
+          {/* Pontos Fortes e A Desenvolver - Design Futurista Compacto */}
           {analiseDetalhada && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {/* Pontos Fortes */}
-              <div className="bg-green-900/30 rounded-2xl p-5 border border-green-800/50">
-                <div className="flex items-center gap-2 mb-3">
-                  <ThumbsUp className="w-5 h-5 text-green-400" />
-                  <h3 className="font-semibold text-green-300">Pontos Fortes</h3>
-                  <span className="text-xs bg-green-800/50 text-green-300 px-2 py-0.5 rounded-full ml-auto">
-                    {analiseDetalhada.pontosFortes.length} dimensao(oes)
-                  </span>
-                </div>
-                {analiseDetalhada.pontosFortes.length > 0 ? (
-                  <div className="space-y-2">
-                    {analiseDetalhada.pontosFortes.map(p => (
-                      <div key={p.key} className="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2">
-                        <span className="text-sm text-slate-300">{p.icon} {p.label}</span>
-                        <span className="font-bold text-green-400">{p.valor.toFixed(1)} <span className="text-xs font-normal">(+{p.diferenca.toFixed(1)})</span></span>
+              <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/80 via-slate-900/90 to-slate-900/80 backdrop-blur-sm">
+                {/* Glow effect */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+
+                <div className="relative p-5">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                        <span className="text-lg">💪</span>
                       </div>
-                    ))}
+                      <div>
+                        <h3 className="font-bold text-emerald-100 tracking-wide">PONTOS FORTES</h3>
+                        <p className="text-xs text-emerald-400/70">Acima do benchmark</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+                      <span className="text-xl font-black text-emerald-400">{analiseDetalhada.pontosFortes.length}</span>
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-sm text-green-400">Nenhuma dimensao acima do benchmark</p>
-                )}
+
+                  {/* Grid de Chips */}
+                  {analiseDetalhada.pontosFortes.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {analiseDetalhada.pontosFortes.map((p) => (
+                        <div
+                          key={p.key}
+                          className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/60 border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all cursor-default"
+                        >
+                          <span className="text-base">{p.icon}</span>
+                          <span className="text-sm font-medium text-slate-200">{p.label}</span>
+                          <div className="flex items-center gap-1 pl-1 border-l border-emerald-500/30">
+                            <span className="text-sm font-bold text-emerald-400">{p.valor.toFixed(1)}</span>
+                            <span className="text-xs text-emerald-500 font-semibold">+{p.diferenca.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-6 text-emerald-400/50">
+                      <span className="text-2xl mr-2 opacity-50">💪</span>
+                      <p className="text-sm">Nenhuma dimensao acima</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Pontos a Desenvolver */}
-              <div className="bg-orange-900/30 rounded-2xl p-5 border border-orange-800/50">
-                <div className="flex items-center gap-2 mb-3">
-                  <ThumbsDown className="w-5 h-5 text-orange-400" />
-                  <h3 className="font-semibold text-orange-300">Pontos a Desenvolver</h3>
-                  <span className="text-xs bg-orange-800/50 text-orange-300 px-2 py-0.5 rounded-full ml-auto">
-                    {analiseDetalhada.pontosADesenvolver.length} dimensao(oes)
-                  </span>
-                </div>
-                {analiseDetalhada.pontosADesenvolver.length > 0 ? (
-                  <div className="space-y-2">
-                    {analiseDetalhada.pontosADesenvolver.map(p => (
-                      <div key={p.key} className="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2">
-                        <span className="text-sm text-slate-300">{p.icon} {p.label}</span>
-                        <span className="font-bold text-orange-400">{p.valor.toFixed(1)} <span className="text-xs font-normal">({p.diferenca.toFixed(1)})</span></span>
+              <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/80 via-slate-900/90 to-slate-900/80 backdrop-blur-sm">
+                {/* Glow effect */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+
+                <div className="relative p-5">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                        <TrendingUp className="w-5 h-5 text-white" />
                       </div>
-                    ))}
+                      <div>
+                        <h3 className="font-bold text-amber-100 tracking-wide">A DESENVOLVER</h3>
+                        <p className="text-xs text-amber-400/70">Potencial de evolucao</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30">
+                      <span className="text-xl font-black text-amber-400">{analiseDetalhada.pontosADesenvolver.length}</span>
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-sm text-orange-400">Nenhuma dimensao abaixo do benchmark</p>
-                )}
+
+                  {/* Grid de Chips */}
+                  {analiseDetalhada.pontosADesenvolver.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {analiseDetalhada.pontosADesenvolver.map((p) => (
+                        <div
+                          key={p.key}
+                          className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800/60 border border-amber-500/20 hover:border-amber-500/50 hover:bg-slate-800/80 transition-all cursor-default"
+                        >
+                          <span className="text-base">{p.icon}</span>
+                          <span className="text-sm font-medium text-slate-200">{p.label}</span>
+                          <div className="flex items-center gap-1 pl-1 border-l border-amber-500/30">
+                            <span className="text-sm font-bold text-amber-400">{p.valor.toFixed(1)}</span>
+                            <span className="text-xs text-amber-500 font-semibold">{p.diferenca.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-6 text-amber-400/50">
+                      <TrendingUp className="w-6 h-6 mr-2 opacity-50" />
+                      <p className="text-sm">Nenhuma dimensao abaixo</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
 
           {/* Graficos Principais */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Radar Comparativo */}
-            <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
-              <div className="flex items-center gap-2 mb-4">
-                <Target className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-semibold text-slate-100">Radar Comparativo</h3>
+            <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700">
+              <div className="flex items-center gap-2 mb-3">
+                <Target className={`w-5 h-5 ${activeTab === 'geral' ? 'text-blue-500' : activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`} />
+                <h3 className="text-base font-semibold text-slate-100">
+                  Radar {activeTab === 'geral' ? 'Completo' : activeTab === 'cbf' ? 'CBF' : activeTab === 'ofe' ? 'Ofensivo' : 'Defensivo'}
+                </h3>
               </div>
-              <div className="h-[320px]">
+              <div className={activeTab === 'geral' ? 'h-[320px]' : 'h-[280px]'}>
                 <Radar data={radarData} options={radarOptions} />
               </div>
             </div>
 
             {/* Barras Comparativas */}
-            <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
-              <div className="flex items-center gap-2 mb-4">
-                <BarChart3 className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-semibold text-slate-100">Comparativo por Dimensao</h3>
+            <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className={`w-5 h-5 ${activeTab === 'geral' ? 'text-blue-500' : activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`} />
+                <h3 className="text-base font-semibold text-slate-100">
+                  Comparativo {activeTab === 'geral' ? 'Completo' : activeTab === 'cbf' ? 'CBF' : activeTab === 'ofe' ? 'Ofensivo' : 'Defensivo'}
+                </h3>
               </div>
-              <div className="h-[320px]">
+              <div className={activeTab === 'geral' ? 'h-[300px] overflow-y-auto' : 'h-[260px]'}>
                 <Bar data={barComparativoData} options={barVerticalOptions} />
               </div>
-              <div className="flex justify-center gap-4 mt-2 text-xs">
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-500"></span> <span className="text-slate-300">Acima</span></span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-500"></span> <span className="text-slate-300">Na media</span></span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-500"></span> <span className="text-slate-300">Abaixo</span></span>
+              <div className="flex justify-center gap-3 mt-2 pt-2 border-t border-slate-700/50 text-xs">
+                <span className="flex items-center gap-1"><span style={{ width: '10px', height: '10px', borderRadius: '3px', backgroundColor: '#22c55e' }}></span> <span className="text-slate-400">Acima</span></span>
+                <span className="flex items-center gap-1"><span style={{ width: '10px', height: '10px', borderRadius: '3px', backgroundColor: '#3b82f6' }}></span> <span className="text-slate-400">Na media</span></span>
+                <span className="flex items-center gap-1"><span style={{ width: '10px', height: '10px', borderRadius: '3px', backgroundColor: '#f97316' }}></span> <span className="text-slate-400">Abaixo</span></span>
               </div>
             </div>
           </div>
@@ -650,8 +1038,10 @@ export default function DashboardAvaliacoesPage() {
             {/* Grafico de Evolucao */}
             <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
               <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-semibold text-slate-100">Evolucao da Media</h3>
+                <TrendingUp className={`w-5 h-5 ${activeTab === 'geral' ? 'text-blue-500' : activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`} />
+                <h3 className="text-lg font-semibold text-slate-100">
+                  Evolucao {activeTab === 'geral' ? 'Geral' : activeTab === 'cbf' ? 'CBF' : activeTab === 'ofe' ? 'Ofensivo' : 'Defensivo'}
+                </h3>
               </div>
               {evolucaoData ? (
                 <div className="h-[250px]">
@@ -667,12 +1057,14 @@ export default function DashboardAvaliacoesPage() {
             {/* Tabela Detalhada */}
             <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
               <div className="flex items-center gap-2 mb-4">
-                <Star className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-semibold text-slate-100">Detalhamento</h3>
+                <Star className={`w-5 h-5 ${activeTab === 'geral' ? 'text-blue-500' : activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`} />
+                <h3 className="text-lg font-semibold text-slate-100">
+                  Detalhamento {activeTab === 'geral' ? 'Completo' : activeTab === 'cbf' ? 'CBF' : activeTab === 'ofe' ? 'Ofensivo' : 'Defensivo'}
+                </h3>
               </div>
-              <div className="overflow-x-auto">
+              <div className={`overflow-x-auto ${activeTab === 'geral' ? 'max-h-[400px] overflow-y-auto' : ''}`}>
                 <table className="w-full text-sm">
-                  <thead>
+                  <thead className={activeTab === 'geral' ? 'sticky top-0 bg-slate-800' : ''}>
                     <tr className="border-b border-slate-700">
                       <th className="text-left py-2 font-medium text-slate-400">Dimensao</th>
                       <th className="text-center py-2 font-medium text-slate-400">Atleta</th>
@@ -681,7 +1073,7 @@ export default function DashboardAvaliacoesPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {analiseDetalhada?.dimensoes.map(d => (
+                    {analiseDetalhada?.dimensoes.filter(d => activeTab === 'geral' ? d.valor > 0 : true).map(d => (
                       <tr key={d.key} className="border-b border-slate-700/50">
                         <td className="py-2 text-slate-300">{d.icon} {d.label}</td>
                         <td className="py-2 text-center font-medium text-slate-200">{d.valor.toFixed(1)}</td>
@@ -702,45 +1094,78 @@ export default function DashboardAvaliacoesPage() {
             </div>
           </div>
 
-          {/* Observacoes da ultima avaliacao */}
-          {atletaAtual?.avaliacao && (atletaAtual.avaliacao.pontos_fortes || atletaAtual.avaliacao.pontos_desenvolver || atletaAtual.avaliacao.observacoes) && (
+          {/* Historico de Observacoes das Avaliacoes */}
+          {avaliacoesDoAtleta.length > 0 && (
             <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 mb-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-4">Observacoes da Ultima Avaliacao</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {atletaAtual.avaliacao.pontos_fortes && (
-                  <div className="bg-green-900/30 p-4 rounded-xl border border-green-800/50">
-                    <p className="text-xs font-medium text-green-400 mb-1">Pontos Fortes</p>
-                    <p className="text-sm text-slate-300">{atletaAtual.avaliacao.pontos_fortes}</p>
-                  </div>
-                )}
-                {atletaAtual.avaliacao.pontos_desenvolver && (
-                  <div className="bg-orange-900/30 p-4 rounded-xl border border-orange-800/50">
-                    <p className="text-xs font-medium text-orange-400 mb-1">Pontos a Desenvolver</p>
-                    <p className="text-sm text-slate-300">{atletaAtual.avaliacao.pontos_desenvolver}</p>
-                  </div>
-                )}
-                {atletaAtual.avaliacao.observacoes && (
-                  <div className="bg-blue-900/30 p-4 rounded-xl border border-blue-800/50">
-                    <p className="text-xs font-medium text-blue-400 mb-1">Observacoes</p>
-                    <p className="text-sm text-slate-300">{atletaAtual.avaliacao.observacoes}</p>
-                  </div>
-                )}
+              <div className="flex items-center gap-2 mb-4">
+                <MessageSquare className="w-5 h-5 text-amber-500" />
+                <h3 className="text-lg font-semibold text-slate-100">Historico de Observacoes</h3>
+                <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">
+                  {avaliacoesDoAtleta.filter(a => a.pontos_fortes || a.pontos_desenvolver || a.observacoes).length} com observacoes
+                </span>
+              </div>
+              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                {avaliacoesDoAtleta.slice().reverse().map((avaliacao, index) => {
+                  const temObs = avaliacao.pontos_fortes || avaliacao.pontos_desenvolver || avaliacao.observacoes
+                  if (!temObs) return null
+
+                  const dataFormatada = new Date(avaliacao.data_avaliacao + 'T12:00:00').toLocaleDateString('pt-BR')
+
+                  return (
+                    <div key={avaliacao.id} className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Calendar className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-medium text-slate-200">Avaliacao {dataFormatada}</span>
+                        <span className="text-xs bg-slate-600 text-slate-400 px-2 py-0.5 rounded">
+                          #{avaliacoesDoAtleta.length - index}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {avaliacao.pontos_fortes && (
+                          <div className="bg-green-900/20 rounded-lg p-3 border border-green-800/30">
+                            <p className="text-xs font-medium text-green-400 mb-1 flex items-center gap-1">
+                              <span>💪</span> Pontos Fortes
+                            </p>
+                            <p className="text-sm text-slate-300">{avaliacao.pontos_fortes}</p>
+                          </div>
+                        )}
+                        {avaliacao.pontos_desenvolver && (
+                          <div className="bg-orange-900/20 rounded-lg p-3 border border-orange-800/30">
+                            <p className="text-xs font-medium text-orange-400 mb-1 flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3" /> Pontos a Desenvolver
+                            </p>
+                            <p className="text-sm text-slate-300">{avaliacao.pontos_desenvolver}</p>
+                          </div>
+                        )}
+                        {avaliacao.observacoes && (
+                          <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600/30">
+                            <p className="text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
+                              <Star className="w-3 h-3" /> Observacoes Gerais
+                            </p>
+                            <p className="text-sm text-slate-300">{avaliacao.observacoes}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
 
           {/* Adicionar Atleta Externo para Comparacao */}
+          {activeTab !== 'geral' && (
           <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-amber-500" />
+                <UserPlus className={`w-5 h-5 ${activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`} />
                 <h3 className="text-lg font-semibold text-slate-100">Comparar com Atleta Externo</h3>
               </div>
               <button
                 onClick={() => setMostrarAtletaExterno(!mostrarAtletaExterno)}
                 className={`px-3 py-1 text-sm rounded-lg transition-colors ${
                   mostrarAtletaExterno
-                    ? 'bg-amber-500 text-white'
+                    ? (activeTab === 'cbf' ? 'bg-amber-500' : activeTab === 'ofe' ? 'bg-green-500' : 'bg-red-500') + ' text-slate-900'
                     : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                 }`}
               >
@@ -751,11 +1176,11 @@ export default function DashboardAvaliacoesPage() {
             {mostrarAtletaExterno && (
               <div className="space-y-4">
                 <p className="text-sm text-slate-400">
-                  Insira os dados de um atleta de outra plataforma ou time para comparar no radar
+                  Insira os dados de um atleta de outra plataforma para comparar no radar ({activeTab.toUpperCase()})
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-1">Nome do Atleta</label>
+                    <label className={`block text-sm font-medium mb-1 ${activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`}>Nome do Atleta</label>
                     <input
                       type="text"
                       value={atletaExterno.nome}
@@ -765,7 +1190,7 @@ export default function DashboardAvaliacoesPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-1">Posicao</label>
+                    <label className={`block text-sm font-medium mb-1 ${activeTab === 'cbf' ? 'text-amber-500' : activeTab === 'ofe' ? 'text-green-500' : 'text-red-500'}`}>Posicao</label>
                     <select
                       value={atletaExterno.posicao}
                       onChange={(e) => setAtletaExterno(prev => ({ ...prev, posicao: e.target.value }))}
@@ -779,8 +1204,8 @@ export default function DashboardAvaliacoesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {dimensoes.map((d) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {activeTab === 'cbf' && dimensoesCBF.map((d) => (
                     <div key={d.key}>
                       <label className="block text-xs font-medium text-slate-400 mb-1">{d.icon} {d.label}</label>
                       <input
@@ -788,16 +1213,44 @@ export default function DashboardAvaliacoesPage() {
                         min="0.5"
                         max="5"
                         step="0.5"
-                        value={atletaExterno.valores[d.key as keyof BenchmarkValues]}
-                        onChange={(e) => handleExternoChange(d.key as keyof BenchmarkValues, parseFloat(e.target.value) || 0)}
+                        value={atletaExterno.valoresCBF[d.key as keyof BenchmarkValuesCBF]}
+                        onChange={(e) => handleExternoCBFChange(d.key as keyof BenchmarkValuesCBF, parseFloat(e.target.value) || 0)}
                         className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 text-center"
+                      />
+                    </div>
+                  ))}
+                  {activeTab === 'ofe' && dimensoesOFE.map((d) => (
+                    <div key={d.key}>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">{d.icon} {d.label}</label>
+                      <input
+                        type="number"
+                        min="0.5"
+                        max="5"
+                        step="0.5"
+                        value={atletaExterno.valoresOFE[d.key as keyof BenchmarkValuesOFE]}
+                        onChange={(e) => handleExternoOFEChange(d.key as keyof BenchmarkValuesOFE, parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 text-center"
+                      />
+                    </div>
+                  ))}
+                  {activeTab === 'def' && dimensoesDEF.map((d) => (
+                    <div key={d.key}>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">{d.icon} {d.label}</label>
+                      <input
+                        type="number"
+                        min="0.5"
+                        max="5"
+                        step="0.5"
+                        value={atletaExterno.valoresDEF[d.key as keyof BenchmarkValuesDEF]}
+                        onChange={(e) => handleExternoDEFChange(d.key as keyof BenchmarkValuesDEF, parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-center"
                       />
                     </div>
                   ))}
                 </div>
 
                 <button
-                  onClick={() => setAtletaExterno({ nome: '', posicao: '', valores: { ...defaultBenchmark } })}
+                  onClick={() => setAtletaExterno({ nome: '', posicao: '', valoresCBF: { ...defaultBenchmarkCBF }, valoresOFE: { ...defaultBenchmarkOFE }, valoresDEF: { ...defaultBenchmarkDEF } })}
                   className="flex items-center gap-2 text-sm text-slate-400 hover:text-slate-300"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -806,6 +1259,7 @@ export default function DashboardAvaliacoesPage() {
               </div>
             )}
           </div>
+          )}
         </>
       )}
     </div>
