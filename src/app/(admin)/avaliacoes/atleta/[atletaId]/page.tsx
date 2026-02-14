@@ -37,6 +37,7 @@ type Avaliacao = {
   id: string
   data_avaliacao: string
   tipo: string
+  contexto_treino: string | null
   forca: number
   velocidade: number
   tecnica: number
@@ -94,7 +95,7 @@ export default function AvaliacoesAtletaPage() {
     const { data: avaliacoesData } = await supabase
       .from('avaliacoes_atleta')
       .select(`
-        id, data_avaliacao, tipo,
+        id, data_avaliacao, tipo, contexto_treino,
         forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial,
         penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva,
         contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva,
@@ -328,6 +329,9 @@ export default function AvaliacoesAtletaPage() {
                         </span>
                         {avaliacao.jogos && (
                           <span className="text-slate-300 text-sm">vs {avaliacao.jogos.adversario}</span>
+                        )}
+                        {avaliacao.contexto_treino && (
+                          <span className="text-slate-400 text-sm">• {avaliacao.contexto_treino}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1 text-sm text-slate-400">

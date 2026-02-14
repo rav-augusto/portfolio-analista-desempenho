@@ -172,11 +172,17 @@ CREATE TABLE IF NOT EXISTS avaliacoes_atleta (
     atitude DECIMAL(2,1) CHECK (atitude >= 0.5 AND atitude <= 5.0),
     potencial DECIMAL(2,1) CHECK (potencial >= 0.5 AND potencial <= 5.0),
 
+    -- Campo para descrever contexto quando não for jogo (treino/geral)
+    contexto_treino VARCHAR(500),
+
     pontos_fortes TEXT,
     pontos_desenvolver TEXT,
     observacoes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- MIGRACAO: Adicionar campo contexto_treino (executar se tabela ja existir)
+-- ALTER TABLE avaliacoes_atleta ADD COLUMN IF NOT EXISTS contexto_treino VARCHAR(500);
 
 -- =============================================
 -- TABELA: prints_taticos

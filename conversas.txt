@@ -1,0 +1,7 @@
+ Sim! O Claude Code salva automaticamente o histórico da conversa. O arquivo de transcrição está em:
+
+  C:\Users\root\.claude\projects\C--Sistemas\70d2bc46-5d15-4fcb-bb27-57c69da111e3.jsonl                                 
+  Se a sessão cair, quando você iniciar o Claude Code novamente na mesma pasta do projeto, ele pode continuar de onde     paramos. O contexto da conversa é preservado.
+
+  Além disso, o código está salvo no Git, então mesmo que precise começar uma conversa nova, basta me dizer "continuando
+   o projeto olhar-da-base-app" que eu leio os arquivos e retomo o trabalho.

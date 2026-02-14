@@ -104,6 +104,7 @@ export default function EditarAvaliacaoPage() {
   const [jogos, setJogos] = useState<Jogo[]>([])
   const [atletaId, setAtletaId] = useState('')
   const [jogoId, setJogoId] = useState('')
+  const [contextoTreino, setContextoTreino] = useState('')
   const [dataAvaliacao, setDataAvaliacao] = useState('')
   const [tipo, setTipo] = useState('jogo')
   const [activeTab, setActiveTab] = useState('cbf')
@@ -157,6 +158,7 @@ export default function EditarAvaliacaoPage() {
         const av = avaliacaoRes.data
         setAtletaId(av.atleta_id)
         setJogoId(av.jogo_id || '')
+        setContextoTreino(av.contexto_treino || '')
         setDataAvaliacao(av.data_avaliacao)
         setTipo(av.tipo)
 
@@ -328,6 +330,7 @@ export default function EditarAvaliacaoPage() {
     const { error } = await supabase.from('avaliacoes_atleta').update({
       atleta_id: atletaId,
       jogo_id: jogoId || null,
+      contexto_treino: contextoTreino || null,
       data_avaliacao: dataAvaliacao,
       tipo,
       forca: parseFloat(notas.forca),
@@ -591,7 +594,7 @@ export default function EditarAvaliacaoPage() {
               </div>
               {tipo === 'jogo' && (
                 <div>
-                  <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Jogo</label>
+                  <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Jogo (Video)</label>
                   <select value={jogoId} onChange={(e) => setJogoId(e.target.value)}
                     className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
                     <option value="">Opcional...</option>
@@ -599,6 +602,16 @@ export default function EditarAvaliacaoPage() {
                   </select>
                 </div>
               )}
+            </div>
+            <div className="mt-3">
+              <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Contexto da Avaliação</label>
+              <input
+                type="text"
+                value={contextoTreino}
+                onChange={(e) => setContextoTreino(e.target.value)}
+                placeholder="Ex: Observação em campo jogo X, Semana de treinos 10/02 a 15/02, etc."
+                className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+              />
             </div>
           </div>
 
