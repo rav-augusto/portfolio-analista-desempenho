@@ -24,6 +24,15 @@
 .DS_Store
 *.pem
 
+# temp images (screenshots, etc)
+*.JPG
+*.jpg
+*.jpeg
+*.png
+!public/**/*.jpg
+!public/**/*.jpeg
+!public/**/*.png
+
 # debug
 npm-debug.log*
 yarn-debug.log*
