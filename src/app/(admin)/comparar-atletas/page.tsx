@@ -68,31 +68,31 @@ type Avaliacao = {
 }
 
 const dimensoesCBF = [
-  { key: 'forca', label: 'FOR', fullLabel: 'Forca' },
+  { key: 'forca', label: 'FOR', fullLabel: 'Força' },
   { key: 'velocidade', label: 'VEL', fullLabel: 'Velocidade' },
-  { key: 'tecnica', label: 'TEC', fullLabel: 'Tecnica' },
-  { key: 'dinamica', label: 'DIN', fullLabel: 'Dinamica' },
-  { key: 'inteligencia', label: 'INT', fullLabel: 'Inteligencia' },
+  { key: 'tecnica', label: 'TEC', fullLabel: 'Técnica' },
+  { key: 'dinamica', label: 'DIN', fullLabel: 'Dinâmica' },
+  { key: 'inteligencia', label: 'INT', fullLabel: 'Inteligência' },
   { key: 'um_contra_um', label: '1v1', fullLabel: '1 contra 1' },
   { key: 'atitude', label: 'ATI', fullLabel: 'Atitude' },
   { key: 'potencial', label: 'POT', fullLabel: 'Potencial' },
 ]
 
 const principiosOfensivos = [
-  { key: 'penetracao', label: 'PEN', fullLabel: 'Penetracao' },
+  { key: 'penetracao', label: 'PEN', fullLabel: 'Penetração' },
   { key: 'cobertura_ofensiva', label: 'COF', fullLabel: 'Cob. Ofensiva' },
-  { key: 'espaco_com_bola', label: 'ECB', fullLabel: 'Espaco c/ Bola' },
-  { key: 'espaco_sem_bola', label: 'ESB', fullLabel: 'Espaco s/ Bola' },
+  { key: 'espaco_com_bola', label: 'ECB', fullLabel: 'Espaço c/ Bola' },
+  { key: 'espaco_sem_bola', label: 'ESB', fullLabel: 'Espaço s/ Bola' },
   { key: 'mobilidade', label: 'MOB', fullLabel: 'Mobilidade' },
   { key: 'unidade_ofensiva', label: 'UOF', fullLabel: 'Unid. Ofensiva' },
 ]
 
 const principiosDefensivos = [
-  { key: 'contencao', label: 'CON', fullLabel: 'Contencao' },
+  { key: 'contencao', label: 'CON', fullLabel: 'Contenção' },
   { key: 'cobertura_defensiva', label: 'CDF', fullLabel: 'Cob. Defensiva' },
   { key: 'equilibrio_recuperacao', label: 'ERE', fullLabel: 'Equil. Recup.' },
   { key: 'equilibrio_defensivo', label: 'EDF', fullLabel: 'Equil. Defensivo' },
-  { key: 'concentracao_def', label: 'CNC', fullLabel: 'Concentracao' },
+  { key: 'concentracao_def', label: 'CNC', fullLabel: 'Concentração' },
   { key: 'unidade_defensiva', label: 'UDF', fullLabel: 'Unid. Defensiva' },
 ]
 
@@ -304,14 +304,14 @@ export default function CompararAtletasPage() {
               </div>
               <div className="bg-slate-700 rounded-lg p-2">
                 <p className="text-lg font-bold text-slate-100">{atleta.pe_dominante?.charAt(0) || '-'}</p>
-                <p className="text-[10px] text-slate-400 uppercase">Pe</p>
+                <p className="text-[10px] text-slate-400 uppercase">Pé</p>
               </div>
             </div>
 
             {avaliacao && (
               <div className={`mt-4 p-3 rounded-lg ${color === 'blue' ? 'bg-blue-900/30' : 'bg-red-900/30'}`}>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-400">Media Geral (CBF)</span>
+                  <span className="text-xs text-slate-400">Média Geral (CBF)</span>
                   <span className={`text-2xl font-bold ${color === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>
                     {getMediaGeral(avaliacao)}
                   </span>
@@ -346,7 +346,7 @@ export default function CompararAtletasPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-700">
-                <th className="px-3 py-2 text-left font-medium text-slate-400">Dimensao</th>
+                <th className="px-3 py-2 text-left font-medium text-slate-400">Dimensão</th>
                 <th className="px-3 py-2 text-center font-medium text-blue-400">{atleta1?.nome || 'Atleta 1'}</th>
                 <th className="px-3 py-2 text-center font-medium text-slate-500">vs</th>
                 <th className="px-3 py-2 text-center font-medium text-red-400">{atleta2?.nome || 'Atleta 2'}</th>
@@ -452,9 +452,9 @@ export default function CompararAtletasPage() {
       {(atleta1 || atleta2) && (
         <div className="flex gap-2 mb-6">
           {[
-            { id: 'cbf', label: 'Dimensoes CBF' },
-            { id: 'ofensivo', label: 'Principios Ofensivos' },
-            { id: 'defensivo', label: 'Principios Defensivos' },
+            { id: 'cbf', label: 'Dimensões CBF' },
+            { id: 'ofensivo', label: 'Princípios Ofensivos' },
+            { id: 'defensivo', label: 'Princípios Defensivos' },
             { id: 'todos', label: 'Todos' },
           ].map((tab) => (
             <button
@@ -477,7 +477,7 @@ export default function CompararAtletasPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Radar Chart */}
           <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Comparacao Radar</h3>
+            <h3 className="text-lg font-semibold text-slate-100 mb-4">Comparação Radar</h3>
             <div className="aspect-square max-w-md mx-auto">
               <Radar data={getRadarData()} options={radarOptions} />
             </div>
@@ -487,7 +487,7 @@ export default function CompararAtletasPage() {
           <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
             <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
-              Comparacao por Dimensao
+              Comparação por Dimensão
             </h3>
             <div style={{ height: activeView === 'todos' ? '500px' : '300px' }}>
               <Bar data={getBarData()} options={barOptions} />
