@@ -260,7 +260,7 @@ export default function CompararAtletasPage() {
   }
 
   const renderAtletaCard = (atleta: Atleta | null, avaliacao: Avaliacao | null, color: string) => (
-    <div className={`bg-slate-800 rounded-xl border-2 ${color === 'blue' ? 'border-blue-700' : 'border-red-700'} overflow-hidden`}>
+    <div className={`bg-slate-800 rounded-2xl border-2 shadow-sm ${color === 'blue' ? 'border-blue-700' : 'border-red-700'} overflow-hidden`}>
       {atleta ? (
         <>
           <div className={`${color === 'blue' ? 'bg-blue-600' : 'bg-red-600'} px-4 py-2`}>
@@ -341,7 +341,7 @@ export default function CompararAtletasPage() {
           : principiosDefensivos
 
     return (
-      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+      <div className="rounded-xl border border-slate-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -411,46 +411,48 @@ export default function CompararAtletasPage() {
       </div>
 
       {/* Selectors */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-amber-500 mb-2">Atleta 1</label>
-          <select
-            onChange={(e) => handleSelectAtleta1(e.target.value)}
-            className="w-full px-4 py-2 border border-blue-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-700 text-slate-200"
-          >
-            <option value="">Selecione um atleta</option>
-            {atletas.map((a) => (
-              <option key={a.id} value={a.id} disabled={a.id === atleta2?.id}>
-                {a.nome} - {a.posicao} ({a.clubes?.nome})
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-amber-500 mb-2">Atleta 2</label>
-          <select
-            onChange={(e) => handleSelectAtleta2(e.target.value)}
-            className="w-full px-4 py-2 border border-red-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-slate-700 text-slate-200"
-          >
-            <option value="">Selecione um atleta</option>
-            {atletas.map((a) => (
-              <option key={a.id} value={a.id} disabled={a.id === atleta1?.id}>
-                {a.nome} - {a.posicao} ({a.clubes?.nome})
-              </option>
-            ))}
-          </select>
+      <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-blue-400 mb-2">Atleta 1</label>
+            <select
+              onChange={(e) => handleSelectAtleta1(e.target.value)}
+              className="w-full px-4 py-2 border border-blue-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-700 text-slate-200"
+            >
+              <option value="">Selecione um atleta</option>
+              {atletas.map((a) => (
+                <option key={a.id} value={a.id} disabled={a.id === atleta2?.id}>
+                  {a.nome} - {a.posicao} ({a.clubes?.nome})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-red-400 mb-2">Atleta 2</label>
+            <select
+              onChange={(e) => handleSelectAtleta2(e.target.value)}
+              className="w-full px-4 py-2 border border-red-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-slate-700 text-slate-200"
+            >
+              <option value="">Selecione um atleta</option>
+              {atletas.map((a) => (
+                <option key={a.id} value={a.id} disabled={a.id === atleta1?.id}>
+                  {a.nome} - {a.posicao} ({a.clubes?.nome})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Player Cards */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {renderAtletaCard(atleta1, avaliacao1, 'blue')}
         {renderAtletaCard(atleta2, avaliacao2, 'red')}
       </div>
 
       {/* View Tabs */}
       {(atleta1 || atleta2) && (
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {[
             { id: 'cbf', label: 'Dimensões CBF' },
             { id: 'ofensivo', label: 'Princípios Ofensivos' },
@@ -476,7 +478,7 @@ export default function CompararAtletasPage() {
       {(avaliacao1 || avaliacao2) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Radar Chart */}
-          <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+          <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
             <h3 className="text-lg font-semibold text-slate-100 mb-4">Comparação Radar</h3>
             <div className="aspect-square max-w-md mx-auto">
               <Radar data={getRadarData()} options={radarOptions} />
@@ -484,7 +486,7 @@ export default function CompararAtletasPage() {
           </div>
 
           {/* Bar Chart */}
-          <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
+          <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
             <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
               Comparação por Dimensão
@@ -498,7 +500,7 @@ export default function CompararAtletasPage() {
 
       {/* Stats Table */}
       {(avaliacao1 || avaliacao2) && (
-        <div>
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
           <h3 className="text-lg font-semibold text-slate-100 mb-4">Tabela Comparativa</h3>
           {renderStatsTable()}
         </div>
@@ -506,10 +508,10 @@ export default function CompararAtletasPage() {
 
       {/* Empty State */}
       {!atleta1 && !atleta2 && (
-        <div className="bg-slate-700 rounded-xl p-12 text-center">
+        <div className="bg-slate-800 rounded-2xl p-12 shadow-sm border border-slate-700 text-center">
           <Users className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-400 mb-2">Selecione dois atletas para comparar</h3>
-          <p className="text-slate-500">Use os seletores acima para escolher os atletas</p>
+          <h3 className="text-xl font-semibold text-slate-100 mb-2">Selecione dois atletas para comparar</h3>
+          <p className="text-slate-400">Use os seletores acima para escolher os atletas</p>
         </div>
       )}
     </div>
