@@ -13,7 +13,13 @@ type Atleta = {
   numero_camisa: number | null
   foto_url: string | null
   data_nascimento: string | null
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
+const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string => {
+  if (!clubes) return ''
+  if (Array.isArray(clubes)) return clubes[0]?.nome || ''
+  return clubes.nome || ''
 }
 
 type Clube = {
@@ -74,13 +80,14 @@ export default function AtletasPage() {
   const posicoes = [...new Set(atletas.map(a => a.posicao).filter(Boolean))]
 
   const filteredAtletas = atletas.filter(a => {
+    const clubeName = getClubeName(a.clubes)
     const matchSearch = a.nome.toLowerCase().includes(search.toLowerCase()) ||
       a.posicao?.toLowerCase().includes(search.toLowerCase()) ||
       a.categoria?.toLowerCase().includes(search.toLowerCase()) ||
-      a.clubes?.nome.toLowerCase().includes(search.toLowerCase())
+      clubeName.toLowerCase().includes(search.toLowerCase())
 
     if (!matchSearch) return false
-    if (filtroClube && a.clubes?.nome !== filtroClube) return false
+    if (filtroClube && clubeName !== filtroClube) return false
     if (filtroCategoria && a.categoria !== filtroCategoria) return false
     if (filtroPosicao && a.posicao !== filtroPosicao) return false
 
@@ -254,7 +261,7 @@ export default function AtletasPage() {
                           {atleta.categoria}
                         </span>
                       )}
-                      {atleta.clubes && <span className="text-amber-500">{atleta.clubes.nome}</span>}
+                      {getClubeName(atleta.clubes) && <span className="text-amber-500">{getClubeName(atleta.clubes)}</span>}
                     </div>
                   </div>
                 </div>

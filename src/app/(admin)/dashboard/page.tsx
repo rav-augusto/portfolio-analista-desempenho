@@ -36,7 +36,13 @@ type Jogo = {
   placar_clube: number | null
   placar_adversario: number | null
   competicao: string
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
+const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string => {
+  if (!clubes) return ''
+  if (Array.isArray(clubes)) return clubes[0]?.nome || ''
+  return clubes.nome || ''
 }
 
 type Avaliacao = {
@@ -50,7 +56,13 @@ type Avaliacao = {
   um_contra_um: number
   atitude: number
   potencial: number
-  atletas: { nome: string, posicao: string | null } | null
+  atletas: { nome: string, posicao: string | null } | { nome: string, posicao: string | null }[] | null
+}
+
+const getAtleta = (atletas: { nome: string, posicao: string | null } | { nome: string, posicao: string | null }[] | null | undefined) => {
+  if (!atletas) return null
+  if (Array.isArray(atletas)) return atletas[0] || null
+  return atletas
 }
 
 type AtletaPorCategoria = {
@@ -484,7 +496,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <div className="font-medium text-slate-100">
-                        {jogo.clubes?.nome || 'Clube'} vs {jogo.adversario}
+                        {getClubeName(jogo.clubes) || 'Clube'} vs {jogo.adversario}
                       </div>
                       <div className="text-sm text-slate-400 flex items-center gap-2">
                         <Calendar className="w-3 h-3" />
@@ -547,15 +559,15 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <div className="font-medium text-slate-100">
-                        {av.atletas?.nome || 'Atleta'}
+                        {getAtleta(av.atletas)?.nome || 'Atleta'}
                       </div>
                       <div className="text-sm text-slate-400 flex items-center gap-2">
                         <Clock className="w-3 h-3" />
                         {formatDate(av.data_avaliacao)}
-                        {av.atletas?.posicao && (
+                        {getAtleta(av.atletas)?.posicao && (
                           <>
                             <span className="text-slate-600">|</span>
-                            {av.atletas.posicao}
+                            {getAtleta(av.atletas)?.posicao}
                           </>
                         )}
                       </div>

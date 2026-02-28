@@ -40,7 +40,13 @@ type Atleta = {
   altura: number | null
   peso: number | null
   data_nascimento: string | null
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
+const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string => {
+  if (!clubes) return ''
+  if (Array.isArray(clubes)) return clubes[0]?.nome || ''
+  return clubes.nome || ''
 }
 
 type Avaliacao = {
@@ -415,7 +421,7 @@ export default function DashboardAtletasPage() {
     return atletas.filter(a =>
       a.nome.toLowerCase().includes(search.toLowerCase()) ||
       a.posicao?.toLowerCase().includes(search.toLowerCase()) ||
-      a.clubes?.nome.toLowerCase().includes(search.toLowerCase())
+      getClubeName(a.clubes).toLowerCase().includes(search.toLowerCase())
     )
   }, [atletas, search])
 
@@ -573,7 +579,7 @@ export default function DashboardAtletasPage() {
               <option value="">Selecione um atleta</option>
               {atletasFiltrados.map((atleta) => (
                 <option key={atleta.id} value={atleta.id}>
-                  {atleta.nome} {atleta.posicao && `- ${atleta.posicao}`} {atleta.clubes && `(${atleta.clubes.nome})`}
+                  {atleta.nome} {atleta.posicao && `- ${atleta.posicao}`} {getClubeName(atleta.clubes) && `(${getClubeName(atleta.clubes)})`}
                 </option>
               ))}
             </select>
@@ -638,7 +644,7 @@ export default function DashboardAtletasPage() {
                   <h2 className="text-2xl font-bold text-slate-100">{atletaAtual.nome}</h2>
                   <p className="text-slate-400">
                     {atletaAtual.posicao || 'Posicao nao informada'}
-                    {atletaAtual.clubes && ` - ${atletaAtual.clubes.nome}`}
+                    {getClubeName(atletaAtual.clubes) && ` - ${getClubeName(atletaAtual.clubes)}`}
                   </p>
                 </div>
                 <div className="hidden sm:flex gap-6">

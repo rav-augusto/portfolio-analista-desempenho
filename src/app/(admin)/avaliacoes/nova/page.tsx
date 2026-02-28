@@ -43,14 +43,20 @@ type Atleta = {
   id: string
   nome: string
   foto_url: string | null
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
 }
 
 type Jogo = {
   id: string
   adversario: string
   data_jogo: string
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
+const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string => {
+  if (!clubes) return ''
+  if (Array.isArray(clubes)) return clubes[0]?.nome || ''
+  return clubes.nome || ''
 }
 
 // Dimensões CBF com descrições detalhadas
@@ -499,7 +505,7 @@ export default function NovaAvaliacaoPage() {
                   className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
                   <option value="">Selecione...</option>
                   {atletas.map((atleta) => (
-                    <option key={atleta.id} value={atleta.id}>{atleta.nome} {atleta.clubes && `(${atleta.clubes.nome})`}</option>
+                    <option key={atleta.id} value={atleta.id}>{atleta.nome} {getClubeName(atleta.clubes) && `(${getClubeName(atleta.clubes)})`}</option>
                   ))}
                 </select>
               </div>
@@ -521,7 +527,7 @@ export default function NovaAvaliacaoPage() {
                   <select value={jogoId} onChange={(e) => setJogoId(e.target.value)}
                     className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
                     <option value="">Opcional...</option>
-                    {jogos.map((jogo) => (<option key={jogo.id} value={jogo.id}>{jogo.clubes?.nome} x {jogo.adversario} - {formatDate(jogo.data_jogo)}</option>))}
+                    {jogos.map((jogo) => (<option key={jogo.id} value={jogo.id}>{getClubeName(jogo.clubes)} x {jogo.adversario} - {formatDate(jogo.data_jogo)}</option>))}
                   </select>
                 </div>
               )}

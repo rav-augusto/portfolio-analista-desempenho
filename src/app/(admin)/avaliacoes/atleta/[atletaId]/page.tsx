@@ -30,7 +30,13 @@ type Atleta = {
   nome: string
   posicao: string | null
   foto_url: string | null
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
+const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string => {
+  if (!clubes) return ''
+  if (Array.isArray(clubes)) return clubes[0]?.nome || ''
+  return clubes.nome || ''
 }
 
 type Avaliacao = {
@@ -63,7 +69,16 @@ type Avaliacao = {
   jogos: {
     adversario: string
     data_jogo: string
-  } | null
+  } | {
+    adversario: string
+    data_jogo: string
+  }[] | null
+}
+
+const getJogo = (jogos: { adversario: string; data_jogo: string } | { adversario: string; data_jogo: string }[] | null | undefined) => {
+  if (!jogos) return null
+  if (Array.isArray(jogos)) return jogos[0] || null
+  return jogos
 }
 
 export default function AvaliacoesAtletaPage() {
@@ -263,8 +278,8 @@ export default function AvaliacoesAtletaPage() {
               <h1 className="text-2xl font-bold text-slate-100">{atleta.nome}</h1>
               <div className="flex items-center gap-3 text-sm text-slate-400">
                 {atleta.posicao && <span>{atleta.posicao}</span>}
-                {atleta.clubes && (
-                  <span className="text-amber-500">{atleta.clubes.nome}</span>
+                {getClubeName(atleta.clubes) && (
+                  <span className="text-amber-500">{getClubeName(atleta.clubes)}</span>
                 )}
                 <span className="text-slate-500">|</span>
                 <span>{avaliacoes.length} avaliacao{avaliacoes.length !== 1 ? 'oes' : ''}</span>
@@ -327,8 +342,8 @@ export default function AvaliacoesAtletaPage() {
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTipoColor(avaliacao.tipo)}`}>
                           {getTipoLabel(avaliacao.tipo)}
                         </span>
-                        {avaliacao.jogos && (
-                          <span className="text-slate-300 text-sm">vs {avaliacao.jogos.adversario}</span>
+                        {getJogo(avaliacao.jogos) && (
+                          <span className="text-slate-300 text-sm">vs {getJogo(avaliacao.jogos)?.adversario}</span>
                         )}
                         {avaliacao.contexto_treino && (
                           <span className="text-slate-400 text-sm">• {avaliacao.contexto_treino}</span>

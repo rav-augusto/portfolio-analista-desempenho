@@ -78,7 +78,7 @@ const Zone = ({ x, y, width, height, color = '#22c55e' }: { x: number; y: number
 export const DiagramPenetracao = () => (
   <Field>
     {/* Zona de penetração */}
-    <Zone x="70" y="25" width="25" height="30" />
+    <Zone x={70} y={25} width={25} height={30} />
 
     {/* Atacante com bola */}
     <PlayerBlue cx={45} cy={40} />
@@ -115,7 +115,7 @@ export const DiagramCoberturaOfensiva = () => (
 export const DiagramEspacoComBola = () => (
   <Field>
     {/* Zona livre para conduzir */}
-    <Zone x="55" y="20" width="25" height="25" />
+    <Zone x={55} y={20} width={25} height={25} />
 
     {/* Atacante com bola */}
     <PlayerBlue cx={45} cy={45} />
@@ -133,7 +133,7 @@ export const DiagramEspacoComBola = () => (
 export const DiagramEspacoSemBola = () => (
   <Field>
     {/* Zona de espaço nas costas */}
-    <Zone x="70" y="30" width="20" height="20" color="#22c55e" />
+    <Zone x={70} y={30} width={20} height={20} color="#22c55e" />
 
     {/* Portador da bola */}
     <PlayerBlue cx={35} cy={40} />
@@ -272,9 +272,9 @@ export const DiagramEquilibrioRecuperacao = () => (
 export const DiagramEquilibrioDefensivo = () => (
   <Field>
     {/* Zonas de equilíbrio */}
-    <Zone x="20" y="15" width="25" height="50" color="#3b82f6" />
-    <Zone x="47" y="15" width="25" height="50" color="#3b82f6" />
-    <Zone x="74" y="15" width="25" height="50" color="#3b82f6" />
+    <Zone x={20} y={15} width={25} height={50} color="#3b82f6" />
+    <Zone x={47} y={15} width={25} height={50} color="#3b82f6" />
+    <Zone x={74} y={15} width={25} height={50} color="#3b82f6" />
 
     {/* Defensores equilibrados */}
     <PlayerBlue cx={32} cy={40} />

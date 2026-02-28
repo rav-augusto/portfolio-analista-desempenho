@@ -5,24 +5,20 @@ import { createClient } from '@/lib/supabase/client'
 import { Plus, Pencil, Trash2, FileBarChart, Search, Calendar, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 
+type JogoData = {
+  adversario: string
+  data_jogo: string
+  competicao: string
+  fase: string | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
 type Analise = {
   id: string
   jogo_id: string
   sistema_tatico: string | null
   created_at: string
-  jogos: {
-    adversario: string
-    data_jogo: string
-    competicao: string
-    fase: string | null
-    clubes: { nome: string } | { nome: string }[] | null
-  } | {
-    adversario: string
-    data_jogo: string
-    competicao: string
-    fase: string | null
-    clubes: { nome: string } | { nome: string }[] | null
-  }[] | null
+  jogos: JogoData | JogoData[] | null
   prints_taticos: { id: string }[]
 }
 
@@ -61,11 +57,24 @@ export default function AnalisesPage() {
     setDeleting(null)
   }
 
-  const filteredAnalises = analises.filter(a =>
-    a.jogos?.adversario.toLowerCase().includes(search.toLowerCase()) ||
-    a.jogos?.clubes?.nome.toLowerCase().includes(search.toLowerCase()) ||
-    a.jogos?.competicao.toLowerCase().includes(search.toLowerCase())
-  )
+  const getJogo = (jogos: JogoData | JogoData[] | null | undefined): JogoData | null => {
+    if (!jogos) return null
+    if (Array.isArray(jogos)) return jogos[0] || null
+    return jogos
+  }
+
+  const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined) => {
+    if (!clubes) return ''
+    if (Array.isArray(clubes)) return clubes[0]?.nome || ''
+    return clubes.nome || ''
+  }
+
+  const filteredAnalises = analises.filter(a => {
+    const jogo = getJogo(a.jogos)
+    return jogo?.adversario?.toLowerCase().includes(search.toLowerCase()) ||
+      getClubeName(jogo?.clubes).toLowerCase().includes(search.toLowerCase()) ||
+      jogo?.competicao?.toLowerCase().includes(search.toLowerCase())
+  })
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('pt-BR')
@@ -113,57 +122,60 @@ export default function AnalisesPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-700">
-            {filteredAnalises.map((analise) => (
-              <div key={analise.id} className="p-4 flex items-center justify-between hover:bg-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <FileBarChart className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-100">
-                      {analise.jogos?.clubes?.nome} x {analise.jogos?.adversario}
-                    </h3>
-                    <div className="flex items-center gap-3 text-sm text-slate-400">
-                      {analise.jogos && (
-                        <>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(analise.jogos.data_jogo)}
-                          </span>
-                          <span>{analise.jogos.competicao}{analise.jogos.fase && ` - ${analise.jogos.fase}`}</span>
-                          {analise.sistema_tatico && (
-                            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">
-                              {analise.sistema_tatico}
+            {filteredAnalises.map((analise) => {
+              const jogo = getJogo(analise.jogos)
+              return (
+                <div key={analise.id} className="p-4 flex items-center justify-between hover:bg-slate-700">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                      <FileBarChart className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-100">
+                        {getClubeName(jogo?.clubes)} x {jogo?.adversario}
+                      </h3>
+                      <div className="flex items-center gap-3 text-sm text-slate-400">
+                        {jogo && (
+                          <>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {formatDate(jogo.data_jogo)}
                             </span>
-                          )}
-                          {analise.prints_taticos && analise.prints_taticos.length > 0 && (
-                            <span className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">
-                              <ImageIcon className="w-3 h-3" />
-                              {analise.prints_taticos.length}
-                            </span>
-                          )}
-                        </>
-                      )}
+                            <span>{jogo.competicao}{jogo.fase && ` - ${jogo.fase}`}</span>
+                            {analise.sistema_tatico && (
+                              <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">
+                                {analise.sistema_tatico}
+                              </span>
+                            )}
+                            {analise.prints_taticos && analise.prints_taticos.length > 0 && (
+                              <span className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">
+                                <ImageIcon className="w-3 h-3" />
+                                {analise.prints_taticos.length}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/analises/${analise.id}`}
+                      className="p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-700 rounded-lg transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(analise.id)}
+                      disabled={deleting === analise.id}
+                      className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/analises/${analise.id}`}
-                    className="p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-700 rounded-lg transition-colors"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(analise.id)}
-                    disabled={deleting === analise.id}
-                    className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
