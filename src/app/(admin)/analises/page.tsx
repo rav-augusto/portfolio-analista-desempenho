@@ -15,8 +15,14 @@ type Analise = {
     data_jogo: string
     competicao: string
     fase: string | null
-    clubes: { nome: string } | null
-  } | null
+    clubes: { nome: string } | { nome: string }[] | null
+  } | {
+    adversario: string
+    data_jogo: string
+    competicao: string
+    fase: string | null
+    clubes: { nome: string } | { nome: string }[] | null
+  }[] | null
   prints_taticos: { id: string }[]
 }
 

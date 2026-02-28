@@ -929,41 +929,37 @@ export default function DashboardAtletasPage() {
                   </div>
 
                   {/* Card 3: Evolução */}
-                  <div className="flex-1 rounded-2xl p-4 shadow-sm flex items-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <div className="flex-1 rounded-2xl p-4 shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                     {estatisticas ? (
-                      <div className="flex items-center w-full">
-                        <div className="flex items-center gap-2">
+                      <div className="w-full">
+                        <div className="flex items-center gap-2 mb-3">
                           <TrendingUp className="w-5 h-5 text-amber-500" />
                           <h3 className="text-lg font-semibold text-slate-100">Evolução</h3>
                         </div>
-                        <div className="flex-1 flex items-center justify-center gap-4">
+                        <div className="grid grid-cols-4 gap-2">
                           <div
-                            className="flex flex-col items-center px-4 py-2 rounded-xl"
+                            className="flex flex-col items-center p-2 rounded-lg"
                             style={{ background: 'linear-gradient(180deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 100%)', border: '1px solid rgba(34,197,94,0.3)' }}
                           >
-                            <span className="text-xl font-bold text-green-400">{estatisticas.melhoraram}</span>
-                            <span className="text-[10px] text-green-400/70">Dimensões</span>
-                            <span className="text-[10px] text-green-400/70">Melhoraram</span>
+                            <span className="text-lg font-bold text-green-400">{estatisticas.melhoraram}</span>
+                            <span className="text-[9px] text-green-400/70 text-center leading-tight">Melhoraram</span>
                           </div>
                           <div
-                            className="flex flex-col items-center px-4 py-2 rounded-xl"
+                            className="flex flex-col items-center p-2 rounded-lg"
                             style={{ background: 'linear-gradient(180deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.05) 100%)', border: '1px solid rgba(239,68,68,0.3)' }}
                           >
-                            <span className="text-xl font-bold text-red-400">{estatisticas.pioraram}</span>
-                            <span className="text-[10px] text-red-400/70">Dimensões</span>
-                            <span className="text-[10px] text-red-400/70">Pioraram</span>
+                            <span className="text-lg font-bold text-red-400">{estatisticas.pioraram}</span>
+                            <span className="text-[9px] text-red-400/70 text-center leading-tight">Pioraram</span>
                           </div>
                           <div
-                            className="flex flex-col items-center px-4 py-2 rounded-xl"
+                            className="flex flex-col items-center p-2 rounded-lg"
                             style={{ background: 'linear-gradient(180deg, rgba(100,116,139,0.2) 0%, rgba(100,116,139,0.05) 100%)', border: '1px solid rgba(100,116,139,0.3)' }}
                           >
-                            <span className="text-xl font-bold text-slate-400">{estatisticas.estagnaram}</span>
-                            <span className="text-[10px] text-slate-400/70">Dimensões</span>
-                            <span className="text-[10px] text-slate-400/70">Estáveis</span>
+                            <span className="text-lg font-bold text-slate-400">{estatisticas.estagnaram}</span>
+                            <span className="text-[9px] text-slate-400/70 text-center leading-tight">Estáveis</span>
                           </div>
-                          <div className="h-12 w-px" style={{ background: 'linear-gradient(180deg, transparent 0%, #475569 50%, transparent 100%)' }}></div>
                           <div
-                            className="flex flex-col items-center px-4 py-2 rounded-xl"
+                            className="flex flex-col items-center p-2 rounded-lg"
                             style={{
                               background: estatisticas.mediaUltima >= estatisticas.mediaPrimeira
                                 ? 'linear-gradient(180deg, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.05) 100%)'
@@ -973,11 +969,10 @@ export default function DashboardAtletasPage() {
                                 : '1px solid rgba(239,68,68,0.3)'
                             }}
                           >
-                            <span className={`text-xl font-bold ${estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'text-amber-400' : 'text-red-400'}`}>
+                            <span className={`text-lg font-bold ${estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'text-amber-400' : 'text-red-400'}`}>
                               {estatisticas.mediaPrimeira > 0 ? (estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? '+' : '') + (((estatisticas.mediaUltima - estatisticas.mediaPrimeira) / estatisticas.mediaPrimeira) * 100).toFixed(0) : 0}%
                             </span>
-                            <span className="text-[10px] text-slate-400">Evolução Geral</span>
-                            <span className="text-[10px] text-slate-500">{estatisticas.mediaPrimeira.toFixed(1)} → {estatisticas.mediaUltima.toFixed(1)}</span>
+                            <span className="text-[9px] text-slate-400 text-center leading-tight">Evolução</span>
                           </div>
                         </div>
                       </div>

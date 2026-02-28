@@ -13,7 +13,7 @@ type Jogo = {
   data_jogo: string
   competicao: string
   fase: string | null
-  clubes: { nome: string } | null
+  clubes: { nome: string } | { nome: string }[] | null
 }
 
 type Print = {
@@ -346,7 +346,7 @@ export default function EditarAnalisePage() {
             <option value="">Selecione um jogo</option>
             {jogos.map((jogo) => (
               <option key={jogo.id} value={jogo.id}>
-                {jogo.clubes?.nome} x {jogo.adversario} - {formatDate(jogo.data_jogo)} ({jogo.competicao}{jogo.fase && ` - ${jogo.fase}`})
+                {Array.isArray(jogo.clubes) ? jogo.clubes[0]?.nome : jogo.clubes?.nome} x {jogo.adversario} - {formatDate(jogo.data_jogo)} ({jogo.competicao}{jogo.fase && ` - ${jogo.fase}`})
               </option>
             ))}
           </select>

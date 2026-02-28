@@ -250,8 +250,8 @@ export default function CompararAtletasPage() {
   const barOptions = {
     indexAxis: 'y' as const,
     scales: {
-      x: { beginAtZero: true, max: 5, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148, 163, 184, 0.2)' } },
-      y: { ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(148, 163, 184, 0.2)' } },
+      x: { beginAtZero: true, max: 5, ticks: { color: '#94a3b8' }, grid: { display: false } },
+      y: { ticks: { color: '#e2e8f0' }, grid: { display: false } },
     },
     plugins: {
       legend: { position: 'bottom' as const, labels: { color: '#e2e8f0' } },

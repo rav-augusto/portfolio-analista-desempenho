@@ -28,6 +28,7 @@ const categorias = [
 
 const tabs = [
   { id: 'metodo', label: 'Metodo do Analista', icon: BookOpen },
+  { id: 'dimensoes', label: '20 Dimensoes', icon: Target },
   { id: 'categorias', label: 'Checklist por Categoria', icon: ClipboardList },
   { id: 'talento', label: 'Identificar Talento', icon: Star },
 ]
@@ -209,6 +210,437 @@ export default function GuiaAvaliacaoPage() {
                       <span>metas de treino "treinaveis" (o treinador consegue aplicar amanha)</span>
                     </li>
                   </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab Dimensões */}
+          {activeTab === 'dimensoes' && (
+            <div className="space-y-8">
+              {/* Intro */}
+              <div className="bg-amber-500/10 rounded-xl p-4 border border-amber-500/20">
+                <p className="text-sm text-slate-300">
+                  O sistema avalia atletas em <strong>20 dimensoes</strong> divididas em 3 grupos:
+                  <span className="text-amber-400 font-medium"> CBF (8)</span>,
+                  <span className="text-green-400 font-medium"> Ofensivas (6)</span> e
+                  <span className="text-red-400 font-medium"> Defensivas (6)</span>.
+                  Cada dimensao recebe nota de 1 a 5 e e comparada com benchmarks por categoria.
+                </p>
+              </div>
+
+              {/* CBF - 8 dimensões */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30">
+                    <span className="text-amber-400 font-bold">CBF</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-100">8 Dimensoes Tecnico-Comportamentais</h3>
+                </div>
+                <p className="text-sm text-slate-400 mb-4">Baseadas na metodologia da CBF Academy para formacao de jogadores de base.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Força */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">💪</span>
+                      <h4 className="font-semibold text-amber-400">Forca</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Capacidade fisica de disputar bolas, manter posicao corporal, resistir a cargas e proteger a bola.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Domina fisicamente, vence todos os duelos</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Adequado para idade, ganha alguns duelos</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Muito fraco fisicamente, evita contato</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U11-U12 foco em coordenacao, U15+ forca se torna mais relevante</p>
+                    </div>
+                  </div>
+
+                  {/* Velocidade */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">⚡</span>
+                      <h4 className="font-semibold text-amber-400">Velocidade</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Rapidez em sprints curtos, capacidade de aceleracao, mudancas de direcao e velocidade de reacao.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Explosivo, ganha corridas com folga</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Velocidade adequada, acompanha o jogo</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Muito lento, sempre atrasado nas jogadas</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Pode variar muito com maturacao, nao supervalorizar em U11-U13</p>
+                    </div>
+                  </div>
+
+                  {/* Técnica */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">⚽</span>
+                      <h4 className="font-semibold text-amber-400">Tecnica</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Dominio de bola, qualidade de passes, dribles, conducao, primeiro toque e finalizacao.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Excelente com ambos os pes, domina sob pressao</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Bom com pe dominante, adequado sob pressao</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Dificuldade no dominio, perde bola facil</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U11-U12 "Idade de Ouro" para desenvolver tecnica</p>
+                    </div>
+                  </div>
+
+                  {/* Dinâmica */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔄</span>
+                      <h4 className="font-semibold text-amber-400">Dinamica</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Movimentacao constante, cobertura de espacos, capacidade de transicao e intensidade de jogo.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre em movimento, cobre muito campo</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Movimenta-se bem, participa do jogo</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Estatico, espera a bola parado</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Importante desde U11, indica atitude e entendimento do jogo</p>
+                    </div>
+                  </div>
+
+                  {/* Inteligência */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🧠</span>
+                      <h4 className="font-semibold text-amber-400">Inteligencia</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Leitura de jogo, tomada de decisao rapida, antecipacao de jogadas e visao de jogo.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre decide certo, antecipa jogadas</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Boas decisoes, ocasionais erros de leitura</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Decisoes ruins, nao entende o jogo</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U13+ comeca a ser mais importante, diferencial em todas idades</p>
+                    </div>
+                  </div>
+
+                  {/* 1 contra 1 */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">⚔️</span>
+                      <h4 className="font-semibold text-amber-400">1 contra 1</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Capacidade de vencer duelos individuais tanto no ataque (dribles, fintas) quanto na defesa (desarmes, bloqueios).
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Vence maioria dos duelos, decisivo</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Equilibrado, ganha e perde duelos</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Evita duelos, sempre perde</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U11 valorizar tentativa, U15+ valorizar efetividade</p>
+                    </div>
+                  </div>
+
+                  {/* Atitude */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔥</span>
+                      <h4 className="font-semibold text-amber-400">Atitude</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Mentalidade competitiva, comprometimento, resiliencia, lideranca e comunicacao em campo.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Lider, nunca desiste, puxa o time</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Comprometido, mantem foco</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Desiste facil, reclama, se esconde</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Fundamental em todas idades, diferencial para evolucao</p>
+                    </div>
+                  </div>
+
+                  {/* Potencial */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">📈</span>
+                      <h4 className="font-semibold text-amber-400">Potencial</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Projecao de evolucao futura baseada em margem de crescimento, caracteristicas fisicas e capacidade de aprendizado.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Altissimo potencial, aprende rapido</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Bom potencial, evolui normalmente</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Baixo potencial, teto visivel</p>
+                    </div>
+                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
+                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Mais importante em U11-U13, U17 ja e mais "o que e"</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ofensivas - 6 dimensões */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30">
+                    <span className="text-green-400 font-bold">OFE</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-100">6 Dimensoes Ofensivas</h3>
+                </div>
+                <p className="text-sm text-slate-400 mb-4">Principios taticos da fase ofensiva do jogo.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Penetração */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🎯</span>
+                      <h4 className="font-semibold text-green-400">Penetracao</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Capacidade de atacar espacos, progredir com bola em direcao ao gol e finalizar jogadas.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Ataca espacos com precisao, finaliza bem</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Progride quando tem espaco claro</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Nao busca profundidade, sempre joga para tras</p>
+                    </div>
+                  </div>
+
+                  {/* Cobertura Ofensiva */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🤝</span>
+                      <h4 className="font-semibold text-green-400">Cobertura Ofensiva</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Apoio aos companheiros no ataque, oferecendo opcoes de passe e criando linhas de passe.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre oferece opcao, timing perfeito</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Oferece apoio adequado</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Nao se oferece, deixa companheiro sozinho</p>
+                    </div>
+                  </div>
+
+                  {/* Espaço com Bola */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">⚽</span>
+                      <h4 className="font-semibold text-green-400">Espaco com Bola</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Qualidade na posse de bola, criacao de jogadas, manutencao da bola e criacao de espacos.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Cria jogadas, mantem posse sob pressao</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Boa manutencao em situacoes normais</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Perde bola facil, sem criatividade</p>
+                    </div>
+                  </div>
+
+                  {/* Espaço sem Bola */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">👟</span>
+                      <h4 className="font-semibold text-green-400">Espaco sem Bola</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Movimentacao inteligente para receber, criar linhas de passe e desmarques.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Movimentacao constante e inteligente</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Se movimenta quando percebe espaco</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Estatico, espera a bola chegar</p>
+                    </div>
+                  </div>
+
+                  {/* Mobilidade */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔀</span>
+                      <h4 className="font-semibold text-green-400">Mobilidade</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Capacidade de trocar posicoes, surpreender e desorganizar defesas adversarias.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Imprevisivel, troca posicoes com inteligencia</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Algumas trocas de posicao efetivas</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Sempre na mesma posicao, previsivel</p>
+                    </div>
+                  </div>
+
+                  {/* Unidade Ofensiva */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔗</span>
+                      <h4 className="font-semibold text-green-400">Unidade Ofensiva</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Conexao com o coletivo no ataque, sincronismo com companheiros e combinacoes.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Joga junto, combina bem, sincronizado</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Participa das jogadas coletivas</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Joga sozinho, nao combina</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Defensivas - 6 dimensões */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30">
+                    <span className="text-red-400 font-bold">DEF</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-100">6 Dimensoes Defensivas</h3>
+                </div>
+                <p className="text-sm text-slate-400 mb-4">Principios taticos da fase defensiva do jogo.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Contenção */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🛡️</span>
+                      <h4 className="font-semibold text-red-400">Contencao</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Capacidade de marcar, pressionar o portador da bola e retardar ataques adversarios.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Pressao intensa e inteligente, recupera bola</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Marca adequadamente, faz pressao</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Nao marca, da espaco ao adversario</p>
+                    </div>
+                  </div>
+
+                  {/* Cobertura Defensiva */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🤝</span>
+                      <h4 className="font-semibold text-red-400">Cobertura Defensiva</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Apoio aos companheiros na defesa, cobertura de espacos vulneraveis e dobras de marcacao.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre da cobertura, posicionamento perfeito</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Cobre quando necessario</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Deixa companheiro sozinho, sem cobertura</p>
+                    </div>
+                  </div>
+
+                  {/* Equilíbrio Recuperação */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔄</span>
+                      <h4 className="font-semibold text-red-400">Equilibrio Recuperacao</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Recomposicao rapida apos perda de bola, transicao defensiva e reacao a perda.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Transicao imediata, sempre volta</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Volta na maioria das vezes</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Nao volta, time sofre contra-ataque</p>
+                    </div>
+                  </div>
+
+                  {/* Equilíbrio Defensivo */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">⚖️</span>
+                      <h4 className="font-semibold text-red-400">Equilibrio Defensivo</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Posicionamento correto, organizacao tatica, compactacao e distancias entre linhas.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre bem posicionado, organiza linha</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Posicionamento adequado na maioria</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Mal posicionado, cria buracos</p>
+                    </div>
+                  </div>
+
+                  {/* Concentração */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🎯</span>
+                      <h4 className="font-semibold text-red-400">Concentracao</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Atencao constante, antecipacao de jogadas e capacidade de interceptar passes.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre atento, antecipa e intercepta</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Mantem foco na maioria do jogo</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Desatento, pego de surpresa</p>
+                    </div>
+                  </div>
+
+                  {/* Unidade Defensiva */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">🔗</span>
+                      <h4 className="font-semibold text-red-400">Unidade Defensiva</h4>
+                    </div>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Conexao com o coletivo na defesa, comunicacao, coesao e trabalho em equipe defensivo.
+                    </p>
+                    <div className="text-xs text-slate-400 space-y-1">
+                      <p><span className="text-green-400 font-medium">Nota 5:</span> Comunica, organiza, defende junto</p>
+                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Participa da organizacao defensiva</p>
+                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Defende sozinho, sem comunicacao</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Escala de notas */}
+              <div className="bg-slate-700/50 rounded-xl p-6 border border-slate-600">
+                <h3 className="text-lg font-semibold text-slate-100 mb-4">Escala de Notas (1 a 5)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                  <div className="text-center p-3 bg-red-900/30 rounded-lg border border-red-700">
+                    <p className="text-2xl font-bold text-red-400">1</p>
+                    <p className="text-xs text-red-300">Muito abaixo</p>
+                    <p className="text-xs text-slate-400 mt-1">Deficiencia clara</p>
+                  </div>
+                  <div className="text-center p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                    <p className="text-2xl font-bold text-orange-400">2</p>
+                    <p className="text-xs text-orange-300">Abaixo</p>
+                    <p className="text-xs text-slate-400 mt-1">Precisa desenvolver</p>
+                  </div>
+                  <div className="text-center p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                    <p className="text-2xl font-bold text-blue-400">3</p>
+                    <p className="text-xs text-blue-300">Na media</p>
+                    <p className="text-xs text-slate-400 mt-1">Adequado p/ idade</p>
+                  </div>
+                  <div className="text-center p-3 bg-green-900/30 rounded-lg border border-green-700">
+                    <p className="text-2xl font-bold text-green-400">4</p>
+                    <p className="text-xs text-green-300">Acima</p>
+                    <p className="text-xs text-slate-400 mt-1">Destaque positivo</p>
+                  </div>
+                  <div className="text-center p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                    <p className="text-2xl font-bold text-purple-400">5</p>
+                    <p className="text-xs text-purple-300">Excelente</p>
+                    <p className="text-xs text-slate-400 mt-1">Diferencial claro</p>
+                  </div>
                 </div>
               </div>
             </div>
