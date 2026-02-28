@@ -84,34 +84,34 @@ type Avaliacao = {
 
 // Dimensoes CBF
 const dimensoesCBF = [
-  { key: 'forca', label: 'Forca', color: '#ef4444' },
-  { key: 'velocidade', label: 'Velocidade', color: '#f97316' },
-  { key: 'tecnica', label: 'Tecnica', color: '#eab308' },
-  { key: 'dinamica', label: 'Dinamica', color: '#22c55e' },
-  { key: 'inteligencia', label: 'Inteligencia', color: '#06b6d4' },
-  { key: 'um_contra_um', label: '1 contra 1', color: '#3b82f6' },
-  { key: 'atitude', label: 'Atitude', color: '#8b5cf6' },
-  { key: 'potencial', label: 'Potencial', color: '#ec4899' }
+  { key: 'forca', label: 'Força', shortLabel: 'FOR', color: '#ef4444' },
+  { key: 'velocidade', label: 'Velocidade', shortLabel: 'VEL', color: '#f97316' },
+  { key: 'tecnica', label: 'Técnica', shortLabel: 'TEC', color: '#eab308' },
+  { key: 'dinamica', label: 'Dinâmica', shortLabel: 'DIN', color: '#22c55e' },
+  { key: 'inteligencia', label: 'Inteligência', shortLabel: 'INT', color: '#06b6d4' },
+  { key: 'um_contra_um', label: '1 contra 1', shortLabel: '1x1', color: '#3b82f6' },
+  { key: 'atitude', label: 'Atitude', shortLabel: 'ATI', color: '#8b5cf6' },
+  { key: 'potencial', label: 'Potencial', shortLabel: 'POT', color: '#ec4899' }
 ]
 
 // Dimensoes Ofensivas
 const dimensoesOFE = [
-  { key: 'penetracao', label: 'Penetracao', color: '#10b981' },
-  { key: 'cobertura_ofensiva', label: 'Cob. Ofensiva', color: '#14b8a6' },
-  { key: 'espaco_com_bola', label: 'Espaco c/ Bola', color: '#06b6d4' },
-  { key: 'espaco_sem_bola', label: 'Espaco s/ Bola', color: '#0ea5e9' },
-  { key: 'mobilidade', label: 'Mobilidade', color: '#3b82f6' },
-  { key: 'unidade_ofensiva', label: 'Unid. Ofensiva', color: '#6366f1' }
+  { key: 'penetracao', label: 'Penetração', shortLabel: 'PEN', color: '#10b981' },
+  { key: 'cobertura_ofensiva', label: 'Cob. Ofensiva', shortLabel: 'COB', color: '#14b8a6' },
+  { key: 'espaco_com_bola', label: 'Espaço c/ Bola', shortLabel: 'ECB', color: '#06b6d4' },
+  { key: 'espaco_sem_bola', label: 'Espaço s/ Bola', shortLabel: 'ESB', color: '#0ea5e9' },
+  { key: 'mobilidade', label: 'Mobilidade', shortLabel: 'MOB', color: '#3b82f6' },
+  { key: 'unidade_ofensiva', label: 'Unid. Ofensiva', shortLabel: 'UNI', color: '#6366f1' }
 ]
 
 // Dimensoes Defensivas
 const dimensoesDEF = [
-  { key: 'contencao', label: 'Contencao', color: '#dc2626' },
-  { key: 'cobertura_defensiva', label: 'Cob. Defensiva', color: '#ea580c' },
-  { key: 'equilibrio_recuperacao', label: 'Equil. Recup.', color: '#d97706' },
-  { key: 'equilibrio_defensivo', label: 'Equil. Def.', color: '#ca8a04' },
-  { key: 'concentracao_def', label: 'Concentracao', color: '#65a30d' },
-  { key: 'unidade_defensiva', label: 'Unid. Defensiva', color: '#16a34a' }
+  { key: 'contencao', label: 'Contenção', shortLabel: 'CON', color: '#dc2626' },
+  { key: 'cobertura_defensiva', label: 'Cob. Defensiva', shortLabel: 'CBD', color: '#ea580c' },
+  { key: 'equilibrio_recuperacao', label: 'Equil. Recup.', shortLabel: 'EQR', color: '#d97706' },
+  { key: 'equilibrio_defensivo', label: 'Equil. Def.', shortLabel: 'EQD', color: '#ca8a04' },
+  { key: 'concentracao_def', label: 'Concentração', shortLabel: 'CNC', color: '#65a30d' },
+  { key: 'unidade_defensiva', label: 'Unid. Defensiva', shortLabel: 'UND', color: '#16a34a' }
 ]
 
 // Todas as dimensoes
@@ -147,7 +147,7 @@ export default function DashboardAtletasPage() {
     loadAtletas()
   }, [supabase])
 
-  // Carregar avaliacoes do atleta selecionado
+  // Carregar avaliações do atleta selecionado
   useEffect(() => {
     if (!atletaSelecionado) {
       setAvaliacoes([])
@@ -204,16 +204,16 @@ export default function DashboardAtletasPage() {
 
     if (!avaliacaoSelecionada) {
       return {
-        labels: dimensoesAtivas.map(d => d.label),
+        labels: dimensoesAtivas.map(d => d.shortLabel),
         datasets: []
       }
     }
 
     return {
-      labels: dimensoesAtivas.map(d => d.label),
+      labels: dimensoesAtivas.map(d => d.shortLabel),
       datasets: [
         {
-          label: 'Ultima Avaliacao',
+          label: 'Última Avaliação',
           data: dimensoesAtivas.map(d => avaliacaoSelecionada[d.key as keyof Avaliacao] as number || 0),
           backgroundColor: corBg,
           borderColor: corPrincipal,
@@ -286,7 +286,7 @@ export default function DashboardAtletasPage() {
     })
 
     return {
-      labels: dimensoesAtivas.map(d => d.label),
+      labels: dimensoesAtivas.map(d => d.shortLabel),
       datasets: [
         {
           label: 'Media',
@@ -327,6 +327,79 @@ export default function DashboardAtletasPage() {
       .sort((a, b) => b.evolucao - a.evolucao)
   }, [comparativoData])
 
+  // Dados do gráfico de barras de evolução (estilo momento de ataque)
+  const evolucaoBarData = useMemo(() => {
+    if (!comparativoData || avaliacoes.length < 2) {
+      return { labels: [], datasets: [] }
+    }
+
+    const dados = comparativoData.filter(d => d.primeira > 0 || d.ultima > 0)
+
+    const getColor = (evolucao: number) => {
+      if (evolucao > 0) return 'rgba(34, 197, 94, 0.8)' // verde
+      if (evolucao < 0) return 'rgba(239, 68, 68, 0.8)' // vermelho
+      return 'rgba(100, 116, 139, 0.8)' // cinza para igual
+    }
+
+    const getBorderColor = (evolucao: number) => {
+      if (evolucao > 0) return '#22c55e'
+      if (evolucao < 0) return '#ef4444'
+      return '#64748b'
+    }
+
+    return {
+      labels: dados.map(d => d.shortLabel),
+      datasets: [
+        {
+          label: 'Evolução',
+          data: dados.map(d => d.evolucao === 0 ? 0.15 : d.evolucao), // mostra barra pequena se igual
+          backgroundColor: dados.map(d => getColor(d.evolucao)),
+          borderColor: dados.map(d => getBorderColor(d.evolucao)),
+          borderWidth: 1,
+          borderRadius: 4,
+        }
+      ]
+    }
+  }, [comparativoData, avaliacoes])
+
+  // Opções do gráfico de barras de evolução
+  const evolucaoBarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'x' as const,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        titleColor: '#f1f5f9',
+        bodyColor: '#cbd5e1',
+        borderColor: '#475569',
+        borderWidth: 1,
+        callbacks: {
+          label: (ctx: { raw: number }) => {
+            const val = ctx.raw as number
+            return val >= 0 ? `+${val.toFixed(1)}` : val.toFixed(1)
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8', font: { size: 10 } }
+      },
+      y: {
+        grid: { color: 'rgba(71, 85, 105, 0.3)' },
+        ticks: {
+          color: '#94a3b8',
+          callback: (value: number) => value >= 0 ? `+${value}` : value
+        },
+        suggestedMin: -2,
+        suggestedMax: 2
+      }
+    }
+  }
+
   // Modelo 1: Média por grupo (CBF, OFE, DEF)
   const mediaPorGrupo = useMemo(() => {
     if (!avaliacaoSelecionada) return null
@@ -351,7 +424,7 @@ export default function DashboardAtletasPage() {
     const ultima = avaliacoes[avaliacoes.length - 1]
 
     return {
-      labels: dimensoesCBF.map(d => d.label),
+      labels: dimensoesCBF.map(d => d.shortLabel),
       datasets: [
         {
           label: 'Primeira',
@@ -542,14 +615,14 @@ export default function DashboardAtletasPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-100">Dashboard de Atletas</h1>
-          <p className="text-slate-400 mt-1">Acompanhe a evolucao dos atletas</p>
+          <p className="text-slate-400 mt-1">Acompanhe a evolução dos atletas</p>
         </div>
         <Link
           href="/avaliacoes/nova"
           className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors"
         >
           <Star className="w-5 h-5" />
-          Nova Avaliacao
+          Nova Avaliação
         </Link>
       </div>
 
@@ -593,33 +666,33 @@ export default function DashboardAtletasPage() {
           <Users className="w-16 h-16 text-slate-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-slate-100 mb-2">Selecione um Atleta</h3>
           <p className="text-slate-400 max-w-md mx-auto mb-6">
-            Escolha um atleta no filtro acima para acompanhar sua evolucao completa.
+            Escolha um atleta no filtro acima para acompanhar sua evolução completa.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
             <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600">
               <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                 <span className="text-xl">⚽</span>
               </div>
-              <p className="text-sm font-medium text-slate-200">8 Dimensoes CBF</p>
-              <p className="text-xs text-slate-500">Forca, Velocidade, Tecnica...</p>
+              <p className="text-sm font-medium text-slate-200">8 Dimensões CBF</p>
+              <p className="text-xs text-slate-500">Força, Velocidade, Técnica...</p>
             </div>
             <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600">
               <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                 <span className="text-xl">↗️</span>
               </div>
-              <p className="text-sm font-medium text-slate-200">6 Dimensoes Ofensivas</p>
-              <p className="text-xs text-slate-500">Penetracao, Mobilidade...</p>
+              <p className="text-sm font-medium text-slate-200">6 Dimensões Ofensivas</p>
+              <p className="text-xs text-slate-500">Penetração, Mobilidade...</p>
             </div>
             <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600">
               <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                 <span className="text-xl">🛡️</span>
               </div>
-              <p className="text-sm font-medium text-slate-200">6 Dimensoes Defensivas</p>
-              <p className="text-xs text-slate-500">Contencao, Equilibrio...</p>
+              <p className="text-sm font-medium text-slate-200">6 Dimensões Defensivas</p>
+              <p className="text-xs text-slate-500">Contenção, Equilíbrio...</p>
             </div>
           </div>
           <p className="text-slate-500 text-sm mt-6">
-            Visualize graficos radar, evolucao ao longo do tempo e media geral do atleta
+            Visualize gráficos radar, evolução ao longo do tempo e média geral do atleta
           </p>
         </div>
       ) : loadingAvaliacoes ? (
@@ -643,7 +716,7 @@ export default function DashboardAtletasPage() {
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-slate-100">{atletaAtual.nome}</h2>
                   <p className="text-slate-400">
-                    {atletaAtual.posicao || 'Posicao nao informada'}
+                    {atletaAtual.posicao || 'Posição não informada'}
                     {getClubeName(atletaAtual.clubes) && ` - ${getClubeName(atletaAtual.clubes)}`}
                   </p>
                 </div>
@@ -670,11 +743,11 @@ export default function DashboardAtletasPage() {
                     <p className="text-2xl font-bold text-amber-500">
                       {mediaGeral > 0 ? mediaGeral.toFixed(1) : '-'}
                     </p>
-                    <p className="text-xs text-slate-400">media geral</p>
+                    <p className="text-xs text-slate-400">média geral</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-slate-100">{avaliacoes.length}</p>
-                    <p className="text-xs text-slate-400">avaliacoes</p>
+                    <p className="text-xs text-slate-400">avaliações</p>
                   </div>
                 </div>
               </div>
@@ -684,14 +757,14 @@ export default function DashboardAtletasPage() {
           {avaliacoes.length === 0 ? (
             <div className="bg-slate-800 rounded-2xl p-12 shadow-sm border border-slate-700 text-center">
               <BarChart3 className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-slate-100 mb-2">Nenhuma Avaliacao</h3>
-              <p className="text-slate-400 mb-4">Este atleta ainda nao possui avaliacoes registradas.</p>
+              <h3 className="text-xl font-semibold text-slate-100 mb-2">Nenhuma Avaliação</h3>
+              <p className="text-slate-400 mb-4">Este atleta ainda não possui avaliações registradas.</p>
               <Link
                 href="/avaliacoes/nova"
                 className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors"
               >
                 <Star className="w-5 h-5" />
-                Criar Primeira Avaliacao
+                Criar Primeira Avaliação
               </Link>
             </div>
           ) : (
@@ -743,79 +816,42 @@ export default function DashboardAtletasPage() {
                   </div>
                   {avaliacaoSelecionada && (
                     <p className="text-xs text-slate-400 text-center mt-2">
-                      Avaliacao de {new Date(avaliacaoSelecionada.data_avaliacao + 'T12:00:00').toLocaleDateString('pt-BR')}
+                      Avaliação de {new Date(avaliacaoSelecionada.data_avaliacao + 'T12:00:00').toLocaleDateString('pt-BR')}
                     </p>
                   )}
                 </div>
 
-                {/* Grafico de Evolucao ao Longo do Tempo */}
+                {/* Grafico de Evolução (Barras - estilo momento de ataque) */}
                 <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-amber-500" />
-                      <h3 className="text-lg font-semibold text-slate-100">Evolucao</h3>
+                      <h3 className="text-lg font-semibold text-slate-100">Evolução</h3>
+                      <span className="text-xs text-slate-500">(1ª vs última avaliação)</span>
                     </div>
-                    {/* Seletor de dimensões compacto */}
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => toggleGrupo('todas')}
-                        className="px-2 py-1 rounded text-xs font-medium transition-all"
-                        style={dimensoesVisiveis.length === todasDimensoes.length
-                          ? { backgroundColor: '#8b5cf6', color: '#fff' }
-                          : { backgroundColor: '#334155', color: '#94a3b8' }}
-                      >
-                        Geral
-                      </button>
-                      <button
-                        onClick={() => toggleGrupo('cbf')}
-                        className="px-2 py-1 rounded text-xs font-medium transition-all"
-                        style={dimensoesCBF.every(d => dimensoesVisiveis.includes(d.key))
-                          ? { backgroundColor: '#f59e0b', color: '#0f172a' }
-                          : dimensoesCBF.some(d => dimensoesVisiveis.includes(d.key))
-                          ? { backgroundColor: 'rgba(245,158,11,0.2)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.5)' }
-                          : { backgroundColor: '#334155', color: '#94a3b8' }}
-                      >
-                        CBF
-                      </button>
-                      <button
-                        onClick={() => toggleGrupo('ofe')}
-                        className="px-2 py-1 rounded text-xs font-medium transition-all"
-                        style={dimensoesOFE.every(d => dimensoesVisiveis.includes(d.key))
-                          ? { backgroundColor: '#22c55e', color: '#0f172a' }
-                          : dimensoesOFE.some(d => dimensoesVisiveis.includes(d.key))
-                          ? { backgroundColor: 'rgba(34,197,94,0.2)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.5)' }
-                          : { backgroundColor: '#334155', color: '#94a3b8' }}
-                      >
-                        OFE
-                      </button>
-                      <button
-                        onClick={() => toggleGrupo('def')}
-                        className="px-2 py-1 rounded text-xs font-medium transition-all"
-                        style={dimensoesDEF.every(d => dimensoesVisiveis.includes(d.key))
-                          ? { backgroundColor: '#ef4444', color: '#fff' }
-                          : dimensoesDEF.some(d => dimensoesVisiveis.includes(d.key))
-                          ? { backgroundColor: 'rgba(239,68,68,0.2)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.5)' }
-                          : { backgroundColor: '#334155', color: '#94a3b8' }}
-                      >
-                        DEF
-                      </button>
+                    <div className="flex items-center gap-3 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, backgroundColor: '#22c55e' }} />
+                        <span className="text-slate-400">Melhorou</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, backgroundColor: '#64748b' }} />
+                        <span className="text-slate-400">Igual</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, backgroundColor: '#ef4444' }} />
+                        <span className="text-slate-400">Piorou</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className={dimensoesVisiveis.length < 20 ? "h-[240px]" : "h-[260px]"}>
-                    <Line data={evolucaoData} options={lineOptions} />
-                  </div>
-                  {/* Mini legenda - só aparece quando não é Geral */}
-                  {dimensoesVisiveis.length > 0 && dimensoesVisiveis.length < 20 && (
-                    <div className="flex gap-1.5 mt-2 justify-center">
-                      {todasDimensoes.filter(d => dimensoesVisiveis.includes(d.key)).map((d) => (
-                        <div
-                          key={d.key}
-                          className="w-3 h-3 rounded-full cursor-help"
-                          style={{ backgroundColor: d.color }}
-                          title={d.label}
-                        />
-                      ))}
+                  {avaliacoes.length < 2 ? (
+                    <div className="h-[240px] flex items-center justify-center text-slate-500 text-sm">
+                      Necessário pelo menos 2 avaliações para comparar evolução
+                    </div>
+                  ) : (
+                    <div className="h-[240px]">
+                      <Bar data={evolucaoBarData} options={evolucaoBarOptions as object} />
                     </div>
                   )}
                 </div>
@@ -1033,7 +1069,7 @@ export default function DashboardAtletasPage() {
                       {/* Top 3 Queda */}
                       <div>
                         <p className="text-xs text-red-400 font-medium mb-2 flex items-center gap-1">
-                          <span>↓</span> Pontos de Atencao
+                          <span>↓</span> Pontos de Atenção
                         </p>
                         <div className="space-y-1.5">
                           {maioresEvolucoes.slice(-3).reverse().filter(d => d.evolucao <= 0 || maioresEvolucoes.indexOf(d) >= maioresEvolucoes.length - 3).map((d, idx) => (
@@ -1060,17 +1096,17 @@ export default function DashboardAtletasPage() {
                     </div>
                   ) : (
                     <div className="h-[280px] flex items-center justify-center">
-                      <p className="text-slate-500 text-sm">Necessario pelo menos 2 avaliacoes</p>
+                      <p className="text-slate-500 text-sm">Necessário pelo menos 2 avaliações</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Detalhes da Avaliacao */}
+              {/* Detalhes da Avaliação */}
               {avaliacoes.length > 0 && (
                 <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                    <h3 className="text-lg font-semibold text-slate-100">Detalhes da Avaliacao</h3>
+                    <h3 className="text-lg font-semibold text-slate-100">Detalhes da Avaliação</h3>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-slate-400">Data:</span>
                       <select
@@ -1101,7 +1137,7 @@ export default function DashboardAtletasPage() {
                             disabled={avaliacaoIndex === 0}
                             className="p-1.5 rounded-lg transition-colors disabled:opacity-30"
                             style={{ backgroundColor: '#334155', border: '1px solid #475569', color: '#e2e8f0' }}
-                            title="Avaliacao anterior"
+                            title="Avaliação anterior"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -1115,7 +1151,7 @@ export default function DashboardAtletasPage() {
                             disabled={avaliacaoIndex === -1}
                             className="p-1.5 rounded-lg transition-colors disabled:opacity-30"
                             style={{ backgroundColor: '#334155', border: '1px solid #475569', color: '#e2e8f0' }}
-                            title="Proxima avaliacao"
+                            title="Próxima avaliação"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1146,7 +1182,7 @@ export default function DashboardAtletasPage() {
                       )}
                       {avaliacaoSelecionada.observacoes && (
                         <div>
-                          <h4 className="text-sm font-medium text-blue-400 mb-2">Observacoes</h4>
+                          <h4 className="text-sm font-medium text-blue-400 mb-2">Observações</h4>
                           <p className="text-sm text-slate-300 bg-blue-900/30 p-3 rounded-xl border border-blue-800/50">
                             {avaliacaoSelecionada.observacoes}
                           </p>
@@ -1154,7 +1190,7 @@ export default function DashboardAtletasPage() {
                       )}
                       {!avaliacaoSelecionada.pontos_fortes && !avaliacaoSelecionada.pontos_desenvolver && !avaliacaoSelecionada.observacoes && (
                         <div className="col-span-full text-center py-4">
-                          <p className="text-slate-500">Nenhuma observacao registrada nesta avaliacao</p>
+                          <p className="text-slate-500">Nenhuma observação registrada nesta avaliação</p>
                         </div>
                       )}
                     </div>
