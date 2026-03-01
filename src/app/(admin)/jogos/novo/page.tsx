@@ -134,14 +134,14 @@ export default function NovoJogoPage() {
 
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              Adversario *
+              Adversário *
             </label>
             <input
               type="text"
               value={adversario}
               onChange={(e) => setAdversario(e.target.value)}
               required
-              placeholder="Nome do time adversario"
+              placeholder="Nome do time adversário"
               className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
             />
           </div>
@@ -168,7 +168,7 @@ export default function NovoJogoPage() {
                 type="text"
                 value={local}
                 onChange={(e) => setLocal(e.target.value)}
-                placeholder="Ex: Estadio X"
+                placeholder="Ex: Estádio X"
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
               />
             </div>
@@ -177,7 +177,7 @@ export default function NovoJogoPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-2">
-                Competicao *
+                Competição *
               </label>
               <input
                 type="text"
@@ -205,7 +205,7 @@ export default function NovoJogoPage() {
 
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              URL do Video
+              URL do Vídeo
             </label>
             <input
               type="url"
@@ -233,7 +233,7 @@ export default function NovoJogoPage() {
 
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-2">
-                Placar Adversario
+                Placar Adversário
               </label>
               <input
                 type="number"

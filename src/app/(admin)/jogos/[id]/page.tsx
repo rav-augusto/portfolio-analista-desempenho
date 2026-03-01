@@ -124,7 +124,7 @@ export default function EditarJogoPage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold text-slate-100">Editar Jogo</h1>
-          <p className="text-slate-400 mt-1">Atualize as informacoes do jogo</p>
+          <p className="text-slate-400 mt-1">Atualize as informações do jogo</p>
         </div>
       </div>
 
@@ -169,7 +169,7 @@ export default function EditarJogoPage() {
 
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              Adversario *
+              Adversário *
             </label>
             <input
               type="text"
@@ -210,7 +210,7 @@ export default function EditarJogoPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-2">
-                Competicao *
+                Competição *
               </label>
               <input
                 type="text"
@@ -237,7 +237,7 @@ export default function EditarJogoPage() {
 
           <div>
             <label className="block text-sm font-medium text-amber-500 mb-2">
-              URL do Video
+              URL do Vídeo
             </label>
             <input
               type="url"
@@ -264,7 +264,7 @@ export default function EditarJogoPage() {
 
             <div>
               <label className="block text-sm font-medium text-amber-500 mb-2">
-                Placar Adversario
+                Placar Adversário
               </label>
               <input
                 type="number"
