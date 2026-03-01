@@ -61,34 +61,34 @@ const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | und
 
 // Dimensões CBF com descrições detalhadas
 const dimensoesCBF = [
-  { key: 'forca', label: 'Forca', shortLabel: 'FOR', desc: 'Capacidade fisica de impor-se nos duelos, proteger a bola e disputar divididas. Inclui forca de membros superiores e inferiores, resistencia muscular e potencia nos saltos e arrancadas.', hasHelp: true },
-  { key: 'velocidade', label: 'Velocidade', shortLabel: 'VEL', desc: 'Rapidez de deslocamento com e sem bola, aceleracao inicial, velocidade maxima e tempo de reacao. Fundamental para transicoes ofensivas e defensivas.', hasHelp: true },
-  { key: 'tecnica', label: 'Tecnica', shortLabel: 'TEC', desc: 'Qualidade do dominio de bola, passe curto e longo, conducao, finalizacao e dribles. Avalia a execucao precisa dos fundamentos do futebol.', hasHelp: true },
-  { key: 'dinamica', label: 'Dinamica', shortLabel: 'DIN', desc: 'Movimentacao constante durante o jogo, intensidade nas acoes e capacidade de repetir sprints e esforcos de alta intensidade ao longo da partida.', hasHelp: true },
-  { key: 'inteligencia', label: 'Inteligencia', shortLabel: 'INT', desc: 'Leitura de jogo, antecipacao das jogadas, tomada de decisao rapida e visao espacial. Capacidade de entender o contexto tatico e fazer escolhas assertivas.', hasHelp: true },
-  { key: 'um_contra_um', label: '1 contra 1', shortLabel: '1v1', desc: 'Capacidade de superar o adversario direto no ataque atraves de dribles e fintas, e de marcar/desarmar na defesa em situacoes de duelo individual.', hasHelp: true },
-  { key: 'atitude', label: 'Atitude', shortLabel: 'ATI', desc: 'Comportamento competitivo, lideranca em campo, comunicacao com companheiros, concentracao e mentalidade vencedora. Postura diante de adversidades.', hasHelp: true },
-  { key: 'potencial', label: 'Potencial', shortLabel: 'POT', desc: 'Margem de evolucao considerando idade, caracteristicas fisicas, tecnicas e capacidade de aprendizado. Projecao de desenvolvimento futuro do atleta.', hasHelp: true },
+  { key: 'forca', label: 'Força', shortLabel: 'FOR', desc: 'Capacidade física de impor-se nos duelos, proteger a bola e disputar divididas. Inclui força de membros superiores e inferiores, resistência muscular e potência nos saltos e arrancadas.', hasHelp: true },
+  { key: 'velocidade', label: 'Velocidade', shortLabel: 'VEL', desc: 'Rapidez de deslocamento com e sem bola, aceleração inicial, velocidade máxima e tempo de reação. Fundamental para transições ofensivas e defensivas.', hasHelp: true },
+  { key: 'tecnica', label: 'Técnica', shortLabel: 'TEC', desc: 'Qualidade do domínio de bola, passe curto e longo, condução, finalização e dribles. Avalia a execução precisa dos fundamentos do futebol.', hasHelp: true },
+  { key: 'dinamica', label: 'Dinâmica', shortLabel: 'DIN', desc: 'Movimentação constante durante o jogo, intensidade nas ações e capacidade de repetir sprints e esforços de alta intensidade ao longo da partida.', hasHelp: true },
+  { key: 'inteligencia', label: 'Inteligência', shortLabel: 'INT', desc: 'Leitura de jogo, antecipação das jogadas, tomada de decisão rápida e visão espacial. Capacidade de entender o contexto tático e fazer escolhas assertivas.', hasHelp: true },
+  { key: 'um_contra_um', label: '1 contra 1', shortLabel: '1v1', desc: 'Capacidade de superar o adversário direto no ataque através de dribles e fintas, e de marcar/desarmar na defesa em situações de duelo individual.', hasHelp: true },
+  { key: 'atitude', label: 'Atitude', shortLabel: 'ATI', desc: 'Comportamento competitivo, liderança em campo, comunicação com companheiros, concentração e mentalidade vencedora. Postura diante de adversidades.', hasHelp: true },
+  { key: 'potencial', label: 'Potencial', shortLabel: 'POT', desc: 'Margem de evolução considerando idade, características físicas, técnicas e capacidade de aprendizado. Projeção de desenvolvimento futuro do atleta.', hasHelp: true },
 ]
 
 // Princípios Ofensivos
 const principiosOfensivos = [
-  { key: 'penetracao', label: 'Penetracao', shortLabel: 'PEN', desc: 'Acao de avancar com a bola em direcao ao gol adversario.', diagram: DiagramPenetracao },
-  { key: 'cobertura_ofensiva', label: 'Cobertura Ofensiva', shortLabel: 'COF', desc: 'Acao de aproximacao de quem esta com a bola.', diagram: DiagramCoberturaOfensiva },
-  { key: 'espaco_com_bola', label: 'Espaco com Bola', shortLabel: 'ECB', desc: 'Movimento com posse para ganhar vantagem espacial.', diagram: DiagramEspacoComBola },
-  { key: 'espaco_sem_bola', label: 'Espaco sem Bola', shortLabel: 'ESB', desc: 'Movimentacao a frente da linha da bola.', diagram: DiagramEspacoSemBola },
-  { key: 'mobilidade', label: 'Mobilidade', shortLabel: 'MOB', desc: 'Movimento nas costas da ultima linha defensiva.', diagram: DiagramMobilidade },
-  { key: 'unidade_ofensiva', label: 'Unidade Ofensiva', shortLabel: 'UOF', desc: 'Organizacao coordenada das linhas de ataque.', diagram: DiagramUnidadeOfensiva },
+  { key: 'penetracao', label: 'Penetração', shortLabel: 'PEN', desc: 'Ação de avançar com a bola em direção ao gol adversário.', diagram: DiagramPenetracao },
+  { key: 'cobertura_ofensiva', label: 'Cobertura Ofensiva', shortLabel: 'COF', desc: 'Ação de aproximação de quem está com a bola.', diagram: DiagramCoberturaOfensiva },
+  { key: 'espaco_com_bola', label: 'Espaço com Bola', shortLabel: 'ECB', desc: 'Movimento com posse para ganhar vantagem espacial.', diagram: DiagramEspacoComBola },
+  { key: 'espaco_sem_bola', label: 'Espaço sem Bola', shortLabel: 'ESB', desc: 'Movimentação à frente da linha da bola.', diagram: DiagramEspacoSemBola },
+  { key: 'mobilidade', label: 'Mobilidade', shortLabel: 'MOB', desc: 'Movimento nas costas da última linha defensiva.', diagram: DiagramMobilidade },
+  { key: 'unidade_ofensiva', label: 'Unidade Ofensiva', shortLabel: 'UOF', desc: 'Organização coordenada das linhas de ataque.', diagram: DiagramUnidadeOfensiva },
 ]
 
 // Princípios Defensivos
 const principiosDefensivos = [
-  { key: 'contencao', label: 'Contencao', shortLabel: 'CON', desc: 'Acao de retardar o avanco do portador da bola.', diagram: DiagramContencao },
-  { key: 'cobertura_defensiva', label: 'Cobertura Defensiva', shortLabel: 'CDF', desc: 'Posicionamento de apoio ao jogador que faz a contencao.', diagram: DiagramCoberturaDefensiva },
-  { key: 'equilibrio_recuperacao', label: 'Equilibrio Recuperacao', shortLabel: 'ERE', desc: 'Posicionamento para recuperar a posse.', diagram: DiagramEquilibrioRecuperacao },
-  { key: 'equilibrio_defensivo', label: 'Equilibrio Defensivo', shortLabel: 'EDF', desc: 'Movimentacao zonal para estabilidade defensiva.', diagram: DiagramEquilibrioDefensivo },
-  { key: 'concentracao_def', label: 'Concentracao', shortLabel: 'CNC', desc: 'Acoes de protecao em zonas de maior risco.', diagram: DiagramConcentracao },
-  { key: 'unidade_defensiva', label: 'Unidade Defensiva', shortLabel: 'UDF', desc: 'Organizacao coordenada das linhas de defesa.', diagram: DiagramUnidadeDefensiva },
+  { key: 'contencao', label: 'Contenção', shortLabel: 'CON', desc: 'Ação de retardar o avanço do portador da bola.', diagram: DiagramContencao },
+  { key: 'cobertura_defensiva', label: 'Cobertura Defensiva', shortLabel: 'CDF', desc: 'Posicionamento de apoio ao jogador que faz a contenção.', diagram: DiagramCoberturaDefensiva },
+  { key: 'equilibrio_recuperacao', label: 'Equilíbrio Recuperação', shortLabel: 'ERE', desc: 'Posicionamento para recuperar a posse.', diagram: DiagramEquilibrioRecuperacao },
+  { key: 'equilibrio_defensivo', label: 'Equilíbrio Defensivo', shortLabel: 'EDF', desc: 'Movimentação zonal para estabilidade defensiva.', diagram: DiagramEquilibrioDefensivo },
+  { key: 'concentracao_def', label: 'Concentração', shortLabel: 'CNC', desc: 'Ações de proteção em zonas de maior risco.', diagram: DiagramConcentracao },
+  { key: 'unidade_defensiva', label: 'Unidade Defensiva', shortLabel: 'UDF', desc: 'Organização coordenada das linhas de defesa.', diagram: DiagramUnidadeDefensiva },
 ]
 
 const tipos = [
