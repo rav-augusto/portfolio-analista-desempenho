@@ -150,7 +150,7 @@ export default function AtletasPage() {
 
       {/* Filtros */}
       {showFilters && (
-        <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-6">
+        <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-slate-300">Filtrar por</h3>
             {filtrosAtivos && (
@@ -191,13 +191,13 @@ export default function AtletasPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-medium text-slate-500 uppercase mb-1">Posicao</label>
+              <label className="block text-[10px] font-medium text-slate-500 uppercase mb-1">Posição</label>
               <select
                 value={filtroPosicao}
                 onChange={(e) => setFiltroPosicao(e.target.value)}
                 className="w-full px-3 py-2 text-sm bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500"
               >
-                <option value="">Todas as posicoes</option>
+                <option value="">Todas as posições</option>
                 {posicoes.map(pos => (
                   <option key={pos} value={pos!}>{pos}</option>
                 ))}
@@ -208,92 +208,109 @@ export default function AtletasPage() {
       )}
 
       {/* Search */}
-      <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar atletas..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-          />
+      <div className="rounded-2xl p-5 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Search className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-100">Buscar Atletas</p>
+              <p className="text-xs text-slate-400">{filteredAtletas.length} atleta{filteredAtletas.length !== 1 ? 's' : ''} encontrado{filteredAtletas.length !== 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Digite o nome, posição, categoria ou clube..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* List */}
-      <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center text-slate-400">Carregando...</div>
-        ) : filteredAtletas.length === 0 ? (
-          <div className="p-8 text-center">
-            <Users className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-            <p className="text-slate-400">Nenhum atleta encontrado</p>
-            {filtrosAtivos && (
-              <button
-                onClick={limparFiltros}
-                className="text-amber-500 hover:text-amber-400 mt-2 text-sm"
-              >
-                Limpar filtros
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-700">
-            {filteredAtletas.map((atleta) => (
-              <div key={atleta.id} className="p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden border-2 border-slate-600">
-                    {atleta.foto_url ? (
-                      <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
-                    ) : (
-                      <Users className="w-6 h-6 text-slate-500" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-100">
-                      {atleta.numero_camisa && <span className="text-amber-500">#{atleta.numero_camisa}</span>} {atleta.nome}
-                    </h3>
-                    <div className="flex items-center gap-3 text-sm text-slate-400">
-                      {atleta.posicao && <span>{atleta.posicao}</span>}
-                      {atleta.categoria && (
-                        <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">
-                          {atleta.categoria}
-                        </span>
-                      )}
-                      {getClubeName(atleta.clubes) && <span className="text-amber-500">{getClubeName(atleta.clubes)}</span>}
-                    </div>
-                  </div>
+      {/* Lista de Atletas */}
+      {loading ? (
+        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+          <p className="text-slate-400">Carregando atletas...</p>
+        </div>
+      ) : filteredAtletas.length === 0 ? (
+        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <Users className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+          <p className="text-slate-300 font-medium mb-1">Nenhum atleta encontrado</p>
+          <p className="text-sm text-slate-500">Tente ajustar sua busca ou cadastre um novo atleta</p>
+          {filtrosAtivos && (
+            <button
+              onClick={limparFiltros}
+              className="text-amber-500 hover:text-amber-400 mt-3 text-sm"
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredAtletas.map((atleta) => (
+            <div
+              key={atleta.id}
+              className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
+              style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#0f172a', border: '2px solid #475569' }}>
+                  {atleta.foto_url ? (
+                    <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
+                  ) : (
+                    <Users className="w-6 h-6 text-slate-500" />
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/avaliacoes/atleta/${atleta.id}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#f59e0b" stroke="none">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    Avaliacoes
-                  </Link>
-                  <Link
-                    href={`/atletas/${atleta.id}`}
-                    className="p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-700 rounded-lg transition-colors"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(atleta.id)}
-                    disabled={deleting === atleta.id}
-                    className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div>
+                  <h3 className="font-semibold text-slate-100">
+                    {atleta.numero_camisa && <span className="text-amber-500">#{atleta.numero_camisa}</span>} {atleta.nome}
+                  </h3>
+                  <div className="flex items-center gap-3 text-sm text-slate-400">
+                    {atleta.posicao && <span>{atleta.posicao}</span>}
+                    {atleta.categoria && (
+                      <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">
+                        {atleta.categoria}
+                      </span>
+                    )}
+                    {getClubeName(atleta.clubes) && <span className="text-amber-500">{getClubeName(atleta.clubes)}</span>}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/avaliacoes/atleta/${atleta.id}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#f59e0b" stroke="none">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  Avaliações
+                </Link>
+                <Link
+                  href={`/atletas/${atleta.id}`}
+                  className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                </Link>
+                <button
+                  onClick={() => handleDelete(atleta.id)}
+                  disabled={deleting === atleta.id}
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

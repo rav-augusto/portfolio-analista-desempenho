@@ -53,19 +53,19 @@ const nacionalidades = [
   'Uruguai',
   'Paraguai',
   'Chile',
-  'Colombia',
+  'Colômbia',
   'Venezuela',
   'Peru',
   'Equador',
-  'Bolivia',
+  'Bolívia',
   'Portugal',
   'Espanha',
-  'Italia',
+  'Itália',
   'Alemanha',
-  'Franca',
+  'França',
   'Inglaterra',
   'Holanda',
-  'Belgica',
+  'Bélgica',
   'Outro'
 ]
 
@@ -314,9 +314,9 @@ export default function EditarAtletaPage() {
       <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 max-w-3xl">
         <form onSubmit={handleSubmit} className="space-y-8">
 
-          {/* Foto e Dados Basicos */}
+          {/* Foto e Dados Básicos */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Dados Basicos</h3>
+            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Dados Básicos</h3>
 
             <div className="space-y-4">
               <div>
@@ -343,7 +343,7 @@ export default function EditarAtletaPage() {
                   />
                   <div className="text-sm text-slate-400">
                     <p>Clique para alterar</p>
-                    <p className="text-xs">PNG ou JPG - Voce podera ajustar</p>
+                    <p className="text-xs">PNG ou JPG - Você poderá ajustar</p>
                   </div>
                 </div>
               </div>
@@ -420,21 +420,21 @@ export default function EditarAtletaPage() {
                   type="text"
                   value={naturalidade}
                   onChange={(e) => setNaturalidade(e.target.value)}
-                  placeholder="Ex: Sao Paulo/SP"
+                  placeholder="Ex: São Paulo/SP"
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 />
               </div>
             </div>
           </div>
 
-          {/* Caracteristicas */}
+          {/* Características */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Caracteristicas</h3>
+            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Características</h3>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Posicao Principal</label>
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Posição Principal</label>
                   <select
                     value={posicao}
                     onChange={(e) => setPosicao(e.target.value)}
@@ -447,7 +447,7 @@ export default function EditarAtletaPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Posicao Secundaria</label>
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Posição Secundária</label>
                   <select
                     value={posicaoSecundaria}
                     onChange={(e) => setPosicaoSecundaria(e.target.value)}
@@ -463,7 +463,7 @@ export default function EditarAtletaPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Numero</label>
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Número</label>
                   <input
                     type="number"
                     min="1"
@@ -475,7 +475,7 @@ export default function EditarAtletaPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Pe Dominante</label>
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Pé Dominante</label>
                   <select
                     value={peDominante}
                     onChange={(e) => setPeDominante(e.target.value)}
@@ -560,24 +560,24 @@ export default function EditarAtletaPage() {
             </div>
           </div>
 
-          {/* Responsavel */}
+          {/* Responsável */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Responsavel (Categorias de Base)</h3>
+            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Responsável (Categorias de Base)</h3>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Nome do Responsavel</label>
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Nome do Responsável</label>
                   <input
                     type="text"
                     value={nomeResponsavel}
                     onChange={(e) => setNomeResponsavel(e.target.value)}
-                    placeholder="Nome do pai/mae"
+                    placeholder="Nome do pai/mãe"
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Telefone do Responsavel</label>
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Telefone do Responsável</label>
                   <input
                     type="tel"
                     value={telefoneResponsavel}
