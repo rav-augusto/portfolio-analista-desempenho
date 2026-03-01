@@ -31,19 +31,19 @@ const tabs = [
   { id: 'trans_def', label: 'Trans. Defensiva' },
   { id: 'bp_of', label: 'BP Ofensiva' },
   { id: 'bp_def', label: 'BP Defensiva' },
-  { id: 'geral', label: 'Conclusoes' },
-  { id: 'prints', label: 'Prints Taticos' },
+  { id: 'geral', label: 'Conclusões' },
+  { id: 'prints', label: 'Prints Táticos' },
 ]
 
 const momentos = [
-  { value: 'ofensiva', label: 'Organizacao Ofensiva' },
-  { value: 'defensiva', label: 'Organizacao Defensiva' },
-  { value: 'transicao', label: 'Transicao' },
+  { value: 'ofensiva', label: 'Organização Ofensiva' },
+  { value: 'defensiva', label: 'Organização Defensiva' },
+  { value: 'transicao', label: 'Transição' },
   { value: 'bola_parada', label: 'Bola Parada' },
 ]
 
 const sistemasTaticos = ['3-5-2', '4-3-3', '4-4-2', '4-2-3-1', '4-1-4-1', '3-4-3', '5-3-2', '5-4-1']
-const blocosDefensivos = ['Alto', 'Medio', 'Baixo']
+const blocosDefensivos = ['Alto', 'Médio', 'Baixo']
 
 export default function EditarAnalisePage() {
   const [jogos, setJogos] = useState<Jogo[]>([])
@@ -230,7 +230,7 @@ export default function EditarAnalisePage() {
     }).eq('id', params.id)
 
     if (error) {
-      setError('Erro ao salvar analise')
+      setError('Erro ao salvar análise')
       setSaving(false)
       return
     }
@@ -325,15 +325,15 @@ export default function EditarAnalisePage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Editar Analise</h1>
-          <p className="text-slate-400 mt-1">Atualize a analise tatico-tecnica</p>
+          <h1 className="text-3xl font-bold text-slate-100">Editar Análise</h1>
+          <p className="text-slate-400 mt-1">Atualize a análise tático-técnica</p>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
         {/* Jogo Selection */}
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 mb-6">
+        <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <label className="block text-sm font-medium text-amber-500 mb-2">
             Jogo *
           </label>
@@ -341,7 +341,7 @@ export default function EditarAnalisePage() {
             value={jogoId}
             onChange={(e) => setJogoId(e.target.value)}
             required
-            className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+            className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
           >
             <option value="">Selecione um jogo</option>
             {jogos.map((jogo) => (
@@ -353,18 +353,20 @@ export default function EditarAnalisePage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden mb-6">
-          <div className="flex overflow-x-auto border-b border-slate-700">
+        <div className="rounded-2xl shadow-sm overflow-hidden mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-700">
+            <span className="text-sm font-medium text-slate-400 mr-2">Seção:</span>
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={
                   activeTab === tab.id
-                    ? 'text-amber-500 border-b-2 border-amber-500 bg-amber-500/5'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+                    ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
+                    : { backgroundColor: '#334155', color: '#94a3b8' }
+                }
               >
                 {tab.label}
               </button>
@@ -377,11 +379,11 @@ export default function EditarAnalisePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Sistema Tatico</label>
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Sistema Tático</label>
                     <select
                       value={sistemaTatico}
                       onChange={(e) => setSistemaTatico(e.target.value)}
-                      className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                      className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
                     >
                       <option value="">Selecione</option>
                       {sistemasTaticos.map(s => <option key={s} value={s}>{s}</option>)}
@@ -389,59 +391,59 @@ export default function EditarAnalisePage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observacoes Gerais</label>
-                  <textarea value={orgOfensivaObs} onChange={(e) => setOrgOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
+                  <textarea value={orgOfensivaObs} onChange={(e) => setOrgOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Saida de Bola</label>
-                    <textarea value={saidaBola} onChange={(e) => setSaidaBola(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Saída de Bola</label>
+                    <textarea value={saidaBola} onChange={(e) => setSaidaBola(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Participacao do Goleiro</label>
-                    <textarea value={participacaoGoleiro} onChange={(e) => setParticipacaoGoleiro(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Participação do Goleiro</label>
+                    <textarea value={participacaoGoleiro} onChange={(e) => setParticipacaoGoleiro(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Linhas de Passe</label>
-                    <textarea value={linhasPasse} onChange={(e) => setLinhasPasse(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <textarea value={linhasPasse} onChange={(e) => setLinhasPasse(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Amplitude</label>
-                    <textarea value={amplitude} onChange={(e) => setAmplitude(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <textarea value={amplitude} onChange={(e) => setAmplitude(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Criacao Central</label>
-                    <textarea value={criacaoCentral} onChange={(e) => setCriacaoCentral(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Criação Central</label>
+                    <textarea value={criacaoCentral} onChange={(e) => setCriacaoCentral(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Criacao Direita</label>
-                    <textarea value={criacaoDireita} onChange={(e) => setCriacaoDireita(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Criação Direita</label>
+                    <textarea value={criacaoDireita} onChange={(e) => setCriacaoDireita(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Criacao Esquerda</label>
-                    <textarea value={criacaoEsquerda} onChange={(e) => setCriacaoEsquerda(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Criação Esquerda</label>
+                    <textarea value={criacaoEsquerda} onChange={(e) => setCriacaoEsquerda(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Finalizacoes Total</label>
-                    <input type="number" min="0" value={finalizacoesTotal} onChange={(e) => setFinalizacoesTotal(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Finalizações Total</label>
+                    <input type="number" min="0" value={finalizacoesTotal} onChange={(e) => setFinalizacoesTotal(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">No Gol</label>
-                    <input type="number" min="0" value={finalizacoesGol} onChange={(e) => setFinalizacoesGol(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="number" min="0" value={finalizacoesGol} onChange={(e) => setFinalizacoesGol(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Fora</label>
-                    <input type="number" min="0" value={finalizacoesFora} onChange={(e) => setFinalizacoesFora(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="number" min="0" value={finalizacoesFora} onChange={(e) => setFinalizacoesFora(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Bloqueadas</label>
-                    <input type="number" min="0" value={finalizacoesBloqueadas} onChange={(e) => setFinalizacoesBloqueadas(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="number" min="0" value={finalizacoesBloqueadas} onChange={(e) => setFinalizacoesBloqueadas(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
               </div>
@@ -453,38 +455,38 @@ export default function EditarAnalisePage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Bloco Defensivo</label>
-                    <select value={blocoDefensivo} onChange={(e) => setBlocoDefensivo(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500">
+                    <select value={blocoDefensivo} onChange={(e) => setBlocoDefensivo(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                       <option value="">Selecione</option>
                       {blocosDefensivos.map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Tipo de Marcacao</label>
-                    <input type="text" value={tipoMarcacao} onChange={(e) => setTipoMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Tipo de Marcação</label>
+                    <input type="text" value={tipoMarcacao} onChange={(e) => setTipoMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observacoes Gerais</label>
-                  <textarea value={orgDefensivaObs} onChange={(e) => setOrgDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
+                  <textarea value={orgDefensivaObs} onChange={(e) => setOrgDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Pressao</label>
-                    <textarea value={pressao} onChange={(e) => setPressao(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Pressão</label>
+                    <textarea value={pressao} onChange={(e) => setPressao(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Coberturas</label>
-                    <textarea value={coberturas} onChange={(e) => setCoberturas(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <textarea value={coberturas} onChange={(e) => setCoberturas(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Linha Defensiva</label>
-                    <textarea value={linhaDefensiva} onChange={(e) => setLinhaDefensiva(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <textarea value={linhaDefensiva} onChange={(e) => setLinhaDefensiva(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Vulnerabilidades</label>
-                    <textarea value={vulnerabilidades} onChange={(e) => setVulnerabilidades(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <textarea value={vulnerabilidades} onChange={(e) => setVulnerabilidades(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
               </div>
@@ -494,31 +496,31 @@ export default function EditarAnalisePage() {
             {activeTab === 'trans_of' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observacoes Gerais</label>
-                  <textarea value={transOfensivaObs} onChange={(e) => setTransOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
+                  <textarea value={transOfensivaObs} onChange={(e) => setTransOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Primeira Acao</label>
-                    <input type="text" value={primeiraAcao} onChange={(e) => setPrimeiraAcao(e.target.value)} placeholder="Ex: Bola longa, Jogo curto" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Primeira Ação</label>
+                    <input type="text" value={primeiraAcao} onChange={(e) => setPrimeiraAcao(e.target.value)} placeholder="Ex: Bola longa, Jogo curto" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Velocidade da Transicao</label>
-                    <input type="text" value={velocidadeTransicao} onChange={(e) => setVelocidadeTransicao(e.target.value)} placeholder="Ex: Rapida, Lenta, Equilibrada" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Velocidade da Transição</label>
+                    <input type="text" value={velocidadeTransicao} onChange={(e) => setVelocidadeTransicao(e.target.value)} placeholder="Ex: Rápida, Lenta, Equilibrada" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Contra-Ataques</label>
-                    <input type="number" min="0" value={contraAtaques} onChange={(e) => setContraAtaques(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="number" min="0" value={contraAtaques} onChange={(e) => setContraAtaques(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Finalizados</label>
-                    <input type="number" min="0" value={contraAtaquesFinalizados} onChange={(e) => setContraAtaquesFinalizados(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="number" min="0" value={contraAtaquesFinalizados} onChange={(e) => setContraAtaquesFinalizados(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Gols</label>
-                    <input type="number" min="0" value={golsContraAtaque} onChange={(e) => setGolsContraAtaque(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="number" min="0" value={golsContraAtaque} onChange={(e) => setGolsContraAtaque(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
               </div>
@@ -528,17 +530,17 @@ export default function EditarAnalisePage() {
             {activeTab === 'trans_def' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observacoes Gerais</label>
-                  <textarea value={transDefensivaObs} onChange={(e) => setTransDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
+                  <textarea value={transDefensivaObs} onChange={(e) => setTransDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Reacao a Perda</label>
-                    <textarea value={reacaoPerda} onChange={(e) => setReacaoPerda(e.target.value)} rows={2} placeholder="Ex: Pressao imediata, Recuo organizado" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Reação à Perda</label>
+                    <textarea value={reacaoPerda} onChange={(e) => setReacaoPerda(e.target.value)} rows={2} placeholder="Ex: Pressão imediata, Recuo organizado" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Tempo de Reacao</label>
-                    <input type="text" value={tempoReacao} onChange={(e) => setTempoReacao(e.target.value)} placeholder="Ex: Imediato, Lento, 3-5 segundos" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Tempo de Reação</label>
+                    <input type="text" value={tempoReacao} onChange={(e) => setTempoReacao(e.target.value)} placeholder="Ex: Imediato, Lento, 3-5 segundos" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
               </div>
@@ -550,20 +552,20 @@ export default function EditarAnalisePage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Cobrador de Escanteio</label>
-                    <input type="text" value={escanteioCobrador} onChange={(e) => setEscanteioCobrador(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="text" value={escanteioCobrador} onChange={(e) => setEscanteioCobrador(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Tipo de Cobranca</label>
-                    <input type="text" value={escanteioTipo} onChange={(e) => setEscanteioTipo(e.target.value)} placeholder="Ex: Fechado, Aberto, Rasteiro" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Tipo de Cobrança</label>
+                    <input type="text" value={escanteioTipo} onChange={(e) => setEscanteioTipo(e.target.value)} placeholder="Ex: Fechado, Aberto, Rasteiro" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Movimentacoes em Escanteios</label>
-                  <textarea value={escanteioMovimentacoes} onChange={(e) => setEscanteioMovimentacoes(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Movimentações em Escanteios</label>
+                  <textarea value={escanteioMovimentacoes} onChange={(e) => setEscanteioMovimentacoes(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Caracteristicas em Faltas</label>
-                  <textarea value={faltasCaracteristicas} onChange={(e) => setFaltasCaracteristicas(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Características em Faltas</label>
+                  <textarea value={faltasCaracteristicas} onChange={(e) => setFaltasCaracteristicas(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
               </div>
             )}
@@ -573,27 +575,27 @@ export default function EditarAnalisePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Marcacao em Escanteios</label>
-                    <input type="text" value={escanteioDefMarcacao} onChange={(e) => setEscanteioDefMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Marcação em Escanteios</label>
+                    <input type="text" value={escanteioDefMarcacao} onChange={(e) => setEscanteioDefMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Posicao do Goleiro</label>
-                    <textarea value={escanteioDefPosicaoGk} onChange={(e) => setEscanteioDefPosicaoGk(e.target.value)} rows={2} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <label className="block text-sm font-medium text-amber-500 mb-2">Posição do Goleiro</label>
+                    <textarea value={escanteioDefPosicaoGk} onChange={(e) => setEscanteioDefPosicaoGk(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Primeiro Pau</label>
-                    <input type="text" value={escanteioDefPrimeiroPau} onChange={(e) => setEscanteioDefPrimeiroPau(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="text" value={escanteioDefPrimeiroPau} onChange={(e) => setEscanteioDefPrimeiroPau(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Segundo Pau</label>
-                    <input type="text" value={escanteioDefSegundoPau} onChange={(e) => setEscanteioDefSegundoPau(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                    <input type="text" value={escanteioDefSegundoPau} onChange={(e) => setEscanteioDefSegundoPau(e.target.value)} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Vulnerabilidades em Bolas Paradas</label>
-                  <textarea value={bpVulnerabilidades} onChange={(e) => setBpVulnerabilidades(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <textarea value={bpVulnerabilidades} onChange={(e) => setBpVulnerabilidades(e.target.value)} rows={3} className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
               </div>
             )}
@@ -602,12 +604,12 @@ export default function EditarAnalisePage() {
             {activeTab === 'geral' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Conclusoes da Analise</label>
-                  <textarea value={conclusoes} onChange={(e) => setConclusoes(e.target.value)} rows={5} placeholder="Principais pontos observados na partida..." className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Conclusões da Análise</label>
+                  <textarea value={conclusoes} onChange={(e) => setConclusoes(e.target.value)} rows={5} placeholder="Principais pontos observados na partida..." className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Recomendacoes para Treino</label>
-                  <textarea value={recomendacoesTreino} onChange={(e) => setRecomendacoesTreino(e.target.value)} rows={5} placeholder="Aspectos a trabalhar nos proximos treinos..." className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" />
+                  <label className="block text-sm font-medium text-amber-500 mb-2">Recomendações para Treino</label>
+                  <textarea value={recomendacoesTreino} onChange={(e) => setRecomendacoesTreino(e.target.value)} rows={5} placeholder="Aspectos a trabalhar nos próximos treinos..." className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
                 </div>
               </div>
             )}
@@ -617,14 +619,14 @@ export default function EditarAnalisePage() {
               <div className="space-y-6">
                 {/* Upload Form */}
                 <div className="border border-dashed border-slate-600 rounded-xl p-6">
-                  <h4 className="text-sm font-semibold text-slate-100 mb-4">Adicionar Print Tatico</h4>
+                  <h4 className="text-sm font-semibold text-slate-100 mb-4">Adicionar Print Tático</h4>
                   <div className="grid grid-cols-3 gap-4 mb-4">
                     <div>
                       <label className="block text-sm font-medium text-amber-500 mb-2">Momento do Jogo</label>
                       <select
                         value={newPrintMomento}
                         onChange={(e) => setNewPrintMomento(e.target.value)}
-                        className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                        className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
                       >
                         <option value="">Selecione</option>
                         {momentos.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
@@ -637,17 +639,17 @@ export default function EditarAnalisePage() {
                         value={newPrintTempo}
                         onChange={(e) => setNewPrintTempo(e.target.value)}
                         placeholder="Ex: 15', 45+2'"
-                        className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                        className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-amber-500 mb-2">Descricao</label>
+                      <label className="block text-sm font-medium text-amber-500 mb-2">Descrição</label>
                       <input
                         type="text"
                         value={newPrintDescricao}
                         onChange={(e) => setNewPrintDescricao(e.target.value)}
-                        placeholder="Ex: Saida de bola com 3 jogadores"
-                        className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                        placeholder="Ex: Saída de bola com 3 jogadores"
+                        className="w-full px-4 py-2 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
                       />
                     </div>
                   </div>
@@ -683,7 +685,7 @@ export default function EditarAnalisePage() {
                         <div className="aspect-video relative">
                           <img
                             src={print.imagem_url}
-                            alt={print.descricao || 'Print tatico'}
+                            alt={print.descricao || 'Print tático'}
                             className="w-full h-full object-cover"
                           />
                           <button
