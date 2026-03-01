@@ -203,7 +203,7 @@ export default function AvaliacoesPage() {
             <Link
               key={atleta.id}
               href={`/avaliacoes/atleta/${atleta.id}`}
-              className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90 block"
+              className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
               style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
             >
               {/* Foto e nome */}
