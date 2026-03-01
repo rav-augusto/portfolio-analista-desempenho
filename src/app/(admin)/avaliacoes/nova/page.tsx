@@ -360,29 +360,26 @@ export default function NovaAvaliacaoPage() {
       <div key={dim.key} className="rounded-xl p-4 transition-colors" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-semibold text-slate-200">{dim.label}</span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {showHelp && (
               <button
                 type="button"
                 onClick={() => openHelp(dim.label, dim.desc, dim.diagram)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all hover:brightness-110"
-                style={{ backgroundColor: '#3b82f6', color: '#fff' }}
+                className="w-7 h-7 flex items-center justify-center rounded-lg transition-all hover:brightness-125 hover:scale-105"
+                style={{ backgroundColor: '#3b82f6' }}
+                title="Ver detalhes"
               >
-                <HelpCircle className="w-3.5 h-3.5" />
-                Info
+                <HelpCircle className="w-4 h-4 text-white" />
               </button>
             )}
             <button
               type="button"
               onClick={() => setObsModal({ open: true, key: dim.key, label: dim.label, type: obsType, value: obs })}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all hover:brightness-110"
-              style={{
-                backgroundColor: hasObs ? '#f59e0b' : '#475569',
-                color: hasObs ? '#1e293b' : '#e2e8f0'
-              }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg transition-all hover:brightness-125 hover:scale-105"
+              style={{ backgroundColor: hasObs ? '#f59e0b' : '#475569' }}
+              title={hasObs ? 'Editar observação' : 'Adicionar observação'}
             >
-              <MessageSquare className="w-3.5 h-3.5" />
-              {hasObs ? 'Ver Obs' : 'Obs'}
+              <MessageSquare className={`w-4 h-4 ${hasObs ? 'text-slate-900' : 'text-white'}`} />
             </button>
           </div>
         </div>
