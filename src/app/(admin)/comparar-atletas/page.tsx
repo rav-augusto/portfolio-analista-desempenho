@@ -68,32 +68,32 @@ type Avaliacao = {
 }
 
 const dimensoesCBF = [
-  { key: 'forca', label: 'FOR', fullLabel: 'Força' },
-  { key: 'velocidade', label: 'VEL', fullLabel: 'Velocidade' },
-  { key: 'tecnica', label: 'TEC', fullLabel: 'Técnica' },
-  { key: 'dinamica', label: 'DIN', fullLabel: 'Dinâmica' },
-  { key: 'inteligencia', label: 'INT', fullLabel: 'Inteligência' },
-  { key: 'um_contra_um', label: '1v1', fullLabel: '1 contra 1' },
-  { key: 'atitude', label: 'ATI', fullLabel: 'Atitude' },
-  { key: 'potencial', label: 'POT', fullLabel: 'Potencial' },
+  { key: 'forca', label: 'FOR', fullLabel: 'Força', icon: '💪' },
+  { key: 'velocidade', label: 'VEL', fullLabel: 'Velocidade', icon: '⚡' },
+  { key: 'tecnica', label: 'TEC', fullLabel: 'Técnica', icon: '🎯' },
+  { key: 'dinamica', label: 'DIN', fullLabel: 'Dinâmica', icon: '🔄' },
+  { key: 'inteligencia', label: 'INT', fullLabel: 'Inteligência', icon: '🧠' },
+  { key: 'um_contra_um', label: '1v1', fullLabel: '1 contra 1', icon: '⚔️' },
+  { key: 'atitude', label: 'ATI', fullLabel: 'Atitude', icon: '🔥' },
+  { key: 'potencial', label: 'POT', fullLabel: 'Potencial', icon: '⭐' },
 ]
 
 const principiosOfensivos = [
-  { key: 'penetracao', label: 'PEN', fullLabel: 'Penetração' },
-  { key: 'cobertura_ofensiva', label: 'COF', fullLabel: 'Cob. Ofensiva' },
-  { key: 'espaco_com_bola', label: 'ECB', fullLabel: 'Espaço c/ Bola' },
-  { key: 'espaco_sem_bola', label: 'ESB', fullLabel: 'Espaço s/ Bola' },
-  { key: 'mobilidade', label: 'MOB', fullLabel: 'Mobilidade' },
-  { key: 'unidade_ofensiva', label: 'UOF', fullLabel: 'Unid. Ofensiva' },
+  { key: 'penetracao', label: 'PEN', fullLabel: 'Penetração', icon: '↗️' },
+  { key: 'cobertura_ofensiva', label: 'COF', fullLabel: 'Cob. Ofensiva', icon: '🔗' },
+  { key: 'espaco_com_bola', label: 'ECB', fullLabel: 'Espaço c/ Bola', icon: '⚽' },
+  { key: 'espaco_sem_bola', label: 'ESB', fullLabel: 'Espaço s/ Bola', icon: '👟' },
+  { key: 'mobilidade', label: 'MOB', fullLabel: 'Mobilidade', icon: '🏃' },
+  { key: 'unidade_ofensiva', label: 'UOF', fullLabel: 'Unid. Ofensiva', icon: '🎯' },
 ]
 
 const principiosDefensivos = [
-  { key: 'contencao', label: 'CON', fullLabel: 'Contenção' },
-  { key: 'cobertura_defensiva', label: 'CDF', fullLabel: 'Cob. Defensiva' },
-  { key: 'equilibrio_recuperacao', label: 'ERE', fullLabel: 'Equil. Recup.' },
-  { key: 'equilibrio_defensivo', label: 'EDF', fullLabel: 'Equil. Defensivo' },
-  { key: 'concentracao_def', label: 'CNC', fullLabel: 'Concentração' },
-  { key: 'unidade_defensiva', label: 'UDF', fullLabel: 'Unid. Defensiva' },
+  { key: 'contencao', label: 'CON', fullLabel: 'Contenção', icon: '🛡️' },
+  { key: 'cobertura_defensiva', label: 'CDF', fullLabel: 'Cob. Defensiva', icon: '🔒' },
+  { key: 'equilibrio_recuperacao', label: 'ERE', fullLabel: 'Equil. Recup.', icon: '⚖️' },
+  { key: 'equilibrio_defensivo', label: 'EDF', fullLabel: 'Equil. Defensivo', icon: '🧱' },
+  { key: 'concentracao_def', label: 'CNC', fullLabel: 'Concentração', icon: '🎯' },
+  { key: 'unidade_defensiva', label: 'UDF', fullLabel: 'Unid. Defensiva', icon: '🏰' },
 ]
 
 export default function CompararAtletasPage() {
@@ -366,7 +366,10 @@ export default function CompararAtletasPage() {
                 const diff = val1 - val2
                 return (
                   <tr key={dim.key} className={i % 2 === 0 ? 'bg-slate-800' : 'bg-slate-700/50'}>
-                    <td className="px-3 py-2 font-medium text-slate-300">{dim.fullLabel}</td>
+                    <td className="px-3 py-2 font-medium text-slate-300">
+                      <span className="mr-2">{dim.icon}</span>
+                      {dim.fullLabel}
+                    </td>
                     <td className="px-3 py-2 text-center">
                       <span className={`font-bold ${val1 > val2 ? 'text-blue-400' : 'text-slate-400'}`}>{val1.toFixed(1)}</span>
                     </td>
