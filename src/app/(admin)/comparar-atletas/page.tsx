@@ -260,7 +260,13 @@ export default function CompararAtletasPage() {
   }
 
   const renderAtletaCard = (atleta: Atleta | null, avaliacao: Avaliacao | null, color: string) => (
-    <div className={`bg-slate-800 rounded-2xl border-2 shadow-sm ${color === 'blue' ? 'border-blue-700' : 'border-red-700'} overflow-hidden`}>
+    <div
+      className="rounded-2xl shadow-sm overflow-hidden"
+      style={{
+        backgroundColor: '#1e293b',
+        border: color === 'blue' ? '2px solid #2563eb' : '2px solid #dc2626'
+      }}
+    >
       {atleta ? (
         <>
           <div className={`${color === 'blue' ? 'bg-blue-600' : 'bg-red-600'} px-4 py-2`}>
@@ -411,7 +417,7 @@ export default function CompararAtletasPage() {
       </div>
 
       {/* Selectors */}
-      <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-6">
+      <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-blue-400 mb-2">Atleta 1</label>
@@ -452,25 +458,31 @@ export default function CompararAtletasPage() {
 
       {/* View Tabs */}
       {(atleta1 || atleta2) && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {[
-            { id: 'cbf', label: 'Dimensões CBF' },
-            { id: 'ofensivo', label: 'Princípios Ofensivos' },
-            { id: 'defensivo', label: 'Princípios Defensivos' },
-            { id: 'todos', label: 'Todos' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveView(tab.id as any)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activeView === tab.id
-                  ? 'bg-amber-500 text-slate-900'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-slate-400">Visualizar:</span>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'cbf', label: 'Dimensões CBF' },
+                { id: 'ofensivo', label: 'Princípios Ofensivos' },
+                { id: 'defensivo', label: 'Princípios Defensivos' },
+                { id: 'todos', label: 'Todos' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveView(tab.id as any)}
+                  className="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+                  style={
+                    activeView === tab.id
+                      ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
+                      : { backgroundColor: '#334155', color: '#94a3b8' }
+                  }
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -478,7 +490,7 @@ export default function CompararAtletasPage() {
       {(avaliacao1 || avaliacao2) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Radar Chart */}
-          <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+          <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
             <h3 className="text-lg font-semibold text-slate-100 mb-4">Comparação Radar</h3>
             <div className="aspect-square max-w-md mx-auto">
               <Radar data={getRadarData()} options={radarOptions} />
@@ -486,7 +498,7 @@ export default function CompararAtletasPage() {
           </div>
 
           {/* Bar Chart */}
-          <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+          <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
             <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
               Comparação por Dimensão
@@ -500,7 +512,7 @@ export default function CompararAtletasPage() {
 
       {/* Stats Table */}
       {(avaliacao1 || avaliacao2) && (
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
+        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <h3 className="text-lg font-semibold text-slate-100 mb-4">Tabela Comparativa</h3>
           {renderStatsTable()}
         </div>
@@ -508,7 +520,7 @@ export default function CompararAtletasPage() {
 
       {/* Empty State */}
       {!atleta1 && !atleta2 && (
-        <div className="bg-slate-800 rounded-2xl p-12 shadow-sm border border-slate-700 text-center">
+        <div className="rounded-2xl p-12 shadow-sm text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <Users className="w-16 h-16 text-slate-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-slate-100 mb-2">Selecione dois atletas para comparar</h3>
           <p className="text-slate-400">Use os seletores acima para escolher os atletas</p>
