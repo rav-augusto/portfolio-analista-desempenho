@@ -357,7 +357,7 @@ export default function NovaAvaliacaoPage() {
     const hasObs = obs && obs.trim().length > 0
     const showHelp = dim.diagram || dim.hasHelp
     return (
-      <div key={dim.key} className="bg-slate-800 rounded-lg p-3 border border-slate-700 hover:border-slate-600 transition-colors">
+      <div key={dim.key} className="rounded-xl p-3 transition-colors hover:opacity-90" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1">
             <span className="text-xs font-medium text-slate-300">{dim.label}</span>
@@ -380,7 +380,7 @@ export default function NovaAvaliacaoPage() {
         <input
           type="range" min="1" max="5" step="0.5" value={value}
           onChange={(e) => setValue(dim.key, e.target.value)}
-          className="w-full h-1 bg-slate-600 rounded-full appearance-none cursor-pointer slider-mini"
+          className="w-full h-1 rounded-full appearance-none cursor-pointer slider-mini"
           style={{ background: `linear-gradient(to right, ${getScoreColor(numValue)} ${((numValue - 1) / 4) * 100}%, #475569 ${((numValue - 1) / 4) * 100}%)` }}
         />
       </div>
@@ -415,7 +415,7 @@ export default function NovaAvaliacaoPage() {
       </div>
 
       {/* Painel de Performance - Barra Compacta */}
-      <div className="bg-slate-800 rounded-lg border border-slate-700 px-3 py-2">
+      <div className="rounded-2xl px-3 py-2" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
         <div className="flex items-center gap-4">
           {/* Foto do Atleta */}
           {atletaId && atletas.find(a => a.id === atletaId)?.foto_url ? (
@@ -497,12 +497,13 @@ export default function NovaAvaliacaoPage() {
 
       <form onSubmit={handleSubmit}>
         {/* Informações Básicas */}
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 mb-4">
+        <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="col-span-2 lg:col-span-1">
                 <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Atleta</label>
                 <select value={atletaId} onChange={(e) => setAtletaId(e.target.value)} required
-                  className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
+                  className="w-full px-2 py-1.5 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                   <option value="">Selecione...</option>
                   {atletas.map((atleta) => (
                     <option key={atleta.id} value={atleta.id}>{atleta.nome} {getClubeName(atleta.clubes) && `(${getClubeName(atleta.clubes)})`}</option>
@@ -512,20 +513,23 @@ export default function NovaAvaliacaoPage() {
               <div>
                 <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Tipo</label>
                 <select value={tipo} onChange={(e) => setTipo(e.target.value)} required
-                  className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
+                  className="w-full px-2 py-1.5 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                   {tipos.map((t) => (<option key={t.value} value={t.value}>{t.label}</option>))}
                 </select>
               </div>
               <div>
                 <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Data</label>
                 <input type="date" value={dataAvaliacao} onChange={(e) => setDataAvaliacao(e.target.value)} required
-                  className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500" />
+                  className="w-full px-2 py-1.5 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }} />
               </div>
               {tipo === 'jogo' && (
                 <div>
-                  <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Jogo (Video)</label>
+                  <label className="block text-[10px] font-medium text-amber-500 uppercase mb-1">Jogo (Vídeo)</label>
                   <select value={jogoId} onChange={(e) => setJogoId(e.target.value)}
-                    className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500">
+                    className="w-full px-2 py-1.5 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                     <option value="">Opcional...</option>
                     {jogos.map((jogo) => (<option key={jogo.id} value={jogo.id}>{getClubeName(jogo.clubes)} x {jogo.adversario} - {formatDate(jogo.data_jogo)}</option>))}
                   </select>
@@ -539,14 +543,15 @@ export default function NovaAvaliacaoPage() {
                 value={contextoTreino}
                 onChange={(e) => setContextoTreino(e.target.value)}
                 placeholder="Ex: Observação em campo jogo X, Semana de treinos 10/02 a 15/02, etc."
-                className="w-full px-2 py-1.5 text-xs bg-slate-700 border border-slate-600 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                className="w-full px-2 py-1.5 text-xs rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
               />
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="bg-slate-800 rounded-xl border border-slate-700 mb-4">
-            <div className="flex gap-1 p-1 bg-slate-900 rounded-t-xl">
+          <div className="rounded-2xl mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+            <div className="flex gap-1 p-1 rounded-t-2xl" style={{ backgroundColor: '#0f172a' }}>
               {tabs.map((tab) => (
                 <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all ${activeTab === tab.id ? 'bg-amber-500 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>
@@ -573,26 +578,29 @@ export default function NovaAvaliacaoPage() {
               )}
               {activeTab === 'conclusoes' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
+                  <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                     <label className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 mb-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Pontos Fortes
                     </label>
                     <textarea value={pontosFortes} onChange={(e) => setPontosFortes(e.target.value)} rows={4} placeholder="Principais qualidades..."
-                      className="w-full px-3 py-2 text-xs bg-slate-700/50 border border-emerald-500/30 rounded-lg text-slate-200 focus:outline-none focus:border-emerald-500 resize-none placeholder:text-slate-500" />
+                      className="w-full px-3 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none placeholder:text-slate-500"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
                   </div>
-                  <div>
+                  <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                     <label className="flex items-center gap-1.5 text-xs font-medium text-amber-400 mb-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />Pontos a Desenvolver
                     </label>
                     <textarea value={pontosDesenvolver} onChange={(e) => setPontosDesenvolver(e.target.value)} rows={4} placeholder="Aspectos a melhorar..."
-                      className="w-full px-3 py-2 text-xs bg-slate-700/50 border border-amber-500/30 rounded-lg text-slate-200 focus:outline-none focus:border-amber-500 resize-none placeholder:text-slate-500" />
+                      className="w-full px-3 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30 resize-none placeholder:text-slate-500"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
                   </div>
-                  <div>
+                  <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                     <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Observações Gerais
                     </label>
                     <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={4} placeholder="Outras observações..."
-                      className="w-full px-3 py-2 text-xs bg-slate-700/50 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-slate-500 resize-none placeholder:text-slate-500" />
+                      className="w-full px-3 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-500/30 resize-none placeholder:text-slate-500"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
                   </div>
                 </div>
               )}
