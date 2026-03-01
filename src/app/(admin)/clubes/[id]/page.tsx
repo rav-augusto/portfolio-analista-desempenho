@@ -148,7 +148,7 @@ export default function EditarClubePage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold text-slate-100">Editar Clube</h1>
-          <p className="text-slate-400 mt-1">Atualize as informacoes do clube</p>
+          <p className="text-slate-400 mt-1">Atualize as informações do clube</p>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export default function EditarClubePage() {
       <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 max-w-3xl">
         <form onSubmit={handleSubmit} className="space-y-8">
 
-          {/* Dados Basicos */}
+          {/* Dados Básicos */}
           <div>
             <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Dados do Clube</h3>
 
@@ -232,7 +232,7 @@ export default function EditarClubePage() {
                     value={cidade}
                     onChange={(e) => setCidade(e.target.value)}
                     required
-                    placeholder="Ex: Sao Paulo"
+                    placeholder="Ex: São Paulo"
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                   />
                 </div>
@@ -255,7 +255,7 @@ export default function EditarClubePage() {
 
               <div>
                 <label className="block text-sm font-medium text-amber-500 mb-2">
-                  Endereco Completo
+                  Endereço Completo
                 </label>
                 <input
                   type="text"
@@ -269,7 +269,7 @@ export default function EditarClubePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">
-                    Estadio / Centro de Treinamento
+                    Estádio / Centro de Treinamento
                   </label>
                   <input
                     type="text"
@@ -321,7 +321,7 @@ export default function EditarClubePage() {
                   type="text"
                   value={contatoNome}
                   onChange={(e) => setContatoNome(e.target.value)}
-                  placeholder="Ex: Joao Silva (Coordenador de Base)"
+                  placeholder="Ex: João Silva (Coordenador de Base)"
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 />
               </div>

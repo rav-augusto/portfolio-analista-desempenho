@@ -72,65 +72,82 @@ export default function ClubesPage() {
       </div>
 
       {/* Search */}
-      <div className="bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-700 mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Buscar clubes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-          />
+      <div className="rounded-2xl p-5 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Search className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-100">Buscar Clubes</p>
+              <p className="text-xs text-slate-400">{filteredClubes.length} clube{filteredClubes.length !== 1 ? 's' : ''} encontrado{filteredClubes.length !== 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Digite o nome do clube ou cidade..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* List */}
-      <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center text-slate-400">Carregando...</div>
-        ) : filteredClubes.length === 0 ? (
-          <div className="p-8 text-center">
-            <Shield className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-            <p className="text-slate-400">Nenhum clube encontrado</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-700">
-            {filteredClubes.map((clube) => (
-              <div key={clube.id} className="p-4 flex items-center justify-between hover:bg-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center overflow-hidden">
-                    {clube.escudo_url ? (
-                      <img src={clube.escudo_url} alt={clube.nome} className="w-full h-full object-cover" />
-                    ) : (
-                      <Shield className="w-6 h-6 text-slate-500" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-100">{clube.nome}</h3>
-                    <p className="text-sm text-slate-400">{clube.cidade} - {clube.estado}</p>
-                  </div>
+      {/* Lista de Clubes */}
+      {loading ? (
+        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+          <p className="text-slate-400">Carregando clubes...</p>
+        </div>
+      ) : filteredClubes.length === 0 ? (
+        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <Shield className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+          <p className="text-slate-300 font-medium mb-1">Nenhum clube encontrado</p>
+          <p className="text-sm text-slate-500">Tente ajustar sua busca ou cadastre um novo clube</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredClubes.map((clube) => (
+            <div
+              key={clube.id}
+              className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
+              style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  {clube.escudo_url ? (
+                    <img src={clube.escudo_url} alt={clube.nome} className="w-full h-full object-cover" />
+                  ) : (
+                    <Shield className="w-6 h-6 text-slate-500" />
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/clubes/${clube.id}`}
-                    className="p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-700 rounded-lg transition-colors"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(clube.id)}
-                    disabled={deleting === clube.id}
-                    className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                <div>
+                  <h3 className="font-semibold text-slate-100">{clube.nome}</h3>
+                  <p className="text-sm text-slate-400">{clube.cidade} - {clube.estado}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/clubes/${clube.id}`}
+                  className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                </Link>
+                <button
+                  onClick={() => handleDelete(clube.id)}
+                  disabled={deleting === clube.id}
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
