@@ -243,7 +243,7 @@ export default function AvaliacoesPage() {
                 <div className="text-right">
                   <div className="flex items-center gap-1">
                     <span className="text-2xl font-bold text-amber-500">{atleta.total_avaliacoes}</span>
-                    <span className="text-sm text-slate-400">avaliação{atleta.total_avaliacoes > 1 ? 'ões' : ''}</span>
+                    <span className="text-sm text-slate-400">{atleta.total_avaliacoes === 1 ? 'avaliação' : 'avaliações'}</span>
                   </div>
                   <p className="text-xs text-slate-500">Última: {formatDate(atleta.ultima_avaliacao)}</p>
                 </div>
