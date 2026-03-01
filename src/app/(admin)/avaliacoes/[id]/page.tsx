@@ -92,16 +92,16 @@ const principiosDefensivos = [
 ]
 
 const tipos = [
-  { value: 'jogo', label: 'Avaliacao de Jogo' },
-  { value: 'treino', label: 'Avaliacao de Treino' },
-  { value: 'geral', label: 'Avaliacao Geral' },
+  { value: 'jogo', label: 'Avaliação de Jogo' },
+  { value: 'treino', label: 'Avaliação de Treino' },
+  { value: 'geral', label: 'Avaliação Geral' },
 ]
 
 const tabs = [
-  { id: 'cbf', label: 'Dimensoes CBF' },
-  { id: 'ofensivos', label: 'Principios Ofensivos' },
-  { id: 'defensivos', label: 'Principios Defensivos' },
-  { id: 'conclusoes', label: 'Conclusoes' },
+  { id: 'cbf', label: 'Dimensões CBF' },
+  { id: 'ofensivos', label: 'Princípios Ofensivos' },
+  { id: 'defensivos', label: 'Princípios Defensivos' },
+  { id: 'conclusoes', label: 'Conclusões' },
 ]
 
 export default function EditarAvaliacaoPage() {
@@ -386,7 +386,7 @@ export default function EditarAvaliacaoPage() {
 
     if (error) {
       console.error(error)
-      setError('Erro ao salvar avaliacao.')
+      setError('Erro ao salvar avaliação.')
       setSaving(false)
       return
     }
@@ -486,8 +486,8 @@ export default function EditarAvaliacaoPage() {
           <ArrowLeft className="w-4 h-4" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-lg font-bold text-slate-100">Editar Avaliacao</h1>
-          <p className="text-xs text-slate-400">Atualize as dimensoes da avaliacao do atleta</p>
+          <h1 className="text-lg font-bold text-slate-100">Editar Avaliação</h1>
+          <p className="text-xs text-slate-400">Atualize as dimensões da avaliação do atleta</p>
         </div>
       </div>
 
@@ -666,9 +666,9 @@ export default function EditarAvaliacaoPage() {
                   </div>
                   <div>
                     <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Observacoes Gerais
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Observações Gerais
                     </label>
-                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={4} placeholder="Outras observacoes..."
+                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={4} placeholder="Outras observações..."
                       className="w-full px-3 py-2 text-xs bg-slate-700/50 border border-slate-600 rounded-lg text-slate-200 focus:outline-none focus:border-slate-500 resize-none placeholder:text-slate-500" />
                   </div>
                 </div>

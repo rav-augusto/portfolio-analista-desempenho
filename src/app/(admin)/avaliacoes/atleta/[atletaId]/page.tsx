@@ -127,7 +127,7 @@ export default function AvaliacoesAtletaPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta avaliacao?')) return
+    if (!confirm('Tem certeza que deseja excluir esta avaliação?')) return
 
     setDeleting(id)
     const { error } = await supabase.from('avaliacoes_atleta').delete().eq('id', id)
@@ -282,7 +282,7 @@ export default function AvaliacoesAtletaPage() {
                   <span className="text-amber-500">{getClubeName(atleta.clubes)}</span>
                 )}
                 <span className="text-slate-500">|</span>
-                <span>{avaliacoes.length} avaliacao{avaliacoes.length !== 1 ? 'oes' : ''}</span>
+                <span>{avaliacoes.length} avaliação{avaliacoes.length !== 1 ? 'ões' : ''}</span>
               </div>
             </div>
           </div>
@@ -308,77 +308,83 @@ export default function AvaliacoesAtletaPage() {
           className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
         >
           <Plus className="w-5 h-5" />
-          Nova Avaliacao
+          Nova Avaliação
         </Link>
       </div>
 
       {/* Lista de Avaliações */}
-      <div className="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center text-slate-400">Carregando...</div>
-        ) : avaliacoes.length === 0 ? (
-          <div className="p-8 text-center">
-            <Star className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-            <p className="text-slate-400">Nenhuma avaliacao encontrada para este atleta</p>
-            <Link href={`/avaliacoes/nova?atleta=${atletaId}`} className="text-amber-500 hover:text-amber-400 mt-2 inline-block">
-              Criar primeira avaliacao
-            </Link>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-700">
-            {avaliacoes.map((avaliacao) => {
-              const media = parseFloat(calcularMedia(avaliacao))
-              return (
-                <div key={avaliacao.id} className="p-4 flex items-center justify-between hover:bg-slate-700/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    {/* Média */}
-                    <div className="w-14 h-14 bg-slate-700 rounded-xl flex flex-col items-center justify-center">
-                      <span className={`text-xl font-bold ${getMediaColor(media)}`}>{media}</span>
-                      <span className="text-[8px] text-slate-500 uppercase">média</span>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTipoColor(avaliacao.tipo)}`}>
-                          {getTipoLabel(avaliacao.tipo)}
-                        </span>
-                        {getJogo(avaliacao.jogos) && (
-                          <span className="text-slate-300 text-sm">vs {getJogo(avaliacao.jogos)?.adversario}</span>
-                        )}
-                        {avaliacao.contexto_treino && (
-                          <span className="text-slate-400 text-sm">• {avaliacao.contexto_treino}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-sm text-slate-400">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(avaliacao.data_avaliacao)}</span>
-                      </div>
-                    </div>
+      {loading ? (
+        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+          <p className="text-slate-400">Carregando avaliações...</p>
+        </div>
+      ) : avaliacoes.length === 0 ? (
+        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <Star className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+          <p className="text-slate-300 font-medium mb-1">Nenhuma avaliação encontrada para este atleta</p>
+          <p className="text-sm text-slate-500">Crie uma nova avaliação para começar</p>
+          <Link href={`/avaliacoes/nova?atleta=${atletaId}`} className="text-amber-500 hover:text-amber-400 mt-3 inline-block">
+            Criar primeira avaliação
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {avaliacoes.map((avaliacao) => {
+            const media = parseFloat(calcularMedia(avaliacao))
+            return (
+              <div
+                key={avaliacao.id}
+                className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
+                style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Média */}
+                  <div className="w-14 h-14 rounded-xl flex flex-col items-center justify-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <span className={`text-xl font-bold ${getMediaColor(media)}`}>{media}</span>
+                    <span className="text-[8px] text-slate-500 uppercase">média</span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/avaliacoes/${avaliacao.id}`}
-                      className="p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-600 rounded-lg transition-colors"
-                      title="Editar"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(avaliacao.id)}
-                      disabled={deleting === avaliacao.id}
-                      className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                      title="Excluir"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTipoColor(avaliacao.tipo)}`}>
+                        {getTipoLabel(avaliacao.tipo)}
+                      </span>
+                      {getJogo(avaliacao.jogos) && (
+                        <span className="text-slate-300 text-sm">vs {getJogo(avaliacao.jogos)?.adversario}</span>
+                      )}
+                      {avaliacao.contexto_treino && (
+                        <span className="text-slate-400 text-sm">• {avaliacao.contexto_treino}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 text-sm text-slate-400">
+                      <Calendar className="w-3 h-3" />
+                      <span>{formatDate(avaliacao.data_avaliacao)}</span>
+                    </div>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/avaliacoes/${avaliacao.id}`}
+                    className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                    title="Editar"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(avaliacao.id)}
+                    disabled={deleting === avaliacao.id}
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                    title="Excluir"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
