@@ -435,156 +435,412 @@ export default function GuiaAvaliacaoPage() {
                 </div>
                 <p className="text-sm text-slate-400 mb-4">Baseadas na metodologia da CBF Academy para formacao de jogadores de base.</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-6">
                   {/* Força */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">💪</span>
-                      <h4 className="font-semibold text-amber-400">Forca</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">💪</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Força</h4>
+                        <p className="text-xs text-slate-400">Capacidade física de disputar bolas, manter posição corporal, resistir a cargas e proteger a bola</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Capacidade fisica de disputar bolas, manter posicao corporal, resistir a cargas e proteger a bola.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Domina fisicamente, vence todos os duelos</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Adequado para idade, ganha alguns duelos</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Muito fraco fisicamente, evita contato</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Domina fisicamente todos os duelos. Nunca é deslocado. Protege a bola com o corpo de forma natural. Ganha divididas aéreas e terrestres com facilidade. Impõe respeito físico aos adversários.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Vence a maioria dos duelos físicos. Consegue proteger a bola sob pressão. Raramente é deslocado. Ganha divididas contra adversários do mesmo porte.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Disputa bem quando bem posicionado. Ganha algumas divididas e perde outras. Consegue manter a bola em situações normais. Não se destaca nem compromete.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Perde maioria das divididas. É deslocado com facilidade. Tem dificuldade em proteger a bola. Evita contato quando possível.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Evita qualquer contato físico. Perde todas as divididas. Não consegue manter posição. Cai facilmente. Fisicamente muito inferior aos demais.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U11-U12 foco em coordenacao, U15+ forca se torna mais relevante</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> U11-U13 não supervalorize - diferenças físicas são muito influenciadas pela maturação. U15+ a força se torna mais relevante e estável.</p>
                     </div>
                   </div>
 
                   {/* Velocidade */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">⚡</span>
-                      <h4 className="font-semibold text-amber-400">Velocidade</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">⚡</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Velocidade</h4>
+                        <p className="text-xs text-slate-400">Rapidez em sprints, capacidade de aceleração, mudanças de direção e velocidade de reação</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Rapidez em sprints curtos, capacidade de aceleracao, mudancas de direcao e velocidade de reacao.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Explosivo, ganha corridas com folga</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Velocidade adequada, acompanha o jogo</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Muito lento, sempre atrasado nas jogadas</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Explosão impressionante. Ganha todas as corridas. Muda de direção sem perder velocidade. Reage instantaneamente. É o mais rápido do time com folga.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Ganha maioria das corridas. Boa aceleração inicial. Consegue recuperar em contra-ataques. Raramente é "comido" nas costas.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Velocidade normal para a categoria. Acompanha o ritmo do jogo. Ganha algumas corridas, perde outras. Não é lento nem rápido.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Perde maioria das corridas. Demora para acelerar. Chega atrasado em várias jogadas. Compensa tentando antecipar.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Sempre o mais lento. Nunca ganha corridas. Chega atrasado em quase todas as jogadas. A lentidão compromete claramente o desempenho.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Pode variar muito com maturacao, nao supervalorizar em U11-U13</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> U11-U13 velocidade pode mudar muito com maturação. O menino lento pode ficar rápido. Não descarte por isso.</p>
                     </div>
                   </div>
 
                   {/* Técnica */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">⚽</span>
-                      <h4 className="font-semibold text-amber-400">Tecnica</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">🎯</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Técnica</h4>
+                        <p className="text-xs text-slate-400">Domínio de bola, qualidade de passes, dribles, condução, primeiro toque e finalização</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Dominio de bola, qualidade de passes, dribles, conducao, primeiro toque e finalizacao.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Excelente com ambos os pes, domina sob pressao</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Bom com pe dominante, adequado sob pressao</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Dificuldade no dominio, perde bola facil</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Excelente com ambos os pés. Domina em qualquer situação, mesmo sob pressão intensa. Passes precisos de curta e longa distância. Dribles efetivos. Primeiro toque sempre limpo e orientado.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Muito bom com pé dominante, usa o outro quando necessário. Domina bem sob pressão normal. Passes geralmente precisos. Consegue driblar em situações favoráveis.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Bom com pé dominante apenas. Domina em situações normais, pode errar sob pressão. Passes curtos geralmente certos. Tenta dribles mas nem sempre funciona.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Dificuldade no domínio mesmo em situações normais. Erra passes simples. Não consegue driblar. Primeiro toque geralmente ruim. Quase não usa o pé não-dominante.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Não consegue dominar a bola direito. Perde a bola em quase todos os toques. Passes sempre errados. Não tenta driblar. Técnica compromete completamente o jogo.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U11-U12 "Idade de Ouro" para desenvolver tecnica</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> U11-U12 é a "Idade de Ouro" - técnica aprendida aqui fica para sempre. Valorize muito quem tem boa técnica nessa idade.</p>
                     </div>
                   </div>
 
                   {/* Dinâmica */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">🔄</span>
-                      <h4 className="font-semibold text-amber-400">Dinamica</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">🔄</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Dinâmica</h4>
+                        <p className="text-xs text-slate-400">Movimentação constante, cobertura de espaços, capacidade de transição e intensidade de jogo</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Movimentacao constante, cobertura de espacos, capacidade de transicao e intensidade de jogo.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre em movimento, cobre muito campo</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Movimenta-se bem, participa do jogo</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Estatico, espera a bola parado</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Está SEMPRE em movimento. Cobre muito campo em ataque e defesa. Nunca para. Faz transições instantâneas. Parece estar em todo lugar. Intensidade do início ao fim.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Movimenta-se muito bem. Faz coberturas e apoios constantes. Transições rápidas. Mantém intensidade na maior parte do jogo. Raramente para.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Movimenta-se quando necessário. Participa do jogo normalmente. Faz algumas coberturas. Transições em velocidade normal. Tem momentos de mais e menos intensidade.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Pouco movimento. Fica parado esperando a bola. Não faz coberturas. Demora nas transições. Intensidade baixa. "Some" do jogo por períodos.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Estático. Espera a bola chegar nele. Não cobre ninguém. Não faz transição. Zero intensidade. Parece que não quer jogar. Anda em vez de correr.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Importante desde U11, indica atitude e entendimento do jogo</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> Importante desde U11. Indica atitude e entendimento do jogo. Dinâmica baixa pode ser preguiça ou falta de entendimento tático.</p>
                     </div>
                   </div>
 
                   {/* Inteligência */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">🧠</span>
-                      <h4 className="font-semibold text-amber-400">Inteligencia</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">🧠</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Inteligência</h4>
+                        <p className="text-xs text-slate-400">Leitura de jogo, tomada de decisão rápida, antecipação de jogadas e visão de jogo</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Leitura de jogo, tomada de decisao rapida, antecipacao de jogadas e visao de jogo.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Sempre decide certo, antecipa jogadas</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Boas decisoes, ocasionais erros de leitura</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Decisoes ruins, nao entende o jogo</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Sempre decide certo e rápido. Antecipa jogadas antes dos outros. "Escaneia" o campo constantemente. Vê passes que ninguém vê. Entende o jogo profundamente. Raramente é surpreendido.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Boas decisões na maioria das vezes. Lê bem o jogo. Antecipa situações simples. Olha antes de receber. Escolhe bem entre opções disponíveis.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Decisões razoáveis. Às vezes erra a leitura. Demora um pouco para decidir. Entende o básico do jogo. Algumas boas jogadas, alguns erros de escolha.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Decisões ruins frequentes. Não vê opções óbvias. Demora muito para decidir. Faz a jogada errada mesmo com tempo. Não antecipa nada.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Não entende o jogo. Sempre faz a escolha errada. Zero antecipação. Parece perdido em campo. Não sabe o que fazer com a bola. Decisões comprometem o time.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U13+ comeca a ser mais importante, diferencial em todas idades</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> DIFERENCIAL em todas as idades. Inteligência é muito difícil de ensinar. U13+ começa a ser decisiva. Valorize muito quem tem.</p>
                     </div>
                   </div>
 
                   {/* 1 contra 1 */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">⚔️</span>
-                      <h4 className="font-semibold text-amber-400">1 contra 1</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">⚔️</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">1 contra 1</h4>
+                        <p className="text-xs text-slate-400">Capacidade de vencer duelos individuais no ataque (dribles, fintas) e na defesa (desarmes, bloqueios)</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Capacidade de vencer duelos individuais tanto no ataque (dribles, fintas) quanto na defesa (desarmes, bloqueios).
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Vence maioria dos duelos, decisivo</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Equilibrado, ganha e perde duelos</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Evita duelos, sempre perde</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Vence quase todos os duelos. No ataque: dribles efetivos, passa pelo marcador com facilidade. Na defesa: desarma, intercepta, bloqueia. Não tem medo do duelo. É decisivo.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Ganha maioria dos duelos. Dribla bem em situações favoráveis. Defende bem 1v1. Não evita confronto. Geralmente sai vencedor.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Ganha alguns, perde outros. Equilibrado nos duelos. Tenta mas nem sempre consegue. Não é ponto forte nem fraco.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Perde maioria dos duelos. Evita confronto direto quando pode. Dribles não funcionam. Na defesa é facilmente passado. Prefere passar a bola a tentar.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Evita todos os duelos. Quando obrigado, sempre perde. Zero tentativa de drible. Na defesa é sempre passado. Medo do confronto. Foge da bola quando pressionado.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> U11 valorizar tentativa, U15+ valorizar efetividade</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> U11-U13 valorize a TENTATIVA, mesmo que erre. U15+ valorize a EFETIVIDADE. Quem tenta desde cedo evolui mais.</p>
                     </div>
                   </div>
 
                   {/* Atitude */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">🔥</span>
-                      <h4 className="font-semibold text-amber-400">Atitude</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">🔥</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Atitude</h4>
+                        <p className="text-xs text-slate-400">Mentalidade competitiva, comprometimento, resiliência, liderança e comunicação em campo</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Mentalidade competitiva, comprometimento, resiliencia, lideranca e comunicacao em campo.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Lider, nunca desiste, puxa o time</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Comprometido, mantem foco</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Desiste facil, reclama, se esconde</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Líder nato. Nunca desiste, independente do placar. Puxa o time com voz e exemplo. Comunica constantemente. Quer a bola nos momentos difíceis. Compete até o final. Inspira os companheiros.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Muito comprometido. Não desiste. Compete bem. Comunica quando necessário. Mantém foco no jogo todo. Aceita correção e tenta melhorar. Bom profissionalismo.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Comprometido normalmente. Compete quando está bem. Ocasionalmente reclama ou desanima. Foco razoável. Faz o que é pedido.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Desanima fácil quando o time está perdendo. Reclama de decisões. Não aceita bem correção. Foge de responsabilidade. "Some" em momentos difíceis.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Desiste ao primeiro sinal de dificuldade. Reclama de tudo. Se esconde do jogo. Zero comunicação. Culpa os outros. Não aceita feedback. Atitude prejudica o time.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Fundamental em todas idades, diferencial para evolucao</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> FUNDAMENTAL em todas as idades. É o maior preditor de evolução futura. Atleta com atitude evolui; sem atitude, estagna. Observe em momentos de adversidade.</p>
                     </div>
                   </div>
 
                   {/* Potencial */}
-                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">📈</span>
-                      <h4 className="font-semibold text-amber-400">Potencial</h4>
+                  <div className="bg-slate-700 rounded-xl p-5 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">⭐</span>
+                      <div>
+                        <h4 className="font-bold text-amber-400 text-lg">Potencial</h4>
+                        <p className="text-xs text-slate-400">Projeção de evolução futura baseada em margem de crescimento, características e capacidade de aprendizado</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">
-                      Projecao de evolucao futura baseada em margem de crescimento, caracteristicas fisicas e capacidade de aprendizado.
-                    </p>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p><span className="text-green-400 font-medium">Nota 5:</span> Altissimo potencial, aprende rapido</p>
-                      <p><span className="text-blue-400 font-medium">Nota 3:</span> Bom potencial, evolui normalmente</p>
-                      <p><span className="text-orange-400 font-medium">Nota 1:</span> Baixo potencial, teto visivel</p>
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      <div className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <span className="text-purple-400 font-bold text-lg w-6">5</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-300">Excelente - Diferencial claro</p>
+                          <p className="text-xs text-purple-200 mt-1">Altíssimo potencial. Aprende MUITO rápido (1 correção e já muda). Margem enorme de crescimento. Características físicas favoráveis. Inteligência acima da média. Perfil de profissional.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg border border-green-700">
+                        <span className="text-green-400 font-bold text-lg w-6">4</span>
+                        <div>
+                          <p className="text-sm font-medium text-green-300">Acima da média - Destaque positivo</p>
+                          <p className="text-xs text-green-200 mt-1">Bom potencial. Aprende rápido. Boa margem de evolução. Características adequadas. Evolui bem com treino. Projeção positiva.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                        <span className="text-blue-400 font-bold text-lg w-6">3</span>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300">Na média - Adequado para idade</p>
+                          <p className="text-xs text-blue-200 mt-1">Potencial normal. Evolui em ritmo esperado. Aprende com repetição. Margem de crescimento mediana. Pode ou não chegar ao profissional - depende muito de trabalho.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-orange-900/30 rounded-lg border border-orange-700">
+                        <span className="text-orange-400 font-bold text-lg w-6">2</span>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300">Abaixo - Precisa desenvolver</p>
+                          <p className="text-xs text-orange-200 mt-1">Potencial limitado. Demora para aprender. Pouca margem de evolução visível. Características físicas podem ser limitantes. Teto parece próximo.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <span className="text-red-400 font-bold text-lg w-6">1</span>
+                        <div>
+                          <p className="text-sm font-medium text-red-300">Muito abaixo - Deficiência clara</p>
+                          <p className="text-xs text-red-200 mt-1">Baixo potencial visível. Não aprende mesmo com repetição. Teto já alcançado. Características muito limitantes. Projeção muito difícil para níveis superiores.</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-3 p-2 bg-slate-800 rounded-lg">
-                      <p className="text-xs text-slate-500"><strong>Por idade:</strong> Mais importante em U11-U13, U17 ja e mais "o que e"</p>
+                    <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
+                      <p className="text-xs text-slate-400"><strong>⚠️ Atenção por idade:</strong> Mais importante em U11-U15. Em U17+ o atleta já "é o que é" em grande parte. Cuidado para não confundir maturação precoce com potencial real.</p>
                     </div>
                   </div>
                 </div>
