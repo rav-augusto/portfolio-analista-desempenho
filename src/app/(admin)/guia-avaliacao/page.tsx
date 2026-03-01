@@ -27,14 +27,16 @@ const categorias = [
 ]
 
 const tabs = [
-  { id: 'metodo', label: 'Metodo do Analista', icon: BookOpen },
-  { id: 'dimensoes', label: '20 Dimensoes', icon: Target },
+  { id: 'carreira', label: 'Carreira do Analista', icon: Users },
+  { id: 'metodo', label: 'Método do Analista', icon: BookOpen },
+  { id: 'dimensoes', label: '20 Dimensões', icon: Target },
   { id: 'categorias', label: 'Checklist por Categoria', icon: ClipboardList },
   { id: 'talento', label: 'Identificar Talento', icon: Star },
+  { id: 'decisao', label: 'Como Decidir', icon: BarChart3 },
 ]
 
 export default function GuiaAvaliacaoPage() {
-  const [activeTab, setActiveTab] = useState('metodo')
+  const [activeTab, setActiveTab] = useState('carreira')
   const [categoriaAberta, setCategoriaAberta] = useState<string | null>('sub7')
 
   const toggleCategoria = (id: string) => {
@@ -45,8 +47,8 @@ export default function GuiaAvaliacaoPage() {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-100">Guia de Avaliacao</h1>
-        <p className="text-slate-400 mt-1">Metodologia e checklists para avaliacao de atletas de base</p>
+        <h1 className="text-3xl font-bold text-slate-100">Guia de Avaliação</h1>
+        <p className="text-slate-400 mt-1">Metodologia completa para análise e avaliação de atletas de base</p>
       </div>
 
       {/* Tabs */}
@@ -71,6 +73,200 @@ export default function GuiaAvaliacaoPage() {
         </div>
 
         <div className="p-6">
+          {/* Tab Carreira do Analista */}
+          {activeTab === 'carreira' && (
+            <div className="space-y-8">
+              {/* Intro */}
+              <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl p-6 border border-amber-500/30">
+                <h3 className="text-xl font-bold text-amber-400 mb-2">O que é um Analista de Desempenho?</h3>
+                <p className="text-slate-300">
+                  O analista de desempenho é o profissional responsável por <strong>transformar dados em decisões</strong>.
+                  Ele observa, registra, analisa e comunica informações que ajudam treinadores e jogadores a evoluírem.
+                  É uma profissão em crescimento no Brasil, com cada vez mais clubes estruturando departamentos de análise.
+                </p>
+              </div>
+
+              {/* O que clubes buscam */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-amber-500" />
+                  O que os Clubes Buscam
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <h4 className="font-semibold text-green-400 mb-3">✓ Habilidades Técnicas</h4>
+                    <ul className="text-sm text-slate-300 space-y-2">
+                      <li>• Domínio de softwares de análise (Wyscout, Hudl, LongoMatch)</li>
+                      <li>• Edição de vídeo (cortes, clipes, compilações)</li>
+                      <li>• Conhecimento de estatística básica e visualização de dados</li>
+                      <li>• Excel/Google Sheets avançado</li>
+                      <li>• Apresentações claras e objetivas</li>
+                    </ul>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <h4 className="font-semibold text-blue-400 mb-3">✓ Conhecimento de Jogo</h4>
+                    <ul className="text-sm text-slate-300 space-y-2">
+                      <li>• Compreensão tática profunda (sistemas, princípios)</li>
+                      <li>• Leitura de padrões ofensivos e defensivos</li>
+                      <li>• Entendimento de transições e bolas paradas</li>
+                      <li>• Conhecimento das diferentes posições</li>
+                      <li>• Visão crítica para identificar pontos fortes/fracos</li>
+                    </ul>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <h4 className="font-semibold text-purple-400 mb-3">✓ Soft Skills</h4>
+                    <ul className="text-sm text-slate-300 space-y-2">
+                      <li>• Comunicação clara com comissão técnica</li>
+                      <li>• Capacidade de síntese (menos é mais)</li>
+                      <li>• Trabalho sob pressão e prazos</li>
+                      <li>• Discrição e confidencialidade</li>
+                      <li>• Proatividade e iniciativa</li>
+                    </ul>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <h4 className="font-semibold text-orange-400 mb-3">✓ Diferenciais</h4>
+                    <ul className="text-sm text-slate-300 space-y-2">
+                      <li>• Certificação CBF Academy</li>
+                      <li>• Experiência prévia (mesmo voluntária)</li>
+                      <li>• Portfólio com análises reais</li>
+                      <li>• Conhecimento de idiomas (inglês/espanhol)</li>
+                      <li>• Rede de contatos no futebol</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Construindo Portfolio */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-amber-500" />
+                  Como Construir seu Portfólio
+                </h3>
+                <div className="space-y-4">
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center font-bold">1</div>
+                      <h4 className="font-semibold text-slate-100">Comece Localmente</h4>
+                    </div>
+                    <p className="text-sm text-slate-400 ml-11">
+                      Ofereça trabalho voluntário para times amadores, escolinhas ou categorias de base.
+                      A experiência real é mais valiosa que qualquer curso.
+                    </p>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center font-bold">2</div>
+                      <h4 className="font-semibold text-slate-100">Documente Tudo</h4>
+                    </div>
+                    <p className="text-sm text-slate-400 ml-11">
+                      Crie relatórios em PDF de jogos que você assistir. Análises de partidas da TV,
+                      scouts de jogadores, relatórios de adversários. Tudo conta.
+                    </p>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center font-bold">3</div>
+                      <h4 className="font-semibold text-slate-100">Compartilhe Online</h4>
+                    </div>
+                    <p className="text-sm text-slate-400 ml-11">
+                      LinkedIn, Twitter/X, Instagram. Poste análises táticas, threads, vídeos curtos.
+                      Mostre seu olhar único. Seja consistente.
+                    </p>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-amber-500 text-slate-900 flex items-center justify-center font-bold">4</div>
+                      <h4 className="font-semibold text-slate-100">Faça Networking</h4>
+                    </div>
+                    <p className="text-sm text-slate-400 ml-11">
+                      Participe de comunidades de analistas, eventos, congressos.
+                      Conheça pessoas da área. Oportunidades surgem de indicações.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ferramentas */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <Video className="w-5 h-5 text-amber-500" />
+                  Ferramentas do Mercado
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">Wyscout</p>
+                    <p className="text-xs text-slate-400">Vídeo e dados</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">Hudl</p>
+                    <p className="text-xs text-slate-400">Análise de vídeo</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">LongoMatch</p>
+                    <p className="text-xs text-slate-400">Tagging gratuito</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">Sportscode</p>
+                    <p className="text-xs text-slate-400">Elite/profissional</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">InStat</p>
+                    <p className="text-xs text-slate-400">Dados e estatísticas</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">Tactical Pad</p>
+                    <p className="text-xs text-slate-400">Diagramas táticos</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">Canva/Figma</p>
+                    <p className="text-xs text-slate-400">Apresentações</p>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-3 text-center border border-slate-600">
+                    <p className="font-semibold text-slate-100">Excel/Sheets</p>
+                    <p className="text-xs text-slate-400">Dados e gráficos</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Áreas de atuação */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-500" />
+                  Áreas de Atuação
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 rounded-xl p-4 border border-blue-700">
+                    <h4 className="font-semibold text-blue-300 mb-2">🏟️ Clubes</h4>
+                    <p className="text-sm text-blue-200">
+                      Análise de jogos, treinos, adversários. Apoio direto à comissão técnica.
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-900/50 to-green-800/30 rounded-xl p-4 border border-green-700">
+                    <h4 className="font-semibold text-green-300 mb-2">🔍 Captação/Scout</h4>
+                    <p className="text-sm text-green-200">
+                      Identificação de talentos, relatórios de mercado, avaliação de atletas.
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-4 border border-purple-700">
+                    <h4 className="font-semibold text-purple-300 mb-2">📊 Dados/Tecnologia</h4>
+                    <p className="text-sm text-purple-200">
+                      Empresas de dados, plataformas de análise, desenvolvimento de ferramentas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dica final */}
+              <div className="bg-green-900/30 rounded-xl p-4 border border-green-700">
+                <p className="text-sm text-green-300">
+                  <strong>💡 Dica:</strong> O mercado brasileiro está em expansão. A Licença CBF de Analista de Desempenho
+                  está se tornando requisito em muitos clubes. Invista em formação contínua e construa sua reputação
+                  com trabalho consistente e de qualidade.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Tab Método */}
           {activeTab === 'metodo' && (
             <div className="space-y-8">
@@ -1218,9 +1414,198 @@ export default function GuiaAvaliacaoPage() {
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-red-900/30 rounded-lg border border-red-700">
                     <span className="text-red-400 font-bold">X</span>
-                    <p className="text-sm text-red-200">Valorizar so quem <strong>aparece com bola</strong> (ignorar o trabalho sem bola)</p>
+                    <p className="text-sm text-red-200">Valorizar só quem <strong>aparece com bola</strong> (ignorar o trabalho sem bola)</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab Como Decidir */}
+          {activeTab === 'decisao' && (
+            <div className="space-y-8">
+              {/* Intro */}
+              <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl p-6 border border-blue-500/30">
+                <h3 className="text-xl font-bold text-blue-400 mb-2">Por que escolher A e não B?</h3>
+                <p className="text-slate-300">
+                  Uma das perguntas mais difíceis na formação. Dois atletas podem ter notas parecidas,
+                  mas <strong>contexto, potencial e perfil</strong> mudam tudo. Aqui está o framework para decidir.
+                </p>
+              </div>
+
+              {/* Matriz de Decisão */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-amber-500" />
+                  Matriz de Decisão
+                </h3>
+                <div className="bg-slate-700 rounded-xl p-4 border border-slate-600 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-600">
+                        <th className="text-left py-2 px-3 text-slate-400 font-medium">Critério</th>
+                        <th className="text-center py-2 px-3 text-slate-400 font-medium">Peso</th>
+                        <th className="text-left py-2 px-3 text-slate-400 font-medium">Pergunta-chave</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-300">
+                      <tr className="border-b border-slate-600/50">
+                        <td className="py-2 px-3 font-medium text-green-400">🧠 Inteligência de Jogo</td>
+                        <td className="py-2 px-3 text-center"><span className="bg-green-900/50 px-2 py-1 rounded text-green-300">Alto</span></td>
+                        <td className="py-2 px-3">Ele entende o jogo ou só executa?</td>
+                      </tr>
+                      <tr className="border-b border-slate-600/50">
+                        <td className="py-2 px-3 font-medium text-green-400">📈 Margem de Evolução</td>
+                        <td className="py-2 px-3 text-center"><span className="bg-green-900/50 px-2 py-1 rounded text-green-300">Alto</span></td>
+                        <td className="py-2 px-3">Ele aprende rápido? Responde a feedback?</td>
+                      </tr>
+                      <tr className="border-b border-slate-600/50">
+                        <td className="py-2 px-3 font-medium text-green-400">🔥 Atitude/Mentalidade</td>
+                        <td className="py-2 px-3 text-center"><span className="bg-green-900/50 px-2 py-1 rounded text-green-300">Alto</span></td>
+                        <td className="py-2 px-3">Ele compete? Não desiste? Lidera?</td>
+                      </tr>
+                      <tr className="border-b border-slate-600/50">
+                        <td className="py-2 px-3 font-medium text-blue-400">⚽ Técnica</td>
+                        <td className="py-2 px-3 text-center"><span className="bg-blue-900/50 px-2 py-1 rounded text-blue-300">Médio</span></td>
+                        <td className="py-2 px-3">Domina fundamentos? Usa os dois pés?</td>
+                      </tr>
+                      <tr className="border-b border-slate-600/50">
+                        <td className="py-2 px-3 font-medium text-blue-400">🎯 Efetividade Tática</td>
+                        <td className="py-2 px-3 text-center"><span className="bg-blue-900/50 px-2 py-1 rounded text-blue-300">Médio</span></td>
+                        <td className="py-2 px-3">Cumpre função? Joga pelo time?</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-medium text-orange-400">💪 Físico</td>
+                        <td className="py-2 px-3 text-center"><span className="bg-orange-900/50 px-2 py-1 rounded text-orange-300">Variável*</span></td>
+                        <td className="py-2 px-3">Adequado para idade? Vai crescer?</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p className="text-xs text-slate-500 mt-3">*Físico é variável: menos importante em U11-U13, mais relevante em U15+</p>
+                </div>
+              </div>
+
+              {/* Cenários de Decisão */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-amber-500" />
+                  Cenários Comuns de Decisão
+                </h3>
+                <div className="space-y-4">
+                  {/* Cenário 1 */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-start gap-3 mb-3">
+                      <span className="text-2xl">🤔</span>
+                      <div>
+                        <h4 className="font-semibold text-slate-100">"A" é mais forte e rápido, "B" é mais inteligente</h4>
+                        <p className="text-sm text-slate-400">Quem escolher para U13?</p>
+                      </div>
+                    </div>
+                    <div className="bg-green-900/30 rounded-lg p-3 border border-green-700">
+                      <p className="text-sm text-green-300">
+                        <strong>Resposta:</strong> Geralmente "B". Força e velocidade mudam com maturação.
+                        Inteligência de jogo é muito mais difícil de desenvolver. O atleta fisicamente dominante
+                        em U13 pode ser "normal" em U17 quando os outros crescem.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Cenário 2 */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-start gap-3 mb-3">
+                      <span className="text-2xl">🤔</span>
+                      <div>
+                        <h4 className="font-semibold text-slate-100">"A" é tecnicamente melhor, "B" compete mais</h4>
+                        <p className="text-sm text-slate-400">Quem escolher para decisão importante?</p>
+                      </div>
+                    </div>
+                    <div className="bg-green-900/30 rounded-lg p-3 border border-green-700">
+                      <p className="text-sm text-green-300">
+                        <strong>Resposta:</strong> Depende do momento. Para jogos decisivos, atitude pesa muito.
+                        Mas para formação de longo prazo, questione: "B" compete porque quer ou porque é limitado tecnicamente?
+                        Se "A" tiver atitude razoável, pode ser melhor aposta.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Cenário 3 */}
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <div className="flex items-start gap-3 mb-3">
+                      <span className="text-2xl">🤔</span>
+                      <div>
+                        <h4 className="font-semibold text-slate-100">"A" é completo mas normal, "B" é especialista mas brilhante</h4>
+                        <p className="text-sm text-slate-400">Generalista vs Especialista?</p>
+                      </div>
+                    </div>
+                    <div className="bg-green-900/30 rounded-lg p-3 border border-green-700">
+                      <p className="text-sm text-green-300">
+                        <strong>Resposta:</strong> No futebol moderno, especialistas com uma qualidade excepcional
+                        têm espaço. Se "B" tem um diferencial claro (finalização, passe, 1v1), pode ter mais
+                        chances no profissional. Mas precisa saber usar esse diferencial.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Perguntas Finais */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-amber-500" />
+                  Checklist Final de Decisão
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <h4 className="font-semibold text-amber-400 mb-3">Antes de decidir, pergunte:</h4>
+                    <ul className="text-sm text-slate-300 space-y-2">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>Vi esse atleta em situações diferentes (jogo fácil e difícil)?</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>Estou comparando com a idade certa ou com minha expectativa?</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>O contexto (time, treinador, modelo) favorece ou prejudica ele?</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>Estou vendo potencial ou só performance atual?</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+                    <h4 className="font-semibold text-red-400 mb-3">Sinais de alerta:</h4>
+                    <ul className="text-sm text-slate-300 space-y-2">
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>Só rende quando o time é superior</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>Não aceita correção ou feedback</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>Depende 100% do físico para se destacar</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span>Joga só quando está bem, some quando está mal</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Frase final */}
+              <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-xl p-6 border border-amber-700">
+                <p className="text-lg text-amber-300 text-center">
+                  <strong>"Na dúvida entre dois, escolha o que aprende mais rápido.<br/>
+                  O futebol muda, e quem aprende se adapta."</strong>
+                </p>
               </div>
             </div>
           )}
