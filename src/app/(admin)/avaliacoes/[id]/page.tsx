@@ -628,13 +628,25 @@ export default function EditarAvaliacaoPage() {
 
           {/* Tabs */}
           <div className="rounded-2xl mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <div className="flex gap-1 p-1 rounded-t-2xl" style={{ backgroundColor: '#0f172a' }}>
-              {tabs.map((tab) => (
-                <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all ${activeTab === tab.id ? 'bg-amber-500 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>
-                  {tab.label}
-                </button>
-              ))}
+            <div className="flex items-center gap-4 p-4 border-b" style={{ borderColor: '#475569' }}>
+              <span className="text-sm font-medium text-slate-400">Dimensões:</span>
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+                    style={
+                      activeTab === tab.id
+                        ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
+                        : { backgroundColor: '#334155', color: '#94a3b8' }
+                    }
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="p-4">
