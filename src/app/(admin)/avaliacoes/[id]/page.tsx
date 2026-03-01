@@ -428,21 +428,30 @@ export default function EditarAvaliacaoPage() {
     return (
       <div key={dim.key} className="rounded-xl p-3 transition-colors hover:opacity-90" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-slate-300">{dim.label}</span>
-            {showHelp && (
-              <button type="button" onClick={() => openHelp(dim.label, dim.desc, dim.diagram)} className="text-slate-500 hover:text-amber-500">
-                <HelpCircle className="w-3 h-3" />
+            <div className="flex items-center gap-1">
+              {showHelp && (
+                <button
+                  type="button"
+                  onClick={() => openHelp(dim.label, dim.desc, dim.diagram)}
+                  className="w-5 h-5 flex items-center justify-center rounded-md transition-all hover:scale-110"
+                  style={{ backgroundColor: '#334155' }}
+                  title="Ver detalhes"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-blue-400" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setObsModal({ open: true, key: dim.key, label: dim.label, type: obsType, value: obs })}
+                className="w-5 h-5 flex items-center justify-center rounded-md transition-all hover:scale-110"
+                style={{ backgroundColor: hasObs ? '#f59e0b' : '#334155' }}
+                title={hasObs ? 'Editar observação' : 'Adicionar observação'}
+              >
+                <MessageSquare className={`w-3.5 h-3.5 ${hasObs ? 'text-slate-900' : 'text-emerald-400'}`} />
               </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setObsModal({ open: true, key: dim.key, label: dim.label, type: obsType, value: obs })}
-              className={`${hasObs ? 'text-amber-500' : 'text-slate-500 hover:text-amber-500'}`}
-              title={hasObs ? 'Editar observação' : 'Adicionar observação'}
-            >
-              <MessageSquare className="w-3 h-3" />
-            </button>
+            </div>
           </div>
           <span className="text-sm font-bold" style={{ color: getScoreColor(numValue) }}>{value}</span>
         </div>
