@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, Star, Calendar, ArrowLeft, User, TrendingUp } from 'lucide-react'
+import { Plus, Pencil, Trash2, Star, Calendar, ArrowLeft, User, TrendingUp, Clock } from 'lucide-react'
 import Link from 'next/link'
 import {
   Chart as ChartJS,
@@ -44,6 +44,9 @@ type Avaliacao = {
   data_avaliacao: string
   tipo: string
   contexto_treino: string | null
+  minutos_jogados: number | null
+  gols: number | null
+  assistencias: number | null
   forca: number
   velocidade: number
   tecnica: number
@@ -110,7 +113,7 @@ export default function AvaliacoesAtletaPage() {
     const { data: avaliacoesData } = await supabase
       .from('avaliacoes_atleta')
       .select(`
-        id, data_avaliacao, tipo, contexto_treino,
+        id, data_avaliacao, tipo, contexto_treino, minutos_jogados, gols, assistencias,
         forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial,
         penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva,
         contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva,
@@ -182,6 +185,12 @@ export default function AvaliacoesAtletaPage() {
   }
 
   const mediaGeralAtleta = parseFloat(calcularMediaGeralAtleta())
+
+  // Calcular total de minutos jogados, gols e assistencias
+  const totalMinutosJogados = avaliacoes.reduce((acc, av) => acc + (av.minutos_jogados || 0), 0)
+  const jogosComMinutos = avaliacoes.filter(av => av.minutos_jogados && av.minutos_jogados > 0).length
+  const totalGols = avaliacoes.reduce((acc, av) => acc + (av.gols || 0), 0)
+  const totalAssistencias = avaliacoes.reduce((acc, av) => acc + (av.assistencias || 0), 0)
 
   // Calcular média de cada dimensão de todas as avaliações
   const calcularMediaDimensao = (campo: keyof Avaliacao) => {
@@ -303,6 +312,36 @@ export default function AvaliacoesAtletaPage() {
           </div>
         )}
 
+        {/* Estatísticas de Jogo */}
+        <div className="flex items-center gap-2">
+          {/* Total de Minutos Jogados */}
+          {totalMinutosJogados > 0 && (
+            <div className="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl px-4 py-2">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-amber-500" />
+                <span className="text-2xl font-black text-amber-500">{totalMinutosJogados}&apos;</span>
+              </div>
+              <span className="text-[9px] text-slate-400 uppercase tracking-wide">{jogosComMinutos} jogo{jogosComMinutos !== 1 ? 's' : ''}</span>
+            </div>
+          )}
+
+          {/* Total de Gols */}
+          {totalGols > 0 && (
+            <div className="flex flex-col items-center justify-center bg-slate-800 border border-green-700/50 rounded-xl px-4 py-2">
+              <span className="text-2xl font-black text-green-500">{totalGols}</span>
+              <span className="text-[9px] text-slate-400 uppercase tracking-wide">Gols</span>
+            </div>
+          )}
+
+          {/* Total de Assistências */}
+          {totalAssistencias > 0 && (
+            <div className="flex flex-col items-center justify-center bg-slate-800 border border-blue-700/50 rounded-xl px-4 py-2">
+              <span className="text-2xl font-black text-blue-500">{totalAssistencias}</span>
+              <span className="text-[9px] text-slate-400 uppercase tracking-wide">Assists</span>
+            </div>
+          )}
+        </div>
+
         <Link
           href={`/avaliacoes/nova?atleta=${atletaId}`}
           className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
@@ -356,9 +395,23 @@ export default function AvaliacoesAtletaPage() {
                         <span className="text-slate-400 text-sm">• {avaliacao.contexto_treino}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-slate-400">
-                      <Calendar className="w-3 h-3" />
-                      <span>{formatDate(avaliacao.data_avaliacao)}</span>
+                    <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatDate(avaliacao.data_avaliacao)}</span>
+                      </div>
+                      {avaliacao.minutos_jogados && (
+                        <div className="flex items-center gap-1 text-amber-500">
+                          <Clock className="w-3 h-3" />
+                          <span>{avaliacao.minutos_jogados}&apos;</span>
+                        </div>
+                      )}
+                      {avaliacao.gols && avaliacao.gols > 0 && (
+                        <span className="text-green-500 font-medium">{avaliacao.gols} gol{avaliacao.gols > 1 ? 's' : ''}</span>
+                      )}
+                      {avaliacao.assistencias && avaliacao.assistencias > 0 && (
+                        <span className="text-blue-500 font-medium">{avaliacao.assistencias} assist{avaliacao.assistencias > 1 ? 's' : ''}</span>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -138,6 +138,11 @@ export default function EditarAvaliacaoPage() {
   })
   const [obsDefensivos, setObsDefensivos] = useState<Record<string, string>>({})
 
+  // Minutos jogados, gols e assistencias
+  const [minutosJogados, setMinutosJogados] = useState('')
+  const [gols, setGols] = useState('0')
+  const [assistencias, setAssistencias] = useState('0')
+
   // Conclusões
   const [pontosFortes, setPontosFortes] = useState('')
   const [pontosDesenvolver, setPontosDesenvolver] = useState('')
@@ -229,6 +234,9 @@ export default function EditarAvaliacaoPage() {
         setPontosFortes(av.pontos_fortes || '')
         setPontosDesenvolver(av.pontos_desenvolver || '')
         setObservacoes(av.observacoes || '')
+        setMinutosJogados(av.minutos_jogados ? String(av.minutos_jogados) : '')
+        setGols(av.gols ? String(av.gols) : '0')
+        setAssistencias(av.assistencias ? String(av.assistencias) : '0')
       }
 
       setLoading(false)
@@ -339,6 +347,9 @@ export default function EditarAvaliacaoPage() {
       contexto_treino: contextoTreino || null,
       data_avaliacao: dataAvaliacao,
       tipo,
+      minutos_jogados: minutosJogados ? parseInt(minutosJogados) : null,
+      gols: gols ? parseInt(gols) : 0,
+      assistencias: assistencias ? parseInt(assistencias) : 0,
       forca: parseFloat(notas.forca),
       velocidade: parseFloat(notas.velocidade),
       tecnica: parseFloat(notas.tecnica),
@@ -611,15 +622,56 @@ export default function EditarAvaliacaoPage() {
                   style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
               </div>
               {tipo === 'jogo' && (
-                <div>
-                  <label className="block text-xs font-medium text-amber-500 uppercase mb-2">Jogo (Vídeo)</label>
-                  <select value={jogoId} onChange={(e) => setJogoId(e.target.value)}
-                    className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                    style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}>
-                    <option value="">Opcional...</option>
-                    {jogos.map((jogo) => (<option key={jogo.id} value={jogo.id}>{getClubeName(jogo.clubes)} x {jogo.adversario} - {formatDate(jogo.data_jogo)}</option>))}
-                  </select>
-                </div>
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-amber-500 uppercase mb-2">Jogo (Vídeo)</label>
+                    <select value={jogoId} onChange={(e) => setJogoId(e.target.value)}
+                      className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                      style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}>
+                      <option value="">Opcional...</option>
+                      {jogos.map((jogo) => (<option key={jogo.id} value={jogo.id}>{getClubeName(jogo.clubes)} x {jogo.adversario} - {formatDate(jogo.data_jogo)}</option>))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-amber-500 uppercase mb-2">Minutos Jogados</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="120"
+                      value={minutosJogados}
+                      onChange={(e) => setMinutosJogados(e.target.value)}
+                      placeholder="Ex: 90"
+                      className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                      style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-green-500 uppercase mb-2">Gols</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      value={gols}
+                      onChange={(e) => setGols(e.target.value)}
+                      placeholder="0"
+                      className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                      style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e', color: '#e2e8f0' }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-blue-500 uppercase mb-2">Assistencias</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      value={assistencias}
+                      onChange={(e) => setAssistencias(e.target.value)}
+                      placeholder="0"
+                      className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                      style={{ backgroundColor: '#0f172a', border: '1px solid #3b82f6', color: '#e2e8f0' }}
+                    />
+                  </div>
+                </>
               )}
             </div>
             <div className="mt-4">

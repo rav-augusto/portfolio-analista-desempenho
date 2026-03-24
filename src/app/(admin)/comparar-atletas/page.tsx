@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, ChevronDown, Printer, BarChart3 } from 'lucide-react'
+import { Users, ChevronDown, Printer, BarChart3, Clock } from 'lucide-react'
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -45,6 +45,9 @@ type Atleta = {
 type Avaliacao = {
   id: string
   data_avaliacao: string
+  minutos_jogados: number | null
+  gols: number | null
+  assistencias: number | null
   forca: number
   velocidade: number
   tecnica: number
@@ -102,6 +105,10 @@ export default function CompararAtletasPage() {
   const [atleta2, setAtleta2] = useState<Atleta | null>(null)
   const [avaliacao1, setAvaliacao1] = useState<Avaliacao | null>(null)
   const [avaliacao2, setAvaliacao2] = useState<Avaliacao | null>(null)
+  const [minutos1, setMinutos1] = useState<{ total: number; jogos: number }>({ total: 0, jogos: 0 })
+  const [minutos2, setMinutos2] = useState<{ total: number; jogos: number }>({ total: 0, jogos: 0 })
+  const [stats1, setStats1] = useState<{ gols: number; assistencias: number }>({ gols: 0, assistencias: 0 })
+  const [stats2, setStats2] = useState<{ gols: number; assistencias: number }>({ gols: 0, assistencias: 0 })
   const [activeView, setActiveView] = useState<'cbf' | 'ofensivo' | 'defensivo' | 'todos'>('cbf')
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -130,18 +137,62 @@ export default function CompararAtletasPage() {
     setter(data)
   }
 
+  const loadMinutos = async (atletaId: string, setter: (m: { total: number; jogos: number }) => void) => {
+    const { data } = await supabase
+      .from('avaliacoes_atleta')
+      .select('minutos_jogados')
+      .eq('atleta_id', atletaId)
+      .not('minutos_jogados', 'is', null)
+
+    if (data) {
+      const total = data.reduce((acc, av) => acc + (av.minutos_jogados || 0), 0)
+      setter({ total, jogos: data.length })
+    } else {
+      setter({ total: 0, jogos: 0 })
+    }
+  }
+
+  const loadStats = async (atletaId: string, setter: (s: { gols: number; assistencias: number }) => void) => {
+    const { data } = await supabase
+      .from('avaliacoes_atleta')
+      .select('gols, assistencias')
+      .eq('atleta_id', atletaId)
+
+    if (data) {
+      const gols = data.reduce((acc, av) => acc + (av.gols || 0), 0)
+      const assistencias = data.reduce((acc, av) => acc + (av.assistencias || 0), 0)
+      setter({ gols, assistencias })
+    } else {
+      setter({ gols: 0, assistencias: 0 })
+    }
+  }
+
   const handleSelectAtleta1 = (id: string) => {
     const atleta = atletas.find(a => a.id === id)
     setAtleta1(atleta || null)
-    if (atleta) loadAvaliacao(atleta.id, setAvaliacao1)
-    else setAvaliacao1(null)
+    if (atleta) {
+      loadAvaliacao(atleta.id, setAvaliacao1)
+      loadMinutos(atleta.id, setMinutos1)
+      loadStats(atleta.id, setStats1)
+    } else {
+      setAvaliacao1(null)
+      setMinutos1({ total: 0, jogos: 0 })
+      setStats1({ gols: 0, assistencias: 0 })
+    }
   }
 
   const handleSelectAtleta2 = (id: string) => {
     const atleta = atletas.find(a => a.id === id)
     setAtleta2(atleta || null)
-    if (atleta) loadAvaliacao(atleta.id, setAvaliacao2)
-    else setAvaliacao2(null)
+    if (atleta) {
+      loadAvaliacao(atleta.id, setAvaliacao2)
+      loadMinutos(atleta.id, setMinutos2)
+      loadStats(atleta.id, setStats2)
+    } else {
+      setAvaliacao2(null)
+      setMinutos2({ total: 0, jogos: 0 })
+      setStats2({ gols: 0, assistencias: 0 })
+    }
   }
 
   const calcularIdade = (dataNasc: string) => {
@@ -259,7 +310,7 @@ export default function CompararAtletasPage() {
     maintainAspectRatio: false,
   }
 
-  const renderAtletaCard = (atleta: Atleta | null, avaliacao: Avaliacao | null, color: string) => (
+  const renderAtletaCard = (atleta: Atleta | null, avaliacao: Avaliacao | null, minutos: { total: number; jogos: number }, stats: { gols: number; assistencias: number }, color: string) => (
     <div
       className="rounded-2xl shadow-sm overflow-hidden"
       style={{
@@ -322,6 +373,33 @@ export default function CompararAtletasPage() {
                     {getMediaGeral(avaliacao)}
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* Estatísticas de Jogo */}
+            {(minutos.total > 0 || stats.gols > 0 || stats.assistencias > 0) && (
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {minutos.total > 0 && (
+                  <div className="p-2 rounded-lg bg-amber-900/20 border border-amber-500/30 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-500" />
+                      <span className="text-lg font-bold text-amber-500">{minutos.total}&apos;</span>
+                    </div>
+                    <span className="text-[9px] text-slate-500">{minutos.jogos} jogos</span>
+                  </div>
+                )}
+                {stats.gols > 0 && (
+                  <div className="p-2 rounded-lg bg-green-900/20 border border-green-500/30 text-center">
+                    <span className="text-lg font-bold text-green-500">{stats.gols}</span>
+                    <p className="text-[9px] text-slate-500">Gols</p>
+                  </div>
+                )}
+                {stats.assistencias > 0 && (
+                  <div className="p-2 rounded-lg bg-blue-900/20 border border-blue-500/30 text-center">
+                    <span className="text-lg font-bold text-blue-500">{stats.assistencias}</span>
+                    <p className="text-[9px] text-slate-500">Assists</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -455,8 +533,8 @@ export default function CompararAtletasPage() {
 
       {/* Player Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {renderAtletaCard(atleta1, avaliacao1, 'blue')}
-        {renderAtletaCard(atleta2, avaliacao2, 'red')}
+        {renderAtletaCard(atleta1, avaliacao1, minutos1, stats1, 'blue')}
+        {renderAtletaCard(atleta2, avaliacao2, minutos2, stats2, 'red')}
       </div>
 
       {/* View Tabs */}

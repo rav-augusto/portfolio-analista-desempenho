@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search } from 'lucide-react'
+import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock } from 'lucide-react'
 import Link from 'next/link'
 import {
   Chart as ChartJS,
@@ -53,6 +53,9 @@ type Avaliacao = {
   id: string
   atleta_id: string
   data_avaliacao: string
+  minutos_jogados: number | null
+  gols: number | null
+  assistencias: number | null
   // CBF
   forca: number | null
   velocidade: number | null
@@ -196,6 +199,85 @@ export default function DashboardAtletasPage() {
     if (valores.length === 0) return 0
     return valores.reduce((a, b) => a + b, 0) / valores.length
   }, [avaliacaoSelecionada])
+
+  // Total de minutos jogados
+  const minutosData = useMemo(() => {
+    const avaliacoesComMinutos = avaliacoes.filter(a => a.minutos_jogados && a.minutos_jogados > 0)
+    const total = avaliacoesComMinutos.reduce((acc, a) => acc + (a.minutos_jogados || 0), 0)
+    return { total, jogos: avaliacoesComMinutos.length, avaliacoes: avaliacoesComMinutos }
+  }, [avaliacoes])
+
+  // Total de gols e assistências
+  const golsAssistencias = useMemo(() => {
+    const totalGols = avaliacoes.reduce((acc, a) => acc + (a.gols || 0), 0)
+    const totalAssistencias = avaliacoes.reduce((acc, a) => acc + (a.assistencias || 0), 0)
+    return { gols: totalGols, assistencias: totalAssistencias }
+  }, [avaliacoes])
+
+  // Dados do gráfico de minutagem
+  const minutagemChartData = useMemo(() => {
+    if (minutosData.avaliacoes.length === 0) return null
+
+    const avaliacoesOrdenadas = [...minutosData.avaliacoes].sort(
+      (a, b) => new Date(a.data_avaliacao).getTime() - new Date(b.data_avaliacao).getTime()
+    )
+
+    return {
+      labels: avaliacoesOrdenadas.map(a => {
+        const date = new Date(a.data_avaliacao + 'T12:00:00')
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+      }),
+      datasets: [{
+        label: 'Minutos',
+        data: avaliacoesOrdenadas.map(a => a.minutos_jogados || 0),
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        tension: 0.3,
+        fill: true,
+        borderWidth: 3,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointBackgroundColor: '#f59e0b',
+        pointBorderColor: '#1e293b',
+        pointBorderWidth: 2,
+      }]
+    }
+  }, [minutosData])
+
+  // Dados do gráfico de gols e assistências
+  const golsAssistenciasChartData = useMemo(() => {
+    const avaliacoesComStats = avaliacoes.filter(a => (a.gols && a.gols > 0) || (a.assistencias && a.assistencias > 0))
+    if (avaliacoesComStats.length === 0) return null
+
+    const avaliacoesOrdenadas = [...avaliacoes].sort(
+      (a, b) => new Date(a.data_avaliacao).getTime() - new Date(b.data_avaliacao).getTime()
+    )
+
+    return {
+      labels: avaliacoesOrdenadas.map(a => {
+        const date = new Date(a.data_avaliacao + 'T12:00:00')
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+      }),
+      datasets: [
+        {
+          label: 'Gols',
+          data: avaliacoesOrdenadas.map(a => a.gols || 0),
+          backgroundColor: 'rgba(34, 197, 94, 0.8)',
+          borderColor: '#22c55e',
+          borderWidth: 2,
+          borderRadius: 4,
+        },
+        {
+          label: 'Assistências',
+          data: avaliacoesOrdenadas.map(a => a.assistencias || 0),
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          borderColor: '#3b82f6',
+          borderWidth: 2,
+          borderRadius: 4,
+        }
+      ]
+    }
+  }, [avaliacoes])
 
   // Dados do radar chart
   const radarData = useMemo(() => {
@@ -706,50 +788,48 @@ export default function DashboardAtletasPage() {
           {atletaAtual && (
             <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
               <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden">
+                {/* Foto */}
+                <div className="w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                   {atletaAtual.foto_url ? (
                     <img src={atletaAtual.foto_url} alt={atletaAtual.nome} className="w-full h-full object-cover" />
                   ) : (
-                    <Users className="w-10 h-10 text-slate-500" />
+                    <Users className="w-12 h-12 text-slate-500" />
                   )}
                 </div>
-                <div className="flex-1">
+
+                {/* Nome e Info */}
+                <div className="flex-shrink-0">
                   <h2 className="text-2xl font-bold text-slate-100">{atletaAtual.nome}</h2>
                   <p className="text-slate-400">
                     {atletaAtual.posicao || 'Posição não informada'}
                     {getClubeName(atletaAtual.clubes) && ` - ${getClubeName(atletaAtual.clubes)}`}
                   </p>
                 </div>
-                <div className="hidden sm:flex gap-6">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-slate-100">
-                      {atletaAtual.data_nascimento ? calcularIdade(atletaAtual.data_nascimento) : '-'}
+
+                {/* Indicador de Evolução */}
+                {avaliacoes.length >= 2 && estatisticas && (
+                  <div
+                    className="flex flex-col items-center justify-center px-4 py-2 rounded-xl"
+                    style={{
+                      backgroundColor: estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                      border: estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)'
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      {estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? (
+                        <TrendingUp className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <TrendingUp className="w-5 h-5 text-red-500 rotate-180" />
+                      )}
+                      <p className={`text-2xl font-black ${estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'text-green-500' : 'text-red-500'}`}>
+                        {estatisticas.mediaPrimeira > 0 ? (estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? '+' : '') + (((estatisticas.mediaUltima - estatisticas.mediaPrimeira) / estatisticas.mediaPrimeira) * 100).toFixed(0) : 0}%
+                      </p>
+                    </div>
+                    <p className={`text-xs font-medium ${estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'text-green-400' : 'text-red-400'}`}>
+                      {estatisticas.mediaUltima > estatisticas.mediaPrimeira ? 'Evoluindo' : estatisticas.mediaUltima < estatisticas.mediaPrimeira ? 'Em Queda' : 'Estável'}
                     </p>
-                    <p className="text-xs text-slate-400">anos</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-slate-100">
-                      {atletaAtual.altura ? `${atletaAtual.altura}m` : '-'}
-                    </p>
-                    <p className="text-xs text-slate-400">altura</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-slate-100">
-                      {atletaAtual.peso ? `${atletaAtual.peso}kg` : '-'}
-                    </p>
-                    <p className="text-xs text-slate-400">peso</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-amber-500">
-                      {mediaGeral > 0 ? mediaGeral.toFixed(1) : '-'}
-                    </p>
-                    <p className="text-xs text-slate-400">média geral</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-slate-100">{avaliacoes.length}</p>
-                    <p className="text-xs text-slate-400">avaliações</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -1101,6 +1181,167 @@ export default function DashboardAtletasPage() {
                   )}
                 </div>
               </div>
+
+              {/* Estatísticas de Jogo - Minutagem, Gols e Assistências */}
+              {(minutosData.total > 0 || golsAssistencias.gols > 0 || golsAssistencias.assistencias > 0) && (
+                <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+                        <BarChart3 className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-slate-100">Estatísticas de Jogo</h3>
+                        <p className="text-xs text-slate-400">Minutagem, gols e assistências</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {/* Gols */}
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
+                        <span className="text-xl">⚽</span>
+                        <div className="text-center">
+                          <p className="text-2xl font-black text-green-500">{golsAssistencias.gols}</p>
+                          <p className="text-[10px] text-slate-400 uppercase">Gols</p>
+                        </div>
+                      </div>
+                      {/* Assistências */}
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #3b82f640' }}>
+                        <span className="text-xl">🎯</span>
+                        <div className="text-center">
+                          <p className="text-2xl font-black text-blue-500">{golsAssistencias.assistencias}</p>
+                          <p className="text-[10px] text-slate-400 uppercase">Assist.</p>
+                        </div>
+                      </div>
+                      {/* Minutagem */}
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
+                        <Clock className="w-5 h-5 text-amber-500" />
+                        <div className="text-center">
+                          <p className="text-2xl font-black text-amber-500">{minutosData.total}&apos;</p>
+                          <p className="text-[10px] text-slate-400 uppercase">{minutosData.jogos} jogos</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gráficos lado a lado */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Gráfico de Minutagem */}
+                    {minutagemChartData && minutosData.total > 0 && (
+                      <div>
+                        <p className="text-xs text-amber-400 font-medium mb-2 flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> Minutagem por Jogo
+                        </p>
+                        <div style={{ height: '160px' }}>
+                          <Line
+                            data={minutagemChartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              scales: {
+                                y: {
+                                  min: 0,
+                                  max: 120,
+                                  ticks: {
+                                    stepSize: 30,
+                                    color: '#94a3b8',
+                                    callback: (value) => `${value}'`
+                                  },
+                                  grid: { color: 'rgba(71, 85, 105, 0.3)' }
+                                },
+                                x: {
+                                  ticks: { color: '#e2e8f0', font: { size: 10 } },
+                                  grid: { display: false }
+                                }
+                              },
+                              plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                  backgroundColor: '#0f172a',
+                                  titleColor: '#f59e0b',
+                                  bodyColor: '#ffffff',
+                                  borderColor: '#f59e0b',
+                                  borderWidth: 1,
+                                  padding: 12,
+                                  displayColors: false,
+                                  callbacks: {
+                                    title: (items) => `📅 ${items[0]?.label || ''}`,
+                                    label: (ctx) => `⏱️ ${ctx.raw} minutos jogados`
+                                  }
+                                }
+                              },
+                              elements: {
+                                point: {
+                                  radius: 5,
+                                  hoverRadius: 8,
+                                  backgroundColor: '#f59e0b',
+                                  borderColor: '#1e293b',
+                                  borderWidth: 2
+                                },
+                                line: {
+                                  borderWidth: 3,
+                                  tension: 0.3
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gráfico de Gols e Assistências */}
+                    {golsAssistenciasChartData && (
+                      <div>
+                        <p className="text-xs text-green-400 font-medium mb-2 flex items-center gap-1">
+                          ⚽ Gols e Assistências por Jogo
+                        </p>
+                        <div style={{ height: '160px' }}>
+                          <Bar
+                            data={golsAssistenciasChartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              scales: {
+                                y: {
+                                  min: 0,
+                                  ticks: {
+                                    stepSize: 1,
+                                    color: '#94a3b8'
+                                  },
+                                  grid: { color: 'rgba(71, 85, 105, 0.3)' }
+                                },
+                                x: {
+                                  ticks: { color: '#e2e8f0', font: { size: 10 } },
+                                  grid: { display: false }
+                                }
+                              },
+                              plugins: {
+                                legend: {
+                                  display: true,
+                                  position: 'top' as const,
+                                  labels: {
+                                    color: '#e2e8f0',
+                                    boxWidth: 12,
+                                    padding: 8,
+                                    font: { size: 10 }
+                                  }
+                                },
+                                tooltip: {
+                                  backgroundColor: '#0f172a',
+                                  titleColor: '#22c55e',
+                                  bodyColor: '#ffffff',
+                                  borderColor: '#22c55e',
+                                  borderWidth: 1,
+                                  padding: 12
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Detalhes da Avaliação */}
               {avaliacoes.length > 0 && (
