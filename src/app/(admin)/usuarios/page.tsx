@@ -15,7 +15,13 @@ import {
   Ban,
   Shield,
   User,
-  Users
+  Users,
+  Mail,
+  Eye,
+  EyeOff,
+  Loader2,
+  UserPlus,
+  Link2
 } from 'lucide-react'
 
 type Usuario = {
@@ -55,6 +61,8 @@ export default function UsuariosPage() {
   // Form state
   const [formEmail, setFormEmail] = useState('')
   const [formNome, setFormNome] = useState('')
+  const [formSenha, setFormSenha] = useState('')
+  const [showSenha, setShowSenha] = useState(false)
   const [formRole, setFormRole] = useState<'master' | 'analista' | 'atleta'>('analista')
   const [formAtletaId, setFormAtletaId] = useState<string>('')
   const [formAtivo, setFormAtivo] = useState(true)
@@ -95,6 +103,8 @@ export default function UsuariosPage() {
 
   const handleOpenModal = (mode: 'create' | 'edit', usuario?: Usuario) => {
     setError(null)
+    setFormSenha('')
+    setShowSenha(false)
     if (mode === 'create') {
       setFormEmail('')
       setFormNome('')
@@ -122,6 +132,16 @@ export default function UsuariosPage() {
       return
     }
 
+    if (modal?.mode === 'create' && !formSenha) {
+      setError('Senha e obrigatoria para novo usuario')
+      return
+    }
+
+    if (modal?.mode === 'create' && formSenha.length < 6) {
+      setError('Senha deve ter no minimo 6 caracteres')
+      return
+    }
+
     if (formRole === 'atleta' && !formAtletaId) {
       setError('Selecione um atleta para vincular')
       return
@@ -139,6 +159,7 @@ export default function UsuariosPage() {
           body: JSON.stringify({
             email: formEmail,
             nome: formNome,
+            senha: formSenha,
             role: formRole,
             atleta_id: formRole === 'atleta' ? formAtletaId : null
           })
@@ -381,73 +402,160 @@ export default function UsuariosPage() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md rounded-2xl shadow-xl" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <div className="flex items-center justify-between p-5 border-b border-slate-700">
-              <h2 className="text-lg font-bold text-slate-100">
-                {modal.mode === 'create' ? 'Novo Usuario' : 'Editar Usuario'}
-              </h2>
-              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-200">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+            {/* Header */}
+            <div className="relative p-6 pb-4" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
+              <button
+                onClick={handleCloseModal}
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+              >
+                <X className="w-4 h-4" />
               </button>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                  <UserPlus className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100">
+                    {modal.mode === 'create' ? 'Novo Usuario' : 'Editar Usuario'}
+                  </h2>
+                  <p className="text-sm text-slate-400">
+                    {modal.mode === 'create' ? 'Preencha os dados para criar acesso' : 'Atualize as informacoes do usuario'}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-6 space-y-5">
               {error && (
-                <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-sm">
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
+                  <X className="w-4 h-4 flex-shrink-0" />
                   {error}
                 </div>
               )}
 
+              {/* Tipo de Usuario - Cards visuais */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  disabled={modal.mode === 'edit'}
-                  placeholder="email@exemplo.com"
-                  className="w-full px-4 py-2.5 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:opacity-50"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-                />
-                {modal.mode === 'create' && (
-                  <p className="text-xs text-slate-500 mt-1">O usuario recebera um email para definir a senha</p>
-                )}
+                <label className="block text-xs font-semibold text-amber-500 uppercase tracking-wide mb-3">Tipo de Usuario</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Analista */}
+                  <button
+                    type="button"
+                    onClick={() => setFormRole('analista')}
+                    className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      formRole === 'analista'
+                        ? 'border-blue-500 bg-blue-500/10'
+                        : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'
+                    }`}
+                  >
+                    <UserCog className={`w-6 h-6 mx-auto mb-2 ${formRole === 'analista' ? 'text-blue-400' : 'text-slate-400'}`} />
+                    <p className={`text-sm font-semibold ${formRole === 'analista' ? 'text-blue-400' : 'text-slate-300'}`}>Analista</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Cria avaliacoes</p>
+                  </button>
+
+                  {/* Atleta */}
+                  <button
+                    type="button"
+                    onClick={() => setFormRole('atleta')}
+                    className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      formRole === 'atleta'
+                        ? 'border-green-500 bg-green-500/10'
+                        : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'
+                    }`}
+                  >
+                    <User className={`w-6 h-6 mx-auto mb-2 ${formRole === 'atleta' ? 'text-green-400' : 'text-slate-400'}`} />
+                    <p className={`text-sm font-semibold ${formRole === 'atleta' ? 'text-green-400' : 'text-slate-300'}`}>Atleta</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Ve seus dados</p>
+                  </button>
+
+                  {/* Master */}
+                  <button
+                    type="button"
+                    onClick={() => setFormRole('master')}
+                    className={`p-4 rounded-xl border-2 transition-all text-center ${
+                      formRole === 'master'
+                        ? 'border-amber-500 bg-amber-500/10'
+                        : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'
+                    }`}
+                  >
+                    <Shield className={`w-6 h-6 mx-auto mb-2 ${formRole === 'master' ? 'text-amber-400' : 'text-slate-400'}`} />
+                    <p className={`text-sm font-semibold ${formRole === 'master' ? 'text-amber-400' : 'text-slate-300'}`}>Master</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Acesso total</p>
+                  </button>
+                </div>
               </div>
 
+              {/* Nome */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={formNome}
-                  onChange={(e) => setFormNome(e.target.value)}
-                  placeholder="Nome completo"
-                  className="w-full px-4 py-2.5 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-                />
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Nome Completo</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="text"
+                    value={formNome}
+                    onChange={(e) => setFormNome(e.target.value)}
+                    placeholder="Digite o nome completo"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+                  />
+                </div>
               </div>
 
+              {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Tipo de Usuario</label>
-                <select
-                  value={formRole}
-                  onChange={(e) => setFormRole(e.target.value as 'master' | 'analista' | 'atleta')}
-                  className="w-full px-4 py-2.5 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-                >
-                  <option value="analista">Analista</option>
-                  <option value="atleta">Atleta</option>
-                  <option value="master">Master</option>
-                </select>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                  <input
+                    type="email"
+                    value={formEmail}
+                    onChange={(e) => setFormEmail(e.target.value)}
+                    disabled={modal.mode === 'edit'}
+                    placeholder="email@exemplo.com"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+                  />
+                </div>
               </div>
 
+              {/* Senha (apenas na criacao) */}
+              {modal.mode === 'create' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Senha</label>
+                  <div className="relative">
+                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                    <input
+                      type={showSenha ? 'text' : 'password'}
+                      value={formSenha}
+                      onChange={(e) => setFormSenha(e.target.value)}
+                      placeholder="Minimo 6 caracteres"
+                      className="w-full pl-11 pr-12 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"
+                      style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSenha(!showSenha)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                    >
+                      {showSenha ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1.5">O usuario usara esta senha para fazer login</p>
+                </div>
+              )}
+
+              {/* Vincular Atleta (quando role = atleta) */}
               {formRole === 'atleta' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Vincular ao Atleta</label>
+                  <label className="block text-xs font-semibold text-green-400 uppercase tracking-wide mb-2">
+                    <Link2 className="w-3 h-3 inline mr-1" />
+                    Vincular ao Atleta
+                  </label>
                   <select
                     value={formAtletaId}
                     onChange={(e) => setFormAtletaId(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                    className="w-full px-4 py-3 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
                     style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
                   >
                     <option value="">Selecione um atleta...</option>
@@ -455,38 +563,61 @@ export default function UsuariosPage() {
                       <option key={a.id} value={a.id}>{a.nome}</option>
                     ))}
                   </select>
+                  <p className="text-xs text-slate-500 mt-1.5">Este usuario tera acesso ao portal do atleta selecionado</p>
                 </div>
               )}
 
+              {/* Status Ativo (apenas na edicao) */}
               {modal.mode === 'edit' && (
-                <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formAtivo}
-                      onChange={(e) => setFormAtivo(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-500/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                    <span className="ms-3 text-sm font-medium text-slate-300">Usuario ativo</span>
-                  </label>
+                <div className="p-4 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${formAtivo ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                        {formAtivo ? <Check className="w-5 h-5 text-green-400" /> : <Ban className="w-5 h-5 text-red-400" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-200">Status do Usuario</p>
+                        <p className="text-xs text-slate-500">{formAtivo ? 'Usuario pode fazer login' : 'Acesso bloqueado'}</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formAtivo}
+                        onChange={(e) => setFormAtivo(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-12 h-7 bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-500/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-3 p-5 border-t border-slate-700">
+            {/* Footer */}
+            <div className="flex gap-3 p-6 pt-2">
               <button
                 onClick={handleCloseModal}
-                className="flex-1 px-4 py-2.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors font-medium"
+                className="flex-1 px-4 py-3 bg-slate-700/50 text-slate-300 rounded-xl hover:bg-slate-600 transition-all font-medium border border-slate-600"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 px-4 py-2.5 bg-amber-500 text-slate-900 rounded-lg hover:bg-amber-400 transition-colors font-semibold disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-amber-500 text-slate-900 rounded-xl hover:bg-amber-400 transition-all font-bold disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {saving ? 'Salvando...' : 'Salvar'}
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    {modal.mode === 'create' ? 'Criar Usuario' : 'Salvar Alteracoes'}
+                  </>
+                )}
               </button>
             </div>
           </div>

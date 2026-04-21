@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -24,42 +25,61 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { email, nome, role, atleta_id } = body
+    const { email, nome, senha, role, atleta_id } = body
 
     if (!email || !nome || !role) {
       return NextResponse.json({ error: 'Email, nome e role sao obrigatorios' }, { status: 400 })
+    }
+
+    if (!senha || senha.length < 6) {
+      return NextResponse.json({ error: 'Senha deve ter no minimo 6 caracteres' }, { status: 400 })
     }
 
     // Check if email already exists in usuarios table
     const { data: existingUser } = await supabase
       .from('usuarios')
       .select('id')
-      .eq('email', email)
+      .eq('email', email.toLowerCase())
       .single()
 
     if (existingUser) {
       return NextResponse.json({ error: 'Email ja cadastrado' }, { status: 400 })
     }
 
-    // Check if user exists in auth.users (they may have signed up already)
-    // We can't directly query auth.users, but we can try to invite/create
+    // Create admin client with service role to create auth user
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    // Option 1: If user already exists in auth, just create the usuarios record
-    // Option 2: Use Supabase invite to send password setup email
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ error: 'Configuracao do servidor incompleta' }, { status: 500 })
+    }
 
-    // For now, we'll use the Supabase invite user feature
-    // This requires the service role, so we'll do a workaround:
-    // Create a pending record that will be linked when the user signs up
+    const adminClient = createAdminClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
-    // Generate a temporary UUID for the pending user
-    const tempId = crypto.randomUUID()
+    // Create the auth user with password
+    const { data: authData, error: authCreateError } = await adminClient.auth.admin.createUser({
+      email: email.toLowerCase(),
+      password: senha,
+      email_confirm: true // Auto-confirm email
+    })
 
-    // Insert into usuarios with a pending status
-    // When the user signs up with this email, we'll link them via a trigger or login hook
+    if (authCreateError || !authData.user) {
+      console.error('Error creating auth user:', authCreateError)
+      return NextResponse.json({
+        error: authCreateError?.message || 'Erro ao criar usuario de autenticacao'
+      }, { status: 500 })
+    }
+
+    // Insert into usuarios table with the auth user's ID
     const { data: newUser, error: insertError } = await supabase
       .from('usuarios')
       .insert({
-        id: tempId,
+        id: authData.user.id,
         email: email.toLowerCase(),
         nome,
         role,
@@ -70,33 +90,16 @@ export async function POST(request: Request) {
       .single()
 
     if (insertError) {
-      console.error('Error creating user:', insertError)
-      return NextResponse.json({ error: 'Erro ao criar usuario: ' + insertError.message }, { status: 500 })
-    }
-
-    // Try to use Supabase magic link invite (if configured)
-    // This will send an email to the user to set up their account
-    try {
-      const { error: inviteError } = await supabase.auth.signInWithOtp({
-        email: email.toLowerCase(),
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/auth/callback`
-        }
-      })
-
-      if (inviteError) {
-        console.log('Invite email could not be sent:', inviteError.message)
-        // Not a fatal error - user can still sign up manually
-      }
-    } catch (e) {
-      console.log('Could not send invite email')
+      console.error('Error creating user record:', insertError)
+      // Try to delete the auth user since we couldn't create the record
+      await adminClient.auth.admin.deleteUser(authData.user.id)
+      return NextResponse.json({ error: 'Erro ao criar registro do usuario' }, { status: 500 })
     }
 
     return NextResponse.json({
       success: true,
       user: newUser,
-      message: 'Usuario criado. Um email foi enviado para configurar a senha.'
+      message: 'Usuario criado com sucesso!'
     })
   } catch (error: any) {
     console.error('Error in POST /api/usuarios:', error)
