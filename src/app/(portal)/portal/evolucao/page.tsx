@@ -58,6 +58,19 @@ type Avaliacao = {
   pontos_fortes: string | null
   pontos_desenvolver: string | null
   jogos: { adversario: string; data_jogo: string } | null
+  // Avaliação Física
+  altura_avaliacao: number | null
+  peso_avaliacao: number | null
+  envergadura: number | null
+  velocidade_10m: number | null
+  velocidade_30m: number | null
+  salto_vertical: number | null
+  agilidade_teste: number | null
+  yoyo_nivel: string | null
+  yoyo_distancia: number | null
+  idade_biologica: number | null
+  estagio_phv: string | null
+  sentar_alcancar: number | null
 }
 
 const dimensoesCBF = [
@@ -90,7 +103,13 @@ export default function EvolucaoPage() {
 
     const { data } = await supabase
       .from('avaliacoes_atleta')
-      .select('*, jogos(adversario, data_jogo)')
+      .select(`
+        *,
+        jogos(adversario, data_jogo),
+        altura_avaliacao, peso_avaliacao, envergadura,
+        velocidade_10m, velocidade_30m, salto_vertical, agilidade_teste,
+        yoyo_nivel, yoyo_distancia, idade_biologica, estagio_phv, sentar_alcancar
+      `)
       .eq('atleta_id', usuario.atleta_id)
       .order('data_avaliacao', { ascending: true })
 
@@ -290,6 +309,241 @@ export default function EvolucaoPage() {
                   )
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Physical Evolution */}
+          {avaliacoes.some(av => av.altura_avaliacao || av.peso_avaliacao || av.velocidade_10m || av.salto_vertical) && (
+            <div className="rounded-2xl p-6 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <h3 className="text-lg font-bold text-slate-100 mb-4">Evolucao Fisica</h3>
+
+              {/* Anthropometric Data */}
+              {avaliacoes.some(av => av.altura_avaliacao || av.peso_avaliacao) && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-blue-400 mb-3">Dados Antropometricos</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Altura */}
+                    {avaliacoes.some(av => av.altura_avaliacao) && (() => {
+                      const comAltura = avaliacoes.filter(av => av.altura_avaliacao)
+                      const primeira = comAltura[0]?.altura_avaliacao || 0
+                      const ultima = comAltura[comAltura.length - 1]?.altura_avaliacao || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Altura</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(2)}m</p>
+                          {comAltura.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao > 0 ? 'text-green-400' : variacao < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : variacao < 0 ? <ArrowDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{(variacao * 100).toFixed(0)}cm</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Peso */}
+                    {avaliacoes.some(av => av.peso_avaliacao) && (() => {
+                      const comPeso = avaliacoes.filter(av => av.peso_avaliacao)
+                      const primeira = comPeso[0]?.peso_avaliacao || 0
+                      const ultima = comPeso[comPeso.length - 1]?.peso_avaliacao || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Peso</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(1)}kg</p>
+                          {comPeso.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao > 0 ? 'text-green-400' : variacao < 0 ? 'text-amber-400' : 'text-slate-400'}`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : variacao < 0 ? <ArrowDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{variacao.toFixed(1)}kg</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Envergadura */}
+                    {avaliacoes.some(av => av.envergadura) && (() => {
+                      const comEnv = avaliacoes.filter(av => av.envergadura)
+                      const primeira = comEnv[0]?.envergadura || 0
+                      const ultima = comEnv[comEnv.length - 1]?.envergadura || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Envergadura</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(2)}m</p>
+                          {comEnv.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao > 0 ? 'text-green-400' : 'text-slate-400'}`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{(variacao * 100).toFixed(0)}cm</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* IMC calculado */}
+                    {avaliacoes.some(av => av.altura_avaliacao && av.peso_avaliacao) && (() => {
+                      const comIMC = avaliacoes.filter(av => av.altura_avaliacao && av.peso_avaliacao)
+                      const calcIMC = (av: Avaliacao) => av.peso_avaliacao! / Math.pow(av.altura_avaliacao!, 2)
+                      const primeira = comIMC[0] ? calcIMC(comIMC[0]) : 0
+                      const ultima = comIMC[comIMC.length - 1] ? calcIMC(comIMC[comIMC.length - 1]) : 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">IMC</p>
+                          <p className="text-2xl font-bold text-amber-400">{ultima.toFixed(1)}</p>
+                          {comIMC.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm text-slate-400`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : variacao < 0 ? <ArrowDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{variacao.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Physical Tests */}
+              {avaliacoes.some(av => av.velocidade_10m || av.velocidade_30m || av.salto_vertical || av.agilidade_teste) && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-emerald-400 mb-3">Testes Fisicos</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Velocidade 10m */}
+                    {avaliacoes.some(av => av.velocidade_10m) && (() => {
+                      const comVel = avaliacoes.filter(av => av.velocidade_10m)
+                      const primeira = comVel[0]?.velocidade_10m || 0
+                      const ultima = comVel[comVel.length - 1]?.velocidade_10m || 0
+                      const variacao = ultima - primeira
+                      // Para tempo, menor é melhor
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">10m</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(2)}s</p>
+                          {comVel.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao < 0 ? 'text-green-400' : variacao > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao < 0 ? <ArrowDown className="w-4 h-4" /> : variacao > 0 ? <ArrowUp className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao.toFixed(2)}s</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Velocidade 30m */}
+                    {avaliacoes.some(av => av.velocidade_30m) && (() => {
+                      const comVel = avaliacoes.filter(av => av.velocidade_30m)
+                      const primeira = comVel[0]?.velocidade_30m || 0
+                      const ultima = comVel[comVel.length - 1]?.velocidade_30m || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">30m</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(2)}s</p>
+                          {comVel.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao < 0 ? 'text-green-400' : variacao > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao < 0 ? <ArrowDown className="w-4 h-4" /> : variacao > 0 ? <ArrowUp className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao.toFixed(2)}s</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Salto Vertical */}
+                    {avaliacoes.some(av => av.salto_vertical) && (() => {
+                      const comSalto = avaliacoes.filter(av => av.salto_vertical)
+                      const primeira = comSalto[0]?.salto_vertical || 0
+                      const ultima = comSalto[comSalto.length - 1]?.salto_vertical || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Salto Vertical</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(0)}cm</p>
+                          {comSalto.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao > 0 ? 'text-green-400' : variacao < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : variacao < 0 ? <ArrowDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{variacao.toFixed(0)}cm</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Agilidade */}
+                    {avaliacoes.some(av => av.agilidade_teste) && (() => {
+                      const comAgil = avaliacoes.filter(av => av.agilidade_teste)
+                      const primeira = comAgil[0]?.agilidade_teste || 0
+                      const ultima = comAgil[comAgil.length - 1]?.agilidade_teste || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Agilidade</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(2)}s</p>
+                          {comAgil.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao < 0 ? 'text-green-400' : variacao > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao < 0 ? <ArrowDown className="w-4 h-4" /> : variacao > 0 ? <ArrowUp className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao.toFixed(2)}s</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Resistance and Flexibility */}
+              {avaliacoes.some(av => av.yoyo_distancia || av.sentar_alcancar) && (
+                <div>
+                  <h4 className="text-sm font-semibold text-purple-400 mb-3">Resistencia e Flexibilidade</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Yo-Yo Test */}
+                    {avaliacoes.some(av => av.yoyo_distancia) && (() => {
+                      const comYoyo = avaliacoes.filter(av => av.yoyo_distancia)
+                      const primeira = comYoyo[0]?.yoyo_distancia || 0
+                      const ultima = comYoyo[comYoyo.length - 1]?.yoyo_distancia || 0
+                      const ultimoNivel = comYoyo[comYoyo.length - 1]?.yoyo_nivel || '-'
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Yo-Yo Test</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima}m</p>
+                          <p className="text-xs text-purple-400">Nivel {ultimoNivel}</p>
+                          {comYoyo.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao > 0 ? 'text-green-400' : variacao < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : variacao < 0 ? <ArrowDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{variacao}m</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Sentar e Alcançar */}
+                    {avaliacoes.some(av => av.sentar_alcancar) && (() => {
+                      const comFlex = avaliacoes.filter(av => av.sentar_alcancar)
+                      const primeira = comFlex[0]?.sentar_alcancar || 0
+                      const ultima = comFlex[comFlex.length - 1]?.sentar_alcancar || 0
+                      const variacao = ultima - primeira
+                      return (
+                        <div className="rounded-xl p-4 text-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-xs text-slate-400 uppercase mb-1">Flexibilidade</p>
+                          <p className="text-2xl font-bold text-slate-100">{ultima.toFixed(0)}cm</p>
+                          {comFlex.length > 1 && (
+                            <div className={`flex items-center justify-center gap-1 mt-1 text-sm ${variacao > 0 ? 'text-green-400' : variacao < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                              {variacao > 0 ? <ArrowUp className="w-4 h-4" /> : variacao < 0 ? <ArrowDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                              <span>{variacao > 0 ? '+' : ''}{variacao.toFixed(0)}cm</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
