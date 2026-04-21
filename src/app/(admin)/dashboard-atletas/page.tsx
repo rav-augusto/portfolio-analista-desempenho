@@ -1397,56 +1397,105 @@ export default function DashboardAtletasPage() {
               {/* Detalhes de Gols */}
               {golsDetalhes.corpo.total > 0 && (
                 <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-                  <h3 className="text-sm font-semibold text-slate-100 mb-3">Finalizacao</h3>
-
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                      <p className="text-2xl font-bold text-green-400">{golsDetalhes.corpo.peDireito}</p>
-                      <p className="text-[10px] text-slate-400">Pe Direito</p>
-                    </div>
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                      <p className="text-2xl font-bold text-blue-400">{golsDetalhes.corpo.peEsquerdo}</p>
-                      <p className="text-[10px] text-slate-400">Pe Esquerdo</p>
-                    </div>
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                      <p className="text-2xl font-bold text-amber-400">{golsDetalhes.corpo.cabeca}</p>
-                      <p className="text-[10px] text-slate-400">Cabeca</p>
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-slate-100">Finalizacao</h3>
+                    <span className="text-xs text-slate-400">Total: {golsDetalhes.corpo.total} gols</span>
                   </div>
 
-                  {golsDetalhes.zona.total > 0 && (
-                    <div className="grid grid-cols-2 gap-2 text-center mt-2">
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                        <p className="text-2xl font-bold text-violet-400">{golsDetalhes.zona.dentroArea}</p>
-                        <p className="text-[10px] text-slate-400">Dentro Area</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {/* Parte do Corpo */}
+                    <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                      <p className="text-xs text-green-400 font-medium mb-2 text-center">Parte do Corpo</p>
+                      <div style={{ height: '100px' }}>
+                        <Doughnut
+                          data={{
+                            labels: ['Pe Direito', 'Pe Esquerdo', 'Cabeca'],
+                            datasets: [{
+                              data: [golsDetalhes.corpo.peDireito, golsDetalhes.corpo.peEsquerdo, golsDetalhes.corpo.cabeca],
+                              backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b'],
+                              borderColor: '#0f172a',
+                              borderWidth: 2
+                            }]
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false }
+                            },
+                            cutout: '50%'
+                          }}
+                        />
                       </div>
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                        <p className="text-2xl font-bold text-pink-400">{golsDetalhes.zona.foraArea}</p>
-                        <p className="text-[10px] text-slate-400">Fora Area</p>
+                      <div className="flex justify-center gap-2 mt-2 text-[10px] flex-wrap">
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#22c55e' }}></span>Dir: {golsDetalhes.corpo.peDireito}</span>
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#3b82f6' }}></span>Esq: {golsDetalhes.corpo.peEsquerdo}</span>
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#f59e0b' }}></span>Cab: {golsDetalhes.corpo.cabeca}</span>
                       </div>
                     </div>
-                  )}
 
-                  {golsDetalhes.tipo.total > 0 && (
-                    <div className="grid grid-cols-4 gap-2 text-center mt-2">
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                        <p className="text-xl font-bold text-cyan-400">{golsDetalhes.tipo.jogada}</p>
-                        <p className="text-[9px] text-slate-400">Jogada</p>
+                    {/* Zona */}
+                    <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                      <p className="text-xs text-green-400 font-medium mb-2 text-center">Zona do Gol</p>
+                      <div style={{ height: '100px' }}>
+                        <Doughnut
+                          data={{
+                            labels: ['Dentro Area', 'Fora Area'],
+                            datasets: [{
+                              data: [golsDetalhes.zona.dentroArea, golsDetalhes.zona.foraArea],
+                              backgroundColor: ['#8b5cf6', '#ec4899'],
+                              borderColor: '#0f172a',
+                              borderWidth: 2
+                            }]
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false }
+                            },
+                            cutout: '50%'
+                          }}
+                        />
                       </div>
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                        <p className="text-xl font-bold text-red-400">{golsDetalhes.tipo.penalti}</p>
-                        <p className="text-[9px] text-slate-400">Penalti</p>
-                      </div>
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                        <p className="text-xl font-bold text-yellow-400">{golsDetalhes.tipo.falta}</p>
-                        <p className="text-[9px] text-slate-400">Bola Parada</p>
-                      </div>
-                      <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
-                        <p className="text-xl font-bold text-emerald-400">{golsDetalhes.tipo.contraAtaque}</p>
-                        <p className="text-[9px] text-slate-400">Contra-ataque</p>
+                      <div className="flex justify-center gap-3 mt-2 text-[10px]">
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#8b5cf6' }}></span>Dentro: {golsDetalhes.zona.dentroArea}</span>
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#ec4899' }}></span>Fora: {golsDetalhes.zona.foraArea}</span>
                       </div>
                     </div>
-                  )}
+
+                    {/* Tipo */}
+                    <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                      <p className="text-xs text-green-400 font-medium mb-2 text-center">Tipo de Gol</p>
+                      <div style={{ height: '100px' }}>
+                        <Doughnut
+                          data={{
+                            labels: ['Jogada', 'Penalti', 'Bola Parada', 'Contra-ataque'],
+                            datasets: [{
+                              data: [golsDetalhes.tipo.jogada, golsDetalhes.tipo.penalti, golsDetalhes.tipo.falta, golsDetalhes.tipo.contraAtaque],
+                              backgroundColor: ['#06b6d4', '#ef4444', '#eab308', '#10b981'],
+                              borderColor: '#0f172a',
+                              borderWidth: 2
+                            }]
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: { display: false }
+                            },
+                            cutout: '50%'
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-center gap-2 mt-2 text-[10px] flex-wrap">
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#06b6d4' }}></span>Jog: {golsDetalhes.tipo.jogada}</span>
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#ef4444' }}></span>Pen: {golsDetalhes.tipo.penalti}</span>
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#eab308' }}></span>BP: {golsDetalhes.tipo.falta}</span>
+                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#10b981' }}></span>CA: {golsDetalhes.tipo.contraAtaque}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
