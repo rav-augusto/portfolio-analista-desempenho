@@ -2,20 +2,87 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+
+type JogoData = {
+  adversario: string
+  data_jogo: string
+  competicao: string
+  fase: string | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
+
+type Analise = {
+  id: string
+  sistema_tatico: string | null
+  created_at: string
+  jogos: JogoData | JogoData[] | null
+}
+
+type Atleta = {
+  id: string
+  nome: string
+  posicao: string
+  data_nascimento: string
+  foto_url: string | null
+  clubes: { nome: string } | { nome: string }[] | null
+}
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('m-ofensiva')
+  const [analises, setAnalises] = useState<Analise[]>([])
+  const [atletas, setAtletas] = useState<Atleta[]>([])
+  const supabase = createClient()
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
     window.addEventListener('scroll', handleScroll)
+
+    // Carregar análises e atletas
+    loadAnalises()
+    loadAtletas()
+
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const loadAnalises = async () => {
+    const { data } = await supabase
+      .from('analises_jogo')
+      .select('id, sistema_tatico, created_at, jogos(adversario, data_jogo, competicao, fase, clubes(nome))')
+      .order('created_at', { ascending: false })
+      .limit(6)
+
+    if (data) setAnalises(data as unknown as Analise[])
+  }
+
+  const loadAtletas = async () => {
+    const { data } = await supabase
+      .from('atletas')
+      .select('id, nome, posicao, data_nascimento, foto_url, clubes(nome)')
+      .order('nome', { ascending: true })
+      .limit(8)
+
+    if (data) setAtletas(data as unknown as Atleta[])
+  }
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('pt-BR')
+  }
+
+  const calcularIdade = (dataNascimento: string) => {
+    const hoje = new Date()
+    const nascimento = new Date(dataNascimento)
+    let idade = hoje.getFullYear() - nascimento.getFullYear()
+    const m = hoje.getMonth() - nascimento.getMonth()
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--
+    return idade
+  }
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -39,8 +106,14 @@ export default function Home() {
             <li><a href="#sobre" className="nav-link" onClick={closeMobileMenu}>Sobre</a></li>
             <li><a href="#competencias" className="nav-link" onClick={closeMobileMenu}>Competencias</a></li>
             <li><a href="#analises" className="nav-link" onClick={closeMobileMenu}>Analises</a></li>
+            <li><a href="#atletas" className="nav-link" onClick={closeMobileMenu}>Atletas</a></li>
             <li><a href="#metodologia" className="nav-link" onClick={closeMobileMenu}>Metodologia</a></li>
             <li><a href="#contato" className="nav-link" onClick={closeMobileMenu}>Contato</a></li>
+            <li>
+              <Link href="/dashboard" className="nav-link nav-btn" onClick={closeMobileMenu}>
+                <i className="fas fa-lock"></i> Area Restrita
+              </Link>
+            </li>
           </ul>
           <div className={`hamburger ${isMobileMenuOpen ? 'active' : ''}`} id="hamburger" onClick={toggleMobileMenu}>
             <span></span>
@@ -287,64 +360,61 @@ export default function Home() {
           </div>
 
           <div className="analises-grid">
-            {/* Analise 1 - Final Sub-16 Paranaense */}
-            <div className="analise-card" onClick={() => setIsModalOpen(true)}>
-              <div className="analise-image">
-                <div className="analise-overlay">
-                  <i className="fas fa-search-plus"></i>
-                  <span>Ver Analise Completa</span>
+            {analises.length > 0 ? (
+              analises.map((analise) => {
+                const jogo = Array.isArray(analise.jogos) ? analise.jogos[0] : analise.jogos
+                const clubes = jogo?.clubes
+                const clubeNome = Array.isArray(clubes) ? clubes[0]?.nome : clubes?.nome || ''
+                return (
+                  <Link href={`/analises/${analise.id}/dashboard`} key={analise.id} className="analise-card">
+                    <div className="analise-image">
+                      <div className="analise-overlay">
+                        <i className="fas fa-chart-line"></i>
+                        <span>Ver Dashboard</span>
+                      </div>
+                      <div className="analise-placeholder">
+                        <i className="fas fa-futbol"></i>
+                      </div>
+                    </div>
+                    <div className="analise-content">
+                      {jogo?.fase && (
+                        <div className="analise-badge">
+                          <i className="fas fa-trophy"></i>
+                          <span>{jogo.fase}</span>
+                        </div>
+                      )}
+                      <h3>{clubeNome} x {jogo?.adversario}</h3>
+                      <p className="analise-desc">{jogo?.competicao}</p>
+                      <div className="analise-meta">
+                        <span><i className="fas fa-calendar"></i> {jogo ? formatDate(jogo.data_jogo) : ''}</span>
+                        {analise.sistema_tatico && (
+                          <span><i className="fas fa-chess-board"></i> {analise.sistema_tatico}</span>
+                        )}
+                      </div>
+                      <div className="analise-tags">
+                        <span className="tag">4 Momentos</span>
+                        <span className="tag">Bolas Paradas</span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })
+            ) : (
+              <>
+                <div className="analise-card placeholder-card">
+                  <div className="analise-image">
+                    <div className="analise-placeholder empty">
+                      <i className="fas fa-spinner fa-spin"></i>
+                      <span>Carregando...</span>
+                    </div>
+                  </div>
+                  <div className="analise-content">
+                    <h3>Carregando Analises</h3>
+                    <p className="analise-desc">Buscando analises realizadas no sistema...</p>
+                  </div>
                 </div>
-                <div className="analise-placeholder">
-                  <i className="fas fa-futbol"></i>
-                </div>
-              </div>
-              <div className="analise-content">
-                <div className="analise-badge">
-                  <i className="fas fa-trophy"></i>
-                  <span>Final</span>
-                </div>
-                <h3>Campeonato Paranaense Sub-16</h3>
-                <p className="analise-desc">Analise tecnico-tatica completa da final do campeonato estadual, incluindo os 4 momentos do jogo, bolas paradas e analise individual de destaques.</p>
-                <div className="analise-meta">
-                  <span><i className="fas fa-calendar"></i> 2025</span>
-                  <span><i className="fas fa-users"></i> Sub-16</span>
-                  <span><i className="fas fa-chart-bar"></i> Completa</span>
-                </div>
-                <div className="analise-tags">
-                  <span className="tag">4 Momentos</span>
-                  <span className="tag">Bolas Paradas</span>
-                  <span className="tag">Individual</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Analise 2 - Placeholder */}
-            <div className="analise-card placeholder-card">
-              <div className="analise-image">
-                <div className="analise-placeholder empty">
-                  <i className="fas fa-plus"></i>
-                  <span>Em Breve</span>
-                </div>
-              </div>
-              <div className="analise-content">
-                <h3>Proxima Analise</h3>
-                <p className="analise-desc">Novos trabalhos de analise serao adicionados conforme forem realizados durante o periodo de formacao e TCL.</p>
-              </div>
-            </div>
-
-            {/* Analise 3 - Placeholder */}
-            <div className="analise-card placeholder-card">
-              <div className="analise-image">
-                <div className="analise-placeholder empty">
-                  <i className="fas fa-plus"></i>
-                  <span>Em Breve</span>
-                </div>
-              </div>
-              <div className="analise-content">
-                <h3>Proxima Analise</h3>
-                <p className="analise-desc">Espaco reservado para futuras analises de jogos, treinos ou scouting de adversarios.</p>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -607,6 +677,52 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Atletas Section */}
+      <section className="section atletas-section" id="atletas">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-tag">Portfolio</span>
+            <h2 className="section-title">Atletas Acompanhados</h2>
+            <p className="section-description">Atletas que acompanho e desenvolvo atraves de analises individuais e PDIs.</p>
+          </div>
+
+          <div className="atletas-grid">
+            {atletas.length > 0 ? (
+              atletas.map((atleta) => {
+                const clubes = atleta.clubes
+                const clubeNome = Array.isArray(clubes) ? clubes[0]?.nome : clubes?.nome || ''
+                return (
+                  <div key={atleta.id} className="atleta-card-home">
+                    <div className="atleta-foto">
+                      {atleta.foto_url ? (
+                        <Image src={atleta.foto_url} alt={atleta.nome} width={80} height={80} className="atleta-img" />
+                      ) : (
+                        <div className="atleta-placeholder-img">
+                          <i className="fas fa-user"></i>
+                        </div>
+                      )}
+                    </div>
+                    <div className="atleta-info-home">
+                      <h4>{atleta.nome}</h4>
+                      <span className="atleta-posicao">{atleta.posicao}</span>
+                      <div className="atleta-meta-home">
+                        <span><i className="fas fa-birthday-cake"></i> {calcularIdade(atleta.data_nascimento)} anos</span>
+                        {clubeNome && <span><i className="fas fa-shield-alt"></i> {clubeNome}</span>}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              <div className="atletas-loading">
+                <i className="fas fa-spinner fa-spin"></i>
+                <span>Carregando atletas...</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Metodologia Section */}
       <section className="section metodologia" id="metodologia">

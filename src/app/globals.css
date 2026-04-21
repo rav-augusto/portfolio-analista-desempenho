@@ -759,3 +759,132 @@ input[type="range"]:focus::-webkit-slider-thumb {
   border: 2px solid #475569 !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
 }
+
+/* ========================================
+   BOTAO AREA RESTRITA NAVBAR
+   ======================================== */
+.nav-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+  color: var(--dark) !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  border-radius: var(--radius-full) !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--space-sm) !important;
+}
+.nav-btn::after { display: none !important; }
+.nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(247, 147, 30, 0.4);
+}
+
+/* ========================================
+   SECAO DE ATLETAS - PAGINA INICIAL
+   ======================================== */
+.atletas-section {
+  background: linear-gradient(135deg, var(--primary-dark), var(--dark));
+}
+
+.atletas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+
+.atleta-card-home {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  transition: var(--transition-base);
+}
+
+.atleta-card-home:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.atleta-foto {
+  flex-shrink: 0;
+}
+
+.atleta-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+}
+
+.atleta-placeholder-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  font-size: 1.5rem;
+  border: 3px solid var(--gray-600);
+}
+
+.atleta-info-home h4 {
+  color: var(--white);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.atleta-posicao {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-bottom: 6px;
+}
+
+.atleta-meta-home {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  font-size: 0.8rem;
+  color: var(--gray-400);
+}
+
+.atleta-meta-home span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.atletas-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--gray-400);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.atletas-loading i {
+  font-size: 2rem;
+  color: var(--accent);
+}
+
+/* Responsividade Atletas */
+@media (max-width: 768px) {
+  .atletas-grid {
+    grid-template-columns: 1fr;
+  }
+}
