@@ -1115,156 +1115,56 @@ export default function PortalDashboardPage() {
           {/* Detalhes de Gols */}
           {golsDetalhes.corpo.total > 0 && (
             <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
-                  <span className="text-sm">⚽</span>
+              <h3 className="text-sm font-semibold text-slate-100 mb-3">Finalizacao</h3>
+
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                  <p className="text-2xl font-bold text-green-400">{golsDetalhes.corpo.peDireito}</p>
+                  <p className="text-[10px] text-slate-400">Pe Direito</p>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-100">Perfil de Finalizacao</h3>
-                  <p className="text-[10px] text-slate-400">Distribuicao dos gols</p>
+                <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                  <p className="text-2xl font-bold text-blue-400">{golsDetalhes.corpo.peEsquerdo}</p>
+                  <p className="text-[10px] text-slate-400">Pe Esquerdo</p>
+                </div>
+                <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                  <p className="text-2xl font-bold text-amber-400">{golsDetalhes.corpo.cabeca}</p>
+                  <p className="text-[10px] text-slate-400">Cabeca</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                {/* Gols por Parte do Corpo */}
-                {golsDetalhes.corpo.total > 0 && (
-                  <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[10px] text-green-400 font-medium mb-1 text-center">Parte do Corpo</p>
-                    <div style={{ height: '70px' }}>
-                      <Doughnut
-                        data={{
-                          labels: ['Pe Direito', 'Pe Esquerdo', 'Cabeca'],
-                          datasets: [{
-                            data: [golsDetalhes.corpo.peDireito, golsDetalhes.corpo.peEsquerdo, golsDetalhes.corpo.cabeca],
-                            backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b'],
-                            borderColor: '#0f172a',
-                            borderWidth: 2
-                          }]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              backgroundColor: '#1e293b',
-                              titleColor: '#e2e8f0',
-                              bodyColor: '#e2e8f0',
-                              borderColor: '#475569',
-                              borderWidth: 1,
-                              callbacks: {
-                                label: (ctx) => {
-                                  const pct = golsDetalhes.corpo.total > 0 ? Math.round((ctx.raw as number / golsDetalhes.corpo.total) * 100) : 0
-                                  return `${ctx.raw} gols (${pct}%)`
-                                }
-                              }
-                            }
-                          },
-                          cutout: '60%'
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-center gap-2 mt-1 text-[8px]">
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Dir</span>
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Esq</span>
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Cab</span>
-                    </div>
+              {golsDetalhes.zona.total > 0 && (
+                <div className="grid grid-cols-2 gap-2 text-center mt-2">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                    <p className="text-2xl font-bold text-violet-400">{golsDetalhes.zona.dentroArea}</p>
+                    <p className="text-[10px] text-slate-400">Dentro Area</p>
                   </div>
-                )}
-
-                {/* Gols por Zona */}
-                {golsDetalhes.zona.total > 0 && (
-                  <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[10px] text-green-400 font-medium mb-1 text-center">Zona do Gol</p>
-                    <div style={{ height: '70px' }}>
-                      <Doughnut
-                        data={{
-                          labels: ['Dentro Area', 'Fora Area'],
-                          datasets: [{
-                            data: [golsDetalhes.zona.dentroArea, golsDetalhes.zona.foraArea],
-                            backgroundColor: ['#8b5cf6', '#ec4899'],
-                            borderColor: '#0f172a',
-                            borderWidth: 2
-                          }]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              backgroundColor: '#1e293b',
-                              titleColor: '#e2e8f0',
-                              bodyColor: '#e2e8f0',
-                              borderColor: '#475569',
-                              borderWidth: 1,
-                              callbacks: {
-                                label: (ctx) => {
-                                  const pct = golsDetalhes.zona.total > 0 ? Math.round((ctx.raw as number / golsDetalhes.zona.total) * 100) : 0
-                                  return `${ctx.raw} gols (${pct}%)`
-                                }
-                              }
-                            }
-                          },
-                          cutout: '60%'
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-center gap-2 mt-1 text-[8px]">
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Dentro</span>
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-pink-500"></span>Fora</span>
-                    </div>
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                    <p className="text-2xl font-bold text-pink-400">{golsDetalhes.zona.foraArea}</p>
+                    <p className="text-[10px] text-slate-400">Fora Area</p>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Gols por Tipo */}
-                {golsDetalhes.tipo.total > 0 && (
-                  <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[10px] text-green-400 font-medium mb-1 text-center">Tipo de Gol</p>
-                    <div style={{ height: '70px' }}>
-                      <Doughnut
-                        data={{
-                          labels: ['Jogada', 'Penalti', 'Bola Parada', 'Contra-ataque'],
-                          datasets: [{
-                            data: [golsDetalhes.tipo.jogada, golsDetalhes.tipo.penalti, golsDetalhes.tipo.falta, golsDetalhes.tipo.contraAtaque],
-                            backgroundColor: ['#06b6d4', '#ef4444', '#eab308', '#10b981'],
-                            borderColor: '#0f172a',
-                            borderWidth: 2
-                          }]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                              backgroundColor: '#1e293b',
-                              titleColor: '#e2e8f0',
-                              bodyColor: '#e2e8f0',
-                              borderColor: '#475569',
-                              borderWidth: 1,
-                              callbacks: {
-                                label: (ctx) => {
-                                  const pct = golsDetalhes.tipo.total > 0 ? Math.round((ctx.raw as number / golsDetalhes.tipo.total) * 100) : 0
-                                  return `${ctx.raw} gols (${pct}%)`
-                                }
-                              }
-                            }
-                          },
-                          cutout: '60%'
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-center gap-2 mt-1 text-[8px] flex-wrap">
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>Jog</span>
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>Pen</span>
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>BP</span>
-                      <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>CA</span>
-                    </div>
+              {golsDetalhes.tipo.total > 0 && (
+                <div className="grid grid-cols-4 gap-2 text-center mt-2">
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                    <p className="text-xl font-bold text-cyan-400">{golsDetalhes.tipo.jogada}</p>
+                    <p className="text-[9px] text-slate-400">Jogada</p>
                   </div>
-                )}
-
-              </div>
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                    <p className="text-xl font-bold text-red-400">{golsDetalhes.tipo.penalti}</p>
+                    <p className="text-[9px] text-slate-400">Penalti</p>
+                  </div>
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                    <p className="text-xl font-bold text-yellow-400">{golsDetalhes.tipo.falta}</p>
+                    <p className="text-[9px] text-slate-400">Bola Parada</p>
+                  </div>
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a' }}>
+                    <p className="text-xl font-bold text-emerald-400">{golsDetalhes.tipo.contraAtaque}</p>
+                    <p className="text-[9px] text-slate-400">Contra-ataque</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

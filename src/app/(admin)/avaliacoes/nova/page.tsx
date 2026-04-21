@@ -161,12 +161,6 @@ export default function NovaAvaliacaoPage() {
   const [golsFalta, setGolsFalta] = useState(0)
   const [golsContraAtaque, setGolsContraAtaque] = useState(0)
 
-  // Detalhes das Assistências
-  const [assistPasse, setAssistPasse] = useState(0)
-  const [assistCruzamento, setAssistCruzamento] = useState(0)
-  const [assistLancamento, setAssistLancamento] = useState(0)
-  const [assistBolaPparada, setAssistBolaPparada] = useState(0)
-
   // Avaliação Física - Dados Antropométricos
   const [alturaAvaliacao, setAlturaAvaliacao] = useState('')
   const [pesoAvaliacao, setPesoAvaliacao] = useState('')
@@ -337,11 +331,6 @@ export default function NovaAvaliacaoPage() {
       gols_penalti: golsPenalti,
       gols_falta: golsFalta,
       gols_contra_ataque: golsContraAtaque,
-      // Detalhes das Assistências
-      assist_passe: assistPasse,
-      assist_cruzamento: assistCruzamento,
-      assist_lancamento: assistLancamento,
-      assist_bola_parada: assistBolaPparada,
       // Dimensões CBF
       forca: parseFloat(notas.forca),
       velocidade: parseFloat(notas.velocidade),
