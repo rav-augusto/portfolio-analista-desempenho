@@ -150,6 +150,23 @@ export default function NovaAvaliacaoPage() {
   const [gols, setGols] = useState('')
   const [assistencias, setAssistencias] = useState('')
 
+  // Detalhes dos Gols
+  const [golsPeDireito, setGolsPeDireito] = useState(0)
+  const [golsPeEsquerdo, setGolsPeEsquerdo] = useState(0)
+  const [golsCabeca, setGolsCabeca] = useState(0)
+  const [golsDentroArea, setGolsDentroArea] = useState(0)
+  const [golsForaArea, setGolsForaArea] = useState(0)
+  const [golsJogada, setGolsJogada] = useState(0)
+  const [golsPenalti, setGolsPenalti] = useState(0)
+  const [golsFalta, setGolsFalta] = useState(0)
+  const [golsContraAtaque, setGolsContraAtaque] = useState(0)
+
+  // Detalhes das Assistências
+  const [assistPasse, setAssistPasse] = useState(0)
+  const [assistCruzamento, setAssistCruzamento] = useState(0)
+  const [assistLancamento, setAssistLancamento] = useState(0)
+  const [assistBolaPparada, setAssistBolaPparada] = useState(0)
+
   // Avaliação Física - Dados Antropométricos
   const [alturaAvaliacao, setAlturaAvaliacao] = useState('')
   const [pesoAvaliacao, setPesoAvaliacao] = useState('')
@@ -310,6 +327,21 @@ export default function NovaAvaliacaoPage() {
       minutos_jogados: minutosJogados ? parseInt(minutosJogados) : null,
       gols: gols ? parseInt(gols) : 0,
       assistencias: assistencias ? parseInt(assistencias) : 0,
+      // Detalhes dos Gols
+      gols_pe_direito: golsPeDireito,
+      gols_pe_esquerdo: golsPeEsquerdo,
+      gols_cabeca: golsCabeca,
+      gols_dentro_area: golsDentroArea,
+      gols_fora_area: golsForaArea,
+      gols_jogada: golsJogada,
+      gols_penalti: golsPenalti,
+      gols_falta: golsFalta,
+      gols_contra_ataque: golsContraAtaque,
+      // Detalhes das Assistências
+      assist_passe: assistPasse,
+      assist_cruzamento: assistCruzamento,
+      assist_lancamento: assistLancamento,
+      assist_bola_parada: assistBolaPparada,
       // Dimensões CBF
       forca: parseFloat(notas.forca),
       velocidade: parseFloat(notas.velocidade),
@@ -665,6 +697,138 @@ export default function NovaAvaliacaoPage() {
                   </div>
                 </>
               )}
+            </div>
+
+            {/* Detalhes de Gols */}
+            {tipo === 'jogo' && parseInt(gols || '0') > 0 && (
+              <div className="mt-4 rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
+                <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2">
+                  <span>⚽</span> Detalhes dos {gols} Gol{parseInt(gols) > 1 ? 's' : ''}
+                </h4>
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Parte do corpo */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase mb-2">Parte do Corpo</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Pé Direito</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsPeDireito}
+                          onChange={(e) => setGolsPeDireito(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Pé Esquerdo</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsPeEsquerdo}
+                          onChange={(e) => setGolsPeEsquerdo(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Cabeça</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsCabeca}
+                          onChange={(e) => setGolsCabeca(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Zona */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase mb-2">Zona do Gol</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Dentro da Área</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsDentroArea}
+                          onChange={(e) => setGolsDentroArea(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Fora da Área</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsForaArea}
+                          onChange={(e) => setGolsForaArea(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Tipo */}
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase mb-2">Tipo de Gol</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Jogada</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsJogada}
+                          onChange={(e) => setGolsJogada(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Pênalti</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsPenalti}
+                          onChange={(e) => setGolsPenalti(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Falta</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsFalta}
+                          onChange={(e) => setGolsFalta(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300">Contra-ataque</span>
+                        <input type="number" min="0" max={parseInt(gols || '0')} value={golsContraAtaque}
+                          onChange={(e) => setGolsContraAtaque(parseInt(e.target.value) || 0)}
+                          className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Detalhes de Assistências */}
+            {tipo === 'jogo' && parseInt(assistencias || '0') > 0 && (
+              <div className="mt-4 rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #3b82f640' }}>
+                <h4 className="text-sm font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                  <span>🎯</span> Detalhes das {assistencias} Assistência{parseInt(assistencias) > 1 ? 's' : ''}
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-300">Passe</span>
+                    <input type="number" min="0" max={parseInt(assistencias || '0')} value={assistPasse}
+                      onChange={(e) => setAssistPasse(parseInt(e.target.value) || 0)}
+                      className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-300">Cruzamento</span>
+                    <input type="number" min="0" max={parseInt(assistencias || '0')} value={assistCruzamento}
+                      onChange={(e) => setAssistCruzamento(parseInt(e.target.value) || 0)}
+                      className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-300">Lançamento</span>
+                    <input type="number" min="0" max={parseInt(assistencias || '0')} value={assistLancamento}
+                      onChange={(e) => setAssistLancamento(parseInt(e.target.value) || 0)}
+                      className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-300">Bola Parada</span>
+                    <input type="number" min="0" max={parseInt(assistencias || '0')} value={assistBolaPparada}
+                      onChange={(e) => setAssistBolaPparada(parseInt(e.target.value) || 0)}
+                      className="w-14 px-2 py-1 text-sm text-center rounded-lg"
+                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
+                  </div>
+                </div>
+              </div>
+            )}
             </div>
             <div className="mt-4">
               <label className="block text-xs font-medium text-amber-500 uppercase mb-2">Contexto da Avaliação</label>
