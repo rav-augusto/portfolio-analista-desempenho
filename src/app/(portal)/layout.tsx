@@ -12,11 +12,13 @@ import {
   CircleDot,
   User,
   TrendingUp,
-  GitCompare
+  GitCompare,
+  LayoutDashboard
 } from 'lucide-react'
 
 const menuItems = [
   { href: '/portal', icon: User, label: 'Meu Perfil' },
+  { href: '/portal/dashboard', icon: LayoutDashboard, label: 'Meu Dashboard' },
   { href: '/portal/evolucao', icon: TrendingUp, label: 'Minha Evolucao' },
   { href: '/portal/comparar', icon: GitCompare, label: 'Comparar Atletas' },
 ]
