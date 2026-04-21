@@ -1145,10 +1145,10 @@ export default function PortalDashboardPage() {
                       }}
                     />
                   </div>
-                  <div className="flex justify-center gap-2 mt-2 text-[10px] flex-wrap">
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#22c55e' }}></span>Dir: {golsDetalhes.corpo.peDireito}</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#3b82f6' }}></span>Esq: {golsDetalhes.corpo.peEsquerdo}</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#f59e0b' }}></span>Cab: {golsDetalhes.corpo.cabeca}</span>
+                  <div className="flex justify-center gap-2 mt-2 text-[10px] text-slate-300 flex-wrap">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-green-500"></span>Dir: {golsDetalhes.corpo.peDireito}</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-blue-500"></span>Esq: {golsDetalhes.corpo.peEsquerdo}</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>Cab: {golsDetalhes.corpo.cabeca}</span>
                   </div>
                 </div>
 
@@ -1176,9 +1176,9 @@ export default function PortalDashboardPage() {
                       }}
                     />
                   </div>
-                  <div className="flex justify-center gap-3 mt-2 text-[10px]">
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#8b5cf6' }}></span>Dentro: {golsDetalhes.zona.dentroArea}</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#ec4899' }}></span>Fora: {golsDetalhes.zona.foraArea}</span>
+                  <div className="flex justify-center gap-3 mt-2 text-[10px] text-slate-300">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-violet-500"></span>Dentro: {golsDetalhes.zona.dentroArea}</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-pink-500"></span>Fora: {golsDetalhes.zona.foraArea}</span>
                   </div>
                 </div>
 
@@ -1206,11 +1206,11 @@ export default function PortalDashboardPage() {
                       }}
                     />
                   </div>
-                  <div className="flex justify-center gap-2 mt-2 text-[10px] flex-wrap">
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#06b6d4' }}></span>Jog: {golsDetalhes.tipo.jogada}</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#ef4444' }}></span>Pen: {golsDetalhes.tipo.penalti}</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#eab308' }}></span>BP: {golsDetalhes.tipo.falta}</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#10b981' }}></span>CA: {golsDetalhes.tipo.contraAtaque}</span>
+                  <div className="flex justify-center gap-2 mt-2 text-[10px] text-slate-300 flex-wrap">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-cyan-500"></span>Jog: {golsDetalhes.tipo.jogada}</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-500"></span>Pen: {golsDetalhes.tipo.penalti}</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-yellow-500"></span>BP: {golsDetalhes.tipo.falta}</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>CA: {golsDetalhes.tipo.contraAtaque}</span>
                   </div>
                 </div>
               </div>
