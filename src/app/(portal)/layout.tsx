@@ -1,74 +1,32 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import {
-  LayoutDashboard,
-  Shield,
-  Users,
-  Gamepad2,
-  FileBarChart,
-  Star,
   LogOut,
   Menu,
   X,
   CircleDot,
+  User,
   TrendingUp,
-  Target,
-  BookOpen,
-  GitCompare,
-  UserCog
+  GitCompare
 } from 'lucide-react'
 
-type MenuItem = {
-  href: string
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  masterOnly?: boolean
-}
-
-const allMenuItems: MenuItem[] = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard-atletas', icon: TrendingUp, label: 'Evolucao Atletas' },
-  { href: '/dashboard-avaliacoes', icon: Target, label: 'Comparativo' },
-  { href: '/comparar-atletas', icon: GitCompare, label: 'Comparar Atletas' },
-  { href: '/guia-avaliacao', icon: BookOpen, label: 'Guia de Avaliacao' },
-  { href: '/clubes', icon: Shield, label: 'Clubes' },
-  { href: '/atletas', icon: Users, label: 'Atletas' },
-  { href: '/jogos', icon: Gamepad2, label: 'Jogos' },
-  { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo' },
-  { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas' },
-  { href: '/usuarios', icon: UserCog, label: 'Usuarios', masterOnly: true },
+const menuItems = [
+  { href: '/portal', icon: User, label: 'Meu Perfil' },
+  { href: '/portal/evolucao', icon: TrendingUp, label: 'Minha Evolucao' },
+  { href: '/portal/comparar', icon: GitCompare, label: 'Comparar Atletas' },
 ]
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
-  const { user: usuario, isLoading, isMaster, isAtleta } = useUser()
-
-  // Filter menu items based on user role
-  const menuItems = useMemo(() => {
-    return allMenuItems.filter(item => {
-      if (item.masterOnly && !isMaster) return false
-      return true
-    })
-  }, [isMaster])
-
-  // Get role label for display
-  const roleLabel = useMemo(() => {
-    if (!usuario) return ''
-    switch (usuario.role) {
-      case 'master': return 'Master'
-      case 'analista': return 'Analista'
-      case 'atleta': return 'Atleta'
-      default: return 'Usuario'
-    }
-  }, [usuario])
+  const { user: usuario, isLoading, isAtleta, isMaster, isAnalista } = useUser()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -81,12 +39,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     checkAuth()
   }, [router, supabase.auth])
 
-  // Redirect atleta users to portal
+  // Redirect non-atleta users to admin
   useEffect(() => {
-    if (!isLoading && isAtleta && !pathname.startsWith('/portal')) {
-      router.push('/portal')
+    if (!isLoading && (isMaster || isAnalista)) {
+      router.push('/dashboard')
     }
-  }, [isLoading, isAtleta, pathname, router])
+  }, [isLoading, isMaster, isAnalista, router])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -104,8 +62,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  // Prevent rendering admin layout for atleta users
-  if (isAtleta) {
+  // Don't render for non-athletes
+  if (!isAtleta) {
     return null
   }
 
@@ -137,15 +95,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <span className="block font-bold text-slate-100">Olhar da Base</span>
-              <span className="block text-xs text-amber-500">Painel Admin</span>
+              <span className="block text-xs text-green-400">Portal do Atleta</span>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+        <nav className="p-4 space-y-1">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+            const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
@@ -176,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-slate-200 truncate">{usuario?.nome || usuario?.email}</p>
-              <p className="text-xs text-slate-500">{roleLabel}</p>
+              <p className="text-xs text-green-400">Atleta</p>
             </div>
           </div>
           <button

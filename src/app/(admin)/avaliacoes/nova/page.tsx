@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { ArrowLeft, Save, Loader2, HelpCircle, X, TrendingUp, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -152,6 +153,7 @@ export default function NovaAvaliacaoPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+  const { user: usuario } = useUser()
 
   useEffect(() => {
     const loadData = async () => {
@@ -319,14 +321,33 @@ export default function NovaAvaliacaoPage() {
       obs_unidade_defensiva: obsDefensivos.unidade_defensiva || null,
       pontos_fortes: pontosFortes || null,
       pontos_desenvolver: pontosDesenvolver || null,
-      observacoes: observacoes || null
+      observacoes: observacoes || null,
+      criado_por: usuario?.id || null
     })
+    .select('id')
+    .single()
 
     if (error) {
       console.error(error)
       setError('Erro ao salvar avaliação.')
       setLoading(false)
       return
+    }
+
+    // Send email notification (fire and forget - don't block on errors)
+    if (data?.id) {
+      try {
+        await fetch('/api/email/nova-avaliacao', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            atleta_id: atletaId,
+            avaliacao_id: data.id
+          })
+        })
+      } catch (emailError) {
+        console.log('Email notification failed (non-blocking):', emailError)
+      }
     }
 
     // Redirecionar para a página do atleta se veio de lá

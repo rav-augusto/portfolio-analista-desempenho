@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -41,6 +42,7 @@ export default function NovoJogoPage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
+  const { user: usuario } = useUser()
 
   useEffect(() => {
     const loadClubes = async () => {
@@ -65,7 +67,8 @@ export default function NovoJogoPage() {
       categoria: categoria || null,
       video_url: videoUrl || null,
       placar_clube: placarClube ? parseInt(placarClube) : null,
-      placar_adversario: placarAdversario ? parseInt(placarAdversario) : null
+      placar_adversario: placarAdversario ? parseInt(placarAdversario) : null,
+      criado_por: usuario?.id || null
     })
 
     if (error) {

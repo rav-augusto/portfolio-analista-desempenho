@@ -29,8 +29,20 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Rotas protegidas (admin)
-  const protectedPaths = ['/admin', '/dashboard', '/clubes', '/jogos', '/analises']
+  // Rotas protegidas (admin e portal)
+  const protectedPaths = [
+    '/admin',
+    '/dashboard',
+    '/clubes',
+    '/jogos',
+    '/analises',
+    '/atletas',
+    '/avaliacoes',
+    '/usuarios',
+    '/portal',
+    '/comparar-atletas',
+    '/guia-avaliacao'
+  ]
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
@@ -59,6 +71,12 @@ export const config = {
     '/clubes/:path*',
     '/jogos/:path*',
     '/analises/:path*',
+    '/atletas/:path*',
+    '/avaliacoes/:path*',
+    '/usuarios/:path*',
+    '/portal/:path*',
+    '/comparar-atletas/:path*',
+    '/guia-avaliacao/:path*',
     '/login',
   ],
 }

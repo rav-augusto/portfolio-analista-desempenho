@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { Plus, Pencil, Trash2, FileBarChart, Search, Calendar, Image as ImageIcon, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 
@@ -18,6 +19,7 @@ type Analise = {
   jogo_id: string
   sistema_tatico: string | null
   created_at: string
+  criado_por: string | null
   jogos: JogoData | JogoData[] | null
   prints_taticos: { id: string }[]
 }
@@ -28,6 +30,7 @@ export default function AnalisesPage() {
   const [search, setSearch] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
   const supabase = createClient()
+  const { canCreate, canEdit, canDelete } = useUser()
 
   useEffect(() => {
     loadAnalises()
@@ -36,7 +39,7 @@ export default function AnalisesPage() {
   const loadAnalises = async () => {
     const { data, error } = await supabase
       .from('analises_jogo')
-      .select('id, jogo_id, sistema_tatico, created_at, jogos(adversario, data_jogo, competicao, fase, clubes(nome)), prints_taticos(id)')
+      .select('id, jogo_id, sistema_tatico, created_at, criado_por, jogos(adversario, data_jogo, competicao, fase, clubes(nome)), prints_taticos(id)')
       .order('created_at', { ascending: false })
 
     if (!error && data) {
@@ -88,13 +91,15 @@ export default function AnalisesPage() {
           <h1 className="text-3xl font-bold text-slate-100">Análises de Jogo</h1>
           <p className="text-slate-400 mt-1">Gerencie as análises tático-técnicas</p>
         </div>
-        <Link
-          href="/analises/nova"
-          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          Nova Análise
-        </Link>
+        {canCreate && (
+          <Link
+            href="/analises/nova"
+            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Nova Análise
+          </Link>
+        )}
       </div>
 
       {/* Search */}
@@ -187,20 +192,24 @@ export default function AnalisesPage() {
                   >
                     <LayoutDashboard className="w-4 h-4" />
                   </Link>
-                  <Link
-                    href={`/analises/${analise.id}`}
-                    className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
-                    title="Editar"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(analise.id)}
-                    disabled={deleting === analise.id}
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {canEdit(analise.criado_por) && (
+                    <Link
+                      href={`/analises/${analise.id}`}
+                      className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                      title="Editar"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Link>
+                  )}
+                  {canDelete(analise.criado_por) && (
+                    <button
+                      onClick={() => handleDelete(analise.id)}
+                      disabled={deleting === analise.id}
+                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             )

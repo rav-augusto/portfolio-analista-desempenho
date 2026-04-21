@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { Plus, Star, Search, ChevronRight, User, StarHalf } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,6 +22,7 @@ export default function AvaliacoesPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const supabase = createClient()
+  const { canCreate } = useUser()
 
   useEffect(() => {
     loadAtletas()
@@ -148,13 +150,15 @@ export default function AvaliacoesPage() {
           <h1 className="text-3xl font-bold text-slate-100">Avaliações de Atletas</h1>
           <p className="text-slate-400 mt-1">Selecione um atleta para ver suas avaliações</p>
         </div>
-        <Link
-          href="/avaliacoes/nova"
-          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          Nova Avaliação
-        </Link>
+        {canCreate && (
+          <Link
+            href="/avaliacoes/nova"
+            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Nova Avaliação
+          </Link>
+        )}
       </div>
 
       {/* Search */}

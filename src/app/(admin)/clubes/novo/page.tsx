@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { ArrowLeft, Save, Loader2, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { convertToWebP } from '@/lib/imageUtils'
@@ -31,6 +32,7 @@ export default function NovoClubePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const supabase = createClient()
+  const { user: usuario } = useUser()
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -79,7 +81,8 @@ export default function NovoClubePage() {
       contato_nome: contatoNome || null,
       contato_email: contatoEmail || null,
       contato_telefone: contatoTelefone || null,
-      escudo_url: escudoUrl
+      escudo_url: escudoUrl,
+      criado_por: usuario?.id || null
     })
 
     if (error) {

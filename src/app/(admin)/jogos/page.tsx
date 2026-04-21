@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { Plus, Pencil, Trash2, Calendar, Play, Filter, X, Trophy, MapPin, Search } from 'lucide-react'
 import Link from 'next/link'
 
@@ -17,6 +18,7 @@ type Jogo = {
   placar_clube: number | null
   placar_adversario: number | null
   video_url: string | null
+  criado_por: string | null
   clubes: {
     id: string
     nome: string
@@ -57,6 +59,7 @@ export default function JogosPage() {
   const [search, setSearch] = useState('')
 
   const supabase = createClient()
+  const { canCreate, canEdit, canDelete } = useUser()
 
   useEffect(() => {
     loadData()
@@ -66,7 +69,7 @@ export default function JogosPage() {
     const [jogosRes, clubesRes] = await Promise.all([
       supabase
         .from('jogos')
-        .select('*, clubes(id, nome)')
+        .select('*, criado_por, clubes(id, nome)')
         .order('data_jogo', { ascending: false }),
       supabase
         .from('clubes')
@@ -178,13 +181,15 @@ export default function JogosPage() {
               <span className="w-2 h-2 rounded-full bg-amber-500" />
             )}
           </button>
-          <Link
-            href="/jogos/novo"
-            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            Novo Jogo
-          </Link>
+          {canCreate && (
+            <Link
+              href="/jogos/novo"
+              className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
+            >
+              <Plus className="w-5 h-5" />
+              Novo Jogo
+            </Link>
+          )}
         </div>
       </div>
 
@@ -378,21 +383,25 @@ export default function JogosPage() {
 
                   {/* Ações */}
                   <div className="flex items-center gap-1">
-                    <Link
-                      href={`/jogos/${jogo.id}`}
-                      className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
-                      title="Editar"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(jogo.id)}
-                      disabled={deleting === jogo.id}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                      title="Excluir"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {canEdit(jogo.criado_por) && (
+                      <Link
+                        href={`/jogos/${jogo.id}`}
+                        className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                        title="Editar"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Link>
+                    )}
+                    {canDelete(jogo.criado_por) && (
+                      <button
+                        onClick={() => handleDelete(jogo.id)}
+                        disabled={deleting === jogo.id}
+                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                        title="Excluir"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

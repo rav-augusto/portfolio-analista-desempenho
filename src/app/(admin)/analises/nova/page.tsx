@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -36,6 +37,7 @@ export default function NovaAnalisePage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
+  const { user: usuario } = useUser()
 
   // Organizacao Ofensiva
   const [sistemaTatico, setSistemaTatico] = useState('')
@@ -148,7 +150,8 @@ export default function NovaAnalisePage() {
       escanteio_def_segundo_pau: escanteioDefSegundoPau || null,
       bp_vulnerabilidades: bpVulnerabilidades || null,
       conclusoes: conclusoes || null,
-      recomendacoes_treino: recomendacoesTreino || null
+      recomendacoes_treino: recomendacoesTreino || null,
+      criado_por: usuario?.id || null
     })
 
     if (error) {

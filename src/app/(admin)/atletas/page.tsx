@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { Plus, Pencil, Trash2, Users, Search, Filter, X } from 'lucide-react'
 import Link from 'next/link'
 
@@ -13,6 +14,7 @@ type Atleta = {
   numero_camisa: number | null
   foto_url: string | null
   data_nascimento: string | null
+  criado_por: string | null
   clubes: { nome: string } | { nome: string }[] | null
 }
 
@@ -41,6 +43,7 @@ export default function AtletasPage() {
   const [showFilters, setShowFilters] = useState(false)
 
   const supabase = createClient()
+  const { canCreate, canEdit, canDelete } = useUser()
 
   useEffect(() => {
     loadData()
@@ -50,7 +53,7 @@ export default function AtletasPage() {
     const [atletasRes, clubesRes] = await Promise.all([
       supabase
         .from('atletas')
-        .select('id, nome, posicao, categoria, numero_camisa, foto_url, data_nascimento, clubes(nome)')
+        .select('id, nome, posicao, categoria, numero_camisa, foto_url, data_nascimento, criado_por, clubes(nome)')
         .order('nome'),
       supabase
         .from('clubes')
@@ -138,13 +141,15 @@ export default function AtletasPage() {
               <span className="w-2 h-2 rounded-full bg-amber-500" />
             )}
           </button>
-          <Link
-            href="/atletas/novo"
-            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-          >
-            <Plus className="w-5 h-5" />
-            Novo Atleta
-          </Link>
+          {canCreate && (
+            <Link
+              href="/atletas/novo"
+              className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
+            >
+              <Plus className="w-5 h-5" />
+              Novo Atleta
+            </Link>
+          )}
         </div>
       </div>
 
@@ -293,19 +298,23 @@ export default function AtletasPage() {
                   </svg>
                   Avaliações
                 </Link>
-                <Link
-                  href={`/atletas/${atleta.id}`}
-                  className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
-                >
-                  <Pencil className="w-4 h-4" />
-                </Link>
-                <button
-                  onClick={() => handleDelete(atleta.id)}
-                  disabled={deleting === atleta.id}
-                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {canEdit(atleta.criado_por) && (
+                  <Link
+                    href={`/atletas/${atleta.id}`}
+                    className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Link>
+                )}
+                {canDelete(atleta.criado_por) && (
+                  <button
+                    onClick={() => handleDelete(atleta.id)}
+                    disabled={deleting === atleta.id}
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           ))}

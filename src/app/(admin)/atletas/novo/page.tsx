@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { ArrowLeft, Save, Loader2, User, X, Check, ZoomIn, ZoomOut } from 'lucide-react'
 import Link from 'next/link'
 import AvatarEditor from 'react-avatar-editor'
@@ -99,6 +100,7 @@ export default function NovoAtletaPage() {
   const editorRef = useRef<AvatarEditor>(null)
   const router = useRouter()
   const supabase = createClient()
+  const { user: usuario } = useUser()
 
   useEffect(() => {
     const loadClubes = async () => {
@@ -179,7 +181,8 @@ export default function NovoAtletaPage() {
       nome_responsavel: nomeResponsavel || null,
       telefone_responsavel: telefoneResponsavel || null,
       clubes_anteriores: clubesAnteriores || null,
-      foto_url: fotoUrl
+      foto_url: fotoUrl,
+      criado_por: usuario?.id || null
     })
 
     if (error) {
