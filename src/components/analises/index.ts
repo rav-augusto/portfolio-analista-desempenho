@@ -1,0 +1,6 @@
+export { TacticalFormation } from './TacticalFormation'
+export { FinalizacoesChart } from './FinalizacoesChart'
+export { ContraAtaqueFunnel } from './ContraAtaqueFunnel'
+export { MomentCard } from './MomentCard'
+export { SetPiecesSummary } from './SetPiecesSummary'
+export { PerformanceRadar } from './PerformanceRadar'

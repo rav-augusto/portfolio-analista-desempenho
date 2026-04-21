@@ -1,28 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, Save, Loader2, Upload, Trash2, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 import { convertToWebP } from '@/lib/imageUtils'
 
-type Jogo = {
-  id: string
-  adversario: string
-  data_jogo: string
-  competicao: string
-  fase: string | null
-  clubes: { nome: string } | { nome: string }[] | null
-}
-
-type Print = {
-  id: string
-  imagem_url: string
-  descricao: string | null
-  momento: string | null
-  tempo_jogo: string | null
-}
+import { Jogo, Print, AnaliseState, initialAnaliseState, analiseReducer } from '@/types/analise'
+import {
+  OrgOfensivaTab,
+  OrgDefensivaTab,
+  TransicoesTab,
+  BolasParadasTab,
+  GoleiroTab,
+  DadosAvancadosTab,
+  AdversarioTab,
+  ConclusoesTab,
+  PrintsTaticosTab,
+} from '@/components/analises/tabs'
 
 const tabs = [
   { id: 'ofensiva', label: 'Org. Ofensiva' },
@@ -31,19 +27,12 @@ const tabs = [
   { id: 'trans_def', label: 'Trans. Defensiva' },
   { id: 'bp_of', label: 'BP Ofensiva' },
   { id: 'bp_def', label: 'BP Defensiva' },
-  { id: 'geral', label: 'Conclusões' },
-  { id: 'prints', label: 'Prints Táticos' },
+  { id: 'goleiro', label: 'Goleiro' },
+  { id: 'avancados', label: 'Dados Avancados' },
+  { id: 'adversario', label: 'Adversario' },
+  { id: 'geral', label: 'Conclusoes' },
+  { id: 'prints', label: 'Prints Taticos' },
 ]
-
-const momentos = [
-  { value: 'ofensiva', label: 'Organização Ofensiva' },
-  { value: 'defensiva', label: 'Organização Defensiva' },
-  { value: 'transicao', label: 'Transição' },
-  { value: 'bola_parada', label: 'Bola Parada' },
-]
-
-const sistemasTaticos = ['3-5-2', '4-3-3', '4-4-2', '4-2-3-1', '4-1-4-1', '3-4-3', '5-3-2', '5-4-1']
-const blocosDefensivos = ['Alto', 'Médio', 'Baixo']
 
 export default function EditarAnalisePage() {
   const [jogos, setJogos] = useState<Jogo[]>([])
@@ -56,59 +45,8 @@ export default function EditarAnalisePage() {
   const params = useParams()
   const supabase = createClient()
 
-  // Organizacao Ofensiva
-  const [sistemaTatico, setSistemaTatico] = useState('')
-  const [orgOfensivaObs, setOrgOfensivaObs] = useState('')
-  const [saidaBola, setSaidaBola] = useState('')
-  const [participacaoGoleiro, setParticipacaoGoleiro] = useState('')
-  const [linhasPasse, setLinhasPasse] = useState('')
-  const [amplitude, setAmplitude] = useState('')
-  const [criacaoCentral, setCriacaoCentral] = useState('')
-  const [criacaoDireita, setCriacaoDireita] = useState('')
-  const [criacaoEsquerda, setCriacaoEsquerda] = useState('')
-  const [finalizacoesTotal, setFinalizacoesTotal] = useState('')
-  const [finalizacoesGol, setFinalizacoesGol] = useState('')
-  const [finalizacoesFora, setFinalizacoesFora] = useState('')
-  const [finalizacoesBloqueadas, setFinalizacoesBloqueadas] = useState('')
-
-  // Organizacao Defensiva
-  const [blocoDefensivo, setBlocoDefensivo] = useState('')
-  const [orgDefensivaObs, setOrgDefensivaObs] = useState('')
-  const [tipoMarcacao, setTipoMarcacao] = useState('')
-  const [pressao, setPressao] = useState('')
-  const [coberturas, setCoberturas] = useState('')
-  const [linhaDefensiva, setLinhaDefensiva] = useState('')
-  const [vulnerabilidades, setVulnerabilidades] = useState('')
-
-  // Transicao Ofensiva
-  const [transOfensivaObs, setTransOfensivaObs] = useState('')
-  const [primeiraAcao, setPrimeiraAcao] = useState('')
-  const [velocidadeTransicao, setVelocidadeTransicao] = useState('')
-  const [contraAtaques, setContraAtaques] = useState('')
-  const [contraAtaquesFinalizados, setContraAtaquesFinalizados] = useState('')
-  const [golsContraAtaque, setGolsContraAtaque] = useState('')
-
-  // Transicao Defensiva
-  const [transDefensivaObs, setTransDefensivaObs] = useState('')
-  const [reacaoPerda, setReacaoPerda] = useState('')
-  const [tempoReacao, setTempoReacao] = useState('')
-
-  // Bolas Paradas Ofensivas
-  const [escanteioCobrador, setEscanteioCobrador] = useState('')
-  const [escanteioTipo, setEscanteioTipo] = useState('')
-  const [escanteioMovimentacoes, setEscanteioMovimentacoes] = useState('')
-  const [faltasCaracteristicas, setFaltasCaracteristicas] = useState('')
-
-  // Bolas Paradas Defensivas
-  const [escanteioDefMarcacao, setEscanteioDefMarcacao] = useState('')
-  const [escanteioDefPosicaoGk, setEscanteioDefPosicaoGk] = useState('')
-  const [escanteioDefPrimeiroPau, setEscanteioDefPrimeiroPau] = useState('')
-  const [escanteioDefSegundoPau, setEscanteioDefSegundoPau] = useState('')
-  const [bpVulnerabilidades, setBpVulnerabilidades] = useState('')
-
-  // Geral
-  const [conclusoes, setConclusoes] = useState('')
-  const [recomendacoesTreino, setRecomendacoesTreino] = useState('')
+  // Usar reducer ao inves de 80+ useState
+  const [state, dispatch] = useReducer(analiseReducer, initialAnaliseState)
 
   // Prints Taticos
   const [prints, setPrints] = useState<Print[]>([])
@@ -116,6 +54,10 @@ export default function EditarAnalisePage() {
   const [newPrintDescricao, setNewPrintDescricao] = useState('')
   const [newPrintMomento, setNewPrintMomento] = useState('')
   const [newPrintTempo, setNewPrintTempo] = useState('')
+
+  const handleFieldChange = (field: keyof AnaliseState, value: string | number) => {
+    dispatch({ type: 'SET_FIELD', field, value })
+  }
 
   useEffect(() => {
     const loadData = async () => {
@@ -135,46 +77,153 @@ export default function EditarAnalisePage() {
 
       const a = analiseRes.data
       setJogoId(a.jogo_id)
-      setSistemaTatico(a.sistema_tatico || '')
-      setOrgOfensivaObs(a.org_ofensiva_obs || '')
-      setSaidaBola(a.saida_bola || '')
-      setParticipacaoGoleiro(a.participacao_goleiro || '')
-      setLinhasPasse(a.linhas_passe || '')
-      setAmplitude(a.amplitude || '')
-      setCriacaoCentral(a.criacao_central || '')
-      setCriacaoDireita(a.criacao_direita || '')
-      setCriacaoEsquerda(a.criacao_esquerda || '')
-      setFinalizacoesTotal(a.finalizacoes_total?.toString() || '')
-      setFinalizacoesGol(a.finalizacoes_gol?.toString() || '')
-      setFinalizacoesFora(a.finalizacoes_fora?.toString() || '')
-      setFinalizacoesBloqueadas(a.finalizacoes_bloqueadas?.toString() || '')
-      setBlocoDefensivo(a.bloco_defensivo || '')
-      setOrgDefensivaObs(a.org_defensiva_obs || '')
-      setTipoMarcacao(a.tipo_marcacao || '')
-      setPressao(a.pressao || '')
-      setCoberturas(a.coberturas || '')
-      setLinhaDefensiva(a.linha_defensiva || '')
-      setVulnerabilidades(a.vulnerabilidades || '')
-      setTransOfensivaObs(a.trans_ofensiva_obs || '')
-      setPrimeiraAcao(a.primeira_acao || '')
-      setVelocidadeTransicao(a.velocidade_transicao || '')
-      setContraAtaques(a.contra_ataques?.toString() || '')
-      setContraAtaquesFinalizados(a.contra_ataques_finalizados?.toString() || '')
-      setGolsContraAtaque(a.gols_contra_ataque?.toString() || '')
-      setTransDefensivaObs(a.trans_defensiva_obs || '')
-      setReacaoPerda(a.reacao_perda || '')
-      setTempoReacao(a.tempo_reacao || '')
-      setEscanteioCobrador(a.escanteio_cobrador || '')
-      setEscanteioTipo(a.escanteio_tipo || '')
-      setEscanteioMovimentacoes(a.escanteio_movimentacoes || '')
-      setFaltasCaracteristicas(a.faltas_caracteristicas || '')
-      setEscanteioDefMarcacao(a.escanteio_def_marcacao || '')
-      setEscanteioDefPosicaoGk(a.escanteio_def_posicao_gk || '')
-      setEscanteioDefPrimeiroPau(a.escanteio_def_primeiro_pau || '')
-      setEscanteioDefSegundoPau(a.escanteio_def_segundo_pau || '')
-      setBpVulnerabilidades(a.bp_vulnerabilidades || '')
-      setConclusoes(a.conclusoes || '')
-      setRecomendacoesTreino(a.recomendacoes_treino || '')
+
+      // Carregar todos os dados do banco
+      dispatch({
+        type: 'LOAD_DATA',
+        data: {
+          // Organizacao Ofensiva
+          sistema_tatico: a.sistema_tatico || '',
+          saida_bola_tipo: a.saida_bola_tipo || '',
+          participacao_gk_nivel: a.participacao_gk_nivel || '',
+          lado_preferencial: a.lado_preferencial || '',
+          qualidade_criacao: a.qualidade_criacao || 0,
+          posse_bola: a.posse_bola || 0,
+          finalizacoes_total: a.finalizacoes_total || 0,
+          finalizacoes_gol: a.finalizacoes_gol || 0,
+          finalizacoes_fora: a.finalizacoes_fora || 0,
+          finalizacoes_bloqueadas: a.finalizacoes_bloqueadas || 0,
+          finalizacoes_dentro_area: a.finalizacoes_dentro_area || 0,
+          finalizacoes_fora_area: a.finalizacoes_fora_area || 0,
+          grandes_chances: a.grandes_chances || 0,
+          grandes_chances_perdidas: a.grandes_chances_perdidas || 0,
+          cruzamentos_total: a.cruzamentos_total || 0,
+          cruzamentos_certos: a.cruzamentos_certos || 0,
+          passes_total: a.passes_total || 0,
+          passes_certos: a.passes_certos || 0,
+          passes_terco_final: a.passes_terco_final || 0,
+          passes_progressivos: a.passes_progressivos || 0,
+          conducoes_progressivas: a.conducoes_progressivas || 0,
+          entradas_area: a.entradas_area || 0,
+          org_ofensiva_obs: a.org_ofensiva_obs || '',
+
+          // Organizacao Defensiva
+          bloco_defensivo: a.bloco_defensivo || '',
+          marcacao_tipo: a.marcacao_tipo || '',
+          pressao_intensidade: a.pressao_intensidade || 0,
+          linha_defensiva_altura: a.linha_defensiva_altura || '',
+          compactacao_bloco: a.compactacao_bloco || 0,
+          duelos_defensivos_pct: a.duelos_defensivos_pct || 0,
+          recuperacoes_bola: a.recuperacoes_bola || 0,
+          recuperacoes_terco_ofensivo: a.recuperacoes_terco_ofensivo || 0,
+          interceptacoes: a.interceptacoes || 0,
+          desarmes: a.desarmes || 0,
+          desarmes_certos: a.desarmes_certos || 0,
+          duelos_total: a.duelos_total || 0,
+          duelos_ganhos: a.duelos_ganhos || 0,
+          duelos_aereos_total: a.duelos_aereos_total || 0,
+          duelos_aereos_ganhos: a.duelos_aereos_ganhos || 0,
+          faltas_cometidas: a.faltas_cometidas || 0,
+          cartoes_amarelos: a.cartoes_amarelos || 0,
+          cartoes_vermelhos: a.cartoes_vermelhos || 0,
+          org_defensiva_obs: a.org_defensiva_obs || '',
+
+          // Transicao Ofensiva
+          primeira_acao_tipo: a.primeira_acao_tipo || '',
+          trans_ofensiva_velocidade: a.trans_ofensiva_velocidade || 0,
+          trans_ofensiva_efetividade: a.trans_ofensiva_efetividade || 0,
+          trans_ofensiva_jogadores: a.trans_ofensiva_jogadores || 0,
+          contra_ataques: a.contra_ataques || 0,
+          contra_ataques_finalizados: a.contra_ataques_finalizados || 0,
+          gols_contra_ataque: a.gols_contra_ataque || 0,
+          acoes_pos_perda: a.acoes_pos_perda || 0,
+          acoes_pos_perda_sucesso: a.acoes_pos_perda_sucesso || 0,
+          contra_ataques_sofridos: a.contra_ataques_sofridos || 0,
+          gols_sofridos_contra_ataque: a.gols_sofridos_contra_ataque || 0,
+          trans_ofensiva_obs: a.trans_ofensiva_obs || '',
+
+          // Transicao Defensiva
+          reacao_perda_tipo: a.reacao_perda_tipo || '',
+          trans_defensiva_velocidade: a.trans_defensiva_velocidade || 0,
+          tempo_reacao_segundos: a.tempo_reacao_segundos || 0,
+          trans_defensiva_obs: a.trans_defensiva_obs || '',
+
+          // Bolas Paradas Ofensivas
+          escanteios_total: a.escanteios_total || 0,
+          escanteios_perigosos: a.escanteios_perigosos || 0,
+          escanteio_tipo_cobranca: a.escanteio_tipo_cobranca || '',
+          escanteios_curto: a.escanteios_curto || 0,
+          escanteios_longo: a.escanteios_longo || 0,
+          faltas_area: a.faltas_area || 0,
+          faltas_diretas: a.faltas_diretas || 0,
+          faltas_cruzadas: a.faltas_cruzadas || 0,
+          penaltis_favor: a.penaltis_favor || 0,
+          penaltis_convertidos: a.penaltis_convertidos || 0,
+          laterais_total: a.laterais_total || 0,
+          laterais_ofensivos: a.laterais_ofensivos || 0,
+          gols_bola_parada: a.gols_bola_parada || 0,
+          bp_ofensiva_obs: a.escanteio_movimentacoes || '',
+
+          // Bolas Paradas Defensivas
+          bp_def_marcacao_tipo: a.bp_def_marcacao_tipo || '',
+          bp_def_solidez: a.bp_def_solidez || 0,
+          gols_sofridos_bp: a.gols_sofridos_bp || 0,
+          escanteios_contra: a.escanteios_contra || 0,
+          faltas_contra_area: a.faltas_contra_area || 0,
+          penaltis_contra: a.penaltis_contra || 0,
+          penaltis_defendidos: a.penaltis_defendidos || 0,
+          bp_defensiva_obs: a.bp_vulnerabilidades || '',
+
+          // Goleiro
+          defesas_total: a.defesas_total || 0,
+          defesas_dificeis: a.defesas_dificeis || 0,
+          saidas_gol: a.saidas_gol || 0,
+          passes_gk_total: a.passes_gk_total || 0,
+          passes_gk_certos: a.passes_gk_certos || 0,
+
+          // Posse e Territorio
+          posse_terco_defensivo: a.posse_terco_defensivo || 0,
+          posse_terco_medio: a.posse_terco_medio || 0,
+          posse_terco_ofensivo: a.posse_terco_ofensivo || 0,
+          campo_ofensivo_pct: a.campo_ofensivo_pct || 0,
+
+          // Intensidade
+          distancia_total: a.distancia_total || 0,
+          sprints: a.sprints || 0,
+          alta_intensidade_metros: a.alta_intensidade_metros || 0,
+
+          // Eficiencia
+          xg_favor: a.xg_favor || 0,
+          xg_contra: a.xg_contra || 0,
+          ppda: a.ppda || 0,
+
+          // Geral
+          nota_geral: a.nota_geral || 0,
+          indice_ofensivo: a.indice_ofensivo || 0,
+          indice_defensivo: a.indice_defensivo || 0,
+          conclusoes: a.conclusoes || '',
+          recomendacoes_treino: a.recomendacoes_treino || '',
+          pontos_fortes: a.pontos_fortes || '',
+          pontos_fracos: a.pontos_fracos || '',
+          jogadores_destaque: a.jogadores_destaque || '',
+
+          // Adversario
+          adv_finalizacoes_total: a.adv_finalizacoes_total || 0,
+          adv_finalizacoes_gol: a.adv_finalizacoes_gol || 0,
+          adv_finalizacoes_fora: a.adv_finalizacoes_fora || 0,
+          adv_finalizacoes_bloqueadas: a.adv_finalizacoes_bloqueadas || 0,
+          adv_passes_total: a.adv_passes_total || 0,
+          adv_passes_certos: a.adv_passes_certos || 0,
+          adv_faltas_cometidas: a.adv_faltas_cometidas || 0,
+          adv_cartoes_amarelos: a.adv_cartoes_amarelos || 0,
+          adv_cartoes_vermelhos: a.adv_cartoes_vermelhos || 0,
+          adv_escanteios: a.adv_escanteios || 0,
+          adv_impedimentos: a.adv_impedimentos || 0,
+          adv_posse_bola: a.adv_posse_bola || 0,
+          impedimentos: a.impedimentos || 0,
+        }
+      })
+
       setLoading(false)
     }
     loadData()
@@ -187,50 +236,139 @@ export default function EditarAnalisePage() {
 
     const { error } = await supabase.from('analises_jogo').update({
       jogo_id: jogoId,
-      sistema_tatico: sistemaTatico || null,
-      org_ofensiva_obs: orgOfensivaObs || null,
-      saida_bola: saidaBola || null,
-      participacao_goleiro: participacaoGoleiro || null,
-      linhas_passe: linhasPasse || null,
-      amplitude: amplitude || null,
-      criacao_central: criacaoCentral || null,
-      criacao_direita: criacaoDireita || null,
-      criacao_esquerda: criacaoEsquerda || null,
-      finalizacoes_total: finalizacoesTotal ? parseInt(finalizacoesTotal) : 0,
-      finalizacoes_gol: finalizacoesGol ? parseInt(finalizacoesGol) : 0,
-      finalizacoes_fora: finalizacoesFora ? parseInt(finalizacoesFora) : 0,
-      finalizacoes_bloqueadas: finalizacoesBloqueadas ? parseInt(finalizacoesBloqueadas) : 0,
-      bloco_defensivo: blocoDefensivo || null,
-      org_defensiva_obs: orgDefensivaObs || null,
-      tipo_marcacao: tipoMarcacao || null,
-      pressao: pressao || null,
-      coberturas: coberturas || null,
-      linha_defensiva: linhaDefensiva || null,
-      vulnerabilidades: vulnerabilidades || null,
-      trans_ofensiva_obs: transOfensivaObs || null,
-      primeira_acao: primeiraAcao || null,
-      velocidade_transicao: velocidadeTransicao || null,
-      contra_ataques: contraAtaques ? parseInt(contraAtaques) : 0,
-      contra_ataques_finalizados: contraAtaquesFinalizados ? parseInt(contraAtaquesFinalizados) : 0,
-      gols_contra_ataque: golsContraAtaque ? parseInt(golsContraAtaque) : 0,
-      trans_defensiva_obs: transDefensivaObs || null,
-      reacao_perda: reacaoPerda || null,
-      tempo_reacao: tempoReacao || null,
-      escanteio_cobrador: escanteioCobrador || null,
-      escanteio_tipo: escanteioTipo || null,
-      escanteio_movimentacoes: escanteioMovimentacoes || null,
-      faltas_caracteristicas: faltasCaracteristicas || null,
-      escanteio_def_marcacao: escanteioDefMarcacao || null,
-      escanteio_def_posicao_gk: escanteioDefPosicaoGk || null,
-      escanteio_def_primeiro_pau: escanteioDefPrimeiroPau || null,
-      escanteio_def_segundo_pau: escanteioDefSegundoPau || null,
-      bp_vulnerabilidades: bpVulnerabilidades || null,
-      conclusoes: conclusoes || null,
-      recomendacoes_treino: recomendacoesTreino || null
+      // Org Ofensiva
+      sistema_tatico: state.sistema_tatico || null,
+      saida_bola_tipo: state.saida_bola_tipo || null,
+      participacao_gk_nivel: state.participacao_gk_nivel || null,
+      lado_preferencial: state.lado_preferencial || null,
+      qualidade_criacao: state.qualidade_criacao,
+      posse_bola: state.posse_bola,
+      finalizacoes_total: state.finalizacoes_total,
+      finalizacoes_gol: state.finalizacoes_gol,
+      finalizacoes_fora: state.finalizacoes_fora,
+      finalizacoes_bloqueadas: state.finalizacoes_bloqueadas,
+      org_ofensiva_obs: state.org_ofensiva_obs || null,
+      finalizacoes_dentro_area: state.finalizacoes_dentro_area,
+      finalizacoes_fora_area: state.finalizacoes_fora_area,
+      grandes_chances: state.grandes_chances,
+      grandes_chances_perdidas: state.grandes_chances_perdidas,
+      cruzamentos_total: state.cruzamentos_total,
+      cruzamentos_certos: state.cruzamentos_certos,
+      passes_total: state.passes_total,
+      passes_certos: state.passes_certos,
+      passes_terco_final: state.passes_terco_final,
+      passes_progressivos: state.passes_progressivos,
+      conducoes_progressivas: state.conducoes_progressivas,
+      entradas_area: state.entradas_area,
+      // Org Defensiva
+      bloco_defensivo: state.bloco_defensivo || null,
+      marcacao_tipo: state.marcacao_tipo || null,
+      pressao_intensidade: state.pressao_intensidade,
+      linha_defensiva_altura: state.linha_defensiva_altura || null,
+      compactacao_bloco: state.compactacao_bloco,
+      duelos_defensivos_pct: state.duelos_defensivos_pct,
+      org_defensiva_obs: state.org_defensiva_obs || null,
+      recuperacoes_bola: state.recuperacoes_bola,
+      recuperacoes_terco_ofensivo: state.recuperacoes_terco_ofensivo,
+      interceptacoes: state.interceptacoes,
+      desarmes: state.desarmes,
+      desarmes_certos: state.desarmes_certos,
+      duelos_total: state.duelos_total,
+      duelos_ganhos: state.duelos_ganhos,
+      duelos_aereos_total: state.duelos_aereos_total,
+      duelos_aereos_ganhos: state.duelos_aereos_ganhos,
+      faltas_cometidas: state.faltas_cometidas,
+      cartoes_amarelos: state.cartoes_amarelos,
+      cartoes_vermelhos: state.cartoes_vermelhos,
+      // Trans Ofensiva
+      primeira_acao_tipo: state.primeira_acao_tipo || null,
+      trans_ofensiva_velocidade: state.trans_ofensiva_velocidade,
+      trans_ofensiva_efetividade: state.trans_ofensiva_efetividade,
+      trans_ofensiva_jogadores: state.trans_ofensiva_jogadores,
+      contra_ataques: state.contra_ataques,
+      contra_ataques_finalizados: state.contra_ataques_finalizados,
+      gols_contra_ataque: state.gols_contra_ataque,
+      trans_ofensiva_obs: state.trans_ofensiva_obs || null,
+      acoes_pos_perda: state.acoes_pos_perda,
+      acoes_pos_perda_sucesso: state.acoes_pos_perda_sucesso,
+      contra_ataques_sofridos: state.contra_ataques_sofridos,
+      gols_sofridos_contra_ataque: state.gols_sofridos_contra_ataque,
+      // Trans Defensiva
+      reacao_perda_tipo: state.reacao_perda_tipo || null,
+      trans_defensiva_velocidade: state.trans_defensiva_velocidade,
+      tempo_reacao_segundos: state.tempo_reacao_segundos,
+      trans_defensiva_obs: state.trans_defensiva_obs || null,
+      // BP Ofensiva
+      escanteios_total: state.escanteios_total,
+      escanteios_perigosos: state.escanteios_perigosos,
+      escanteio_tipo_cobranca: state.escanteio_tipo_cobranca || null,
+      faltas_area: state.faltas_area,
+      gols_bola_parada: state.gols_bola_parada,
+      escanteio_movimentacoes: state.bp_ofensiva_obs || null,
+      escanteios_curto: state.escanteios_curto,
+      escanteios_longo: state.escanteios_longo,
+      faltas_diretas: state.faltas_diretas,
+      faltas_cruzadas: state.faltas_cruzadas,
+      penaltis_favor: state.penaltis_favor,
+      penaltis_convertidos: state.penaltis_convertidos,
+      laterais_total: state.laterais_total,
+      laterais_ofensivos: state.laterais_ofensivos,
+      // BP Defensiva
+      bp_def_marcacao_tipo: state.bp_def_marcacao_tipo || null,
+      bp_def_solidez: state.bp_def_solidez,
+      gols_sofridos_bp: state.gols_sofridos_bp,
+      bp_vulnerabilidades: state.bp_defensiva_obs || null,
+      escanteios_contra: state.escanteios_contra,
+      faltas_contra_area: state.faltas_contra_area,
+      penaltis_contra: state.penaltis_contra,
+      penaltis_defendidos: state.penaltis_defendidos,
+      // Goleiro
+      defesas_total: state.defesas_total,
+      defesas_dificeis: state.defesas_dificeis,
+      saidas_gol: state.saidas_gol,
+      passes_gk_total: state.passes_gk_total,
+      passes_gk_certos: state.passes_gk_certos,
+      // Posse e Territorio
+      posse_terco_defensivo: state.posse_terco_defensivo,
+      posse_terco_medio: state.posse_terco_medio,
+      posse_terco_ofensivo: state.posse_terco_ofensivo,
+      campo_ofensivo_pct: state.campo_ofensivo_pct,
+      // Intensidade
+      distancia_total: state.distancia_total || null,
+      sprints: state.sprints,
+      alta_intensidade_metros: state.alta_intensidade_metros,
+      // Eficiencia
+      xg_favor: state.xg_favor || null,
+      xg_contra: state.xg_contra || null,
+      ppda: state.ppda || null,
+      // Geral
+      nota_geral: state.nota_geral,
+      indice_ofensivo: state.indice_ofensivo,
+      indice_defensivo: state.indice_defensivo,
+      conclusoes: state.conclusoes || null,
+      recomendacoes_treino: state.recomendacoes_treino || null,
+      pontos_fortes: state.pontos_fortes || null,
+      pontos_fracos: state.pontos_fracos || null,
+      jogadores_destaque: state.jogadores_destaque || null,
+      // Adversario
+      adv_finalizacoes_total: state.adv_finalizacoes_total,
+      adv_finalizacoes_gol: state.adv_finalizacoes_gol,
+      adv_finalizacoes_fora: state.adv_finalizacoes_fora,
+      adv_finalizacoes_bloqueadas: state.adv_finalizacoes_bloqueadas,
+      adv_passes_total: state.adv_passes_total,
+      adv_passes_certos: state.adv_passes_certos,
+      adv_faltas_cometidas: state.adv_faltas_cometidas,
+      adv_cartoes_amarelos: state.adv_cartoes_amarelos,
+      adv_cartoes_vermelhos: state.adv_cartoes_vermelhos,
+      adv_escanteios: state.adv_escanteios,
+      adv_impedimentos: state.adv_impedimentos,
+      adv_posse_bola: state.adv_posse_bola,
+      impedimentos: state.impedimentos,
     }).eq('id', params.id)
 
     if (error) {
-      setError('Erro ao salvar análise')
+      console.error('Erro Supabase:', error)
+      setError(`Erro ao salvar analise: ${error.message || error.code || 'Erro desconhecido'}`)
       setSaving(false)
       return
     }
@@ -248,12 +386,11 @@ export default function EditarAnalisePage() {
 
     setUploadingPrint(true)
 
-    // Converter para WebP (menor tamanho)
     const webpBlob = await convertToWebP(file, 0.85, 1200)
     const webpFile = new File([webpBlob], 'print.webp', { type: 'image/webp' })
     const fileName = `${params.id}/${Date.now()}.webp`
 
-    const { error: uploadError, data } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('prints')
       .upload(fileName, webpFile)
 
@@ -293,7 +430,6 @@ export default function EditarAnalisePage() {
   const handleDeletePrint = async (print: Print) => {
     if (!confirm('Tem certeza que deseja excluir este print?')) return
 
-    // Extract filename from URL
     const urlParts = print.imagem_url.split('/prints/')
     if (urlParts.length > 1) {
       await supabase.storage.from('prints').remove([urlParts[1]])
@@ -317,17 +453,26 @@ export default function EditarAnalisePage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href="/analises"
-          className="p-2 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-100">Editar Análise</h1>
-          <p className="text-slate-400 mt-1">Atualize a análise tático-técnica</p>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/analises"
+            className="p-2 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-100">Editar Analise</h1>
+            <p className="text-slate-400 mt-1">Atualize a analise tatico-tecnica</p>
+          </div>
         </div>
+        <Link
+          href={`/analises/${params.id}/dashboard`}
+          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors"
+        >
+          <BarChart3 className="w-4 h-4" />
+          Dashboard
+        </Link>
       </div>
 
       {/* Form */}
@@ -341,7 +486,8 @@ export default function EditarAnalisePage() {
             value={jogoId}
             onChange={(e) => setJogoId(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
+            className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
           >
             <option value="">Selecione um jogo</option>
             {jogos.map((jogo) => (
@@ -355,7 +501,7 @@ export default function EditarAnalisePage() {
         {/* Tabs */}
         <div className="rounded-2xl shadow-sm overflow-hidden mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-700">
-            <span className="text-sm font-medium text-slate-400 mr-2">Seção:</span>
+            <span className="text-sm font-medium text-slate-400 mr-2">Secao:</span>
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -374,350 +520,29 @@ export default function EditarAnalisePage() {
           </div>
 
           <div className="p-6">
-            {/* Organizacao Ofensiva */}
-            {activeTab === 'ofensiva' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Sistema Tático</label>
-                    <select
-                      value={sistemaTatico}
-                      onChange={(e) => setSistemaTatico(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
-                    >
-                      <option value="">Selecione</option>
-                      {sistemasTaticos.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
-                  <textarea value={orgOfensivaObs} onChange={(e) => setOrgOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Saída de Bola</label>
-                    <textarea value={saidaBola} onChange={(e) => setSaidaBola(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Participação do Goleiro</label>
-                    <textarea value={participacaoGoleiro} onChange={(e) => setParticipacaoGoleiro(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Linhas de Passe</label>
-                    <textarea value={linhasPasse} onChange={(e) => setLinhasPasse(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Amplitude</label>
-                    <textarea value={amplitude} onChange={(e) => setAmplitude(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Criação Central</label>
-                    <textarea value={criacaoCentral} onChange={(e) => setCriacaoCentral(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Criação Direita</label>
-                    <textarea value={criacaoDireita} onChange={(e) => setCriacaoDireita(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Criação Esquerda</label>
-                    <textarea value={criacaoEsquerda} onChange={(e) => setCriacaoEsquerda(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Finalizações Total</label>
-                    <input type="number" min="0" value={finalizacoesTotal} onChange={(e) => setFinalizacoesTotal(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">No Gol</label>
-                    <input type="number" min="0" value={finalizacoesGol} onChange={(e) => setFinalizacoesGol(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Fora</label>
-                    <input type="number" min="0" value={finalizacoesFora} onChange={(e) => setFinalizacoesFora(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Bloqueadas</label>
-                    <input type="number" min="0" value={finalizacoesBloqueadas} onChange={(e) => setFinalizacoesBloqueadas(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Organizacao Defensiva */}
-            {activeTab === 'defensiva' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Bloco Defensivo</label>
-                    <select value={blocoDefensivo} onChange={(e) => setBlocoDefensivo(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}>
-                      <option value="">Selecione</option>
-                      {blocosDefensivos.map(b => <option key={b} value={b}>{b}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Tipo de Marcação</label>
-                    <input type="text" value={tipoMarcacao} onChange={(e) => setTipoMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
-                  <textarea value={orgDefensivaObs} onChange={(e) => setOrgDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Pressão</label>
-                    <textarea value={pressao} onChange={(e) => setPressao(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Coberturas</label>
-                    <textarea value={coberturas} onChange={(e) => setCoberturas(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Linha Defensiva</label>
-                    <textarea value={linhaDefensiva} onChange={(e) => setLinhaDefensiva(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Vulnerabilidades</label>
-                    <textarea value={vulnerabilidades} onChange={(e) => setVulnerabilidades(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Transicao Ofensiva */}
-            {activeTab === 'trans_of' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
-                  <textarea value={transOfensivaObs} onChange={(e) => setTransOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Primeira Ação</label>
-                    <input type="text" value={primeiraAcao} onChange={(e) => setPrimeiraAcao(e.target.value)} placeholder="Ex: Bola longa, Jogo curto" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Velocidade da Transição</label>
-                    <input type="text" value={velocidadeTransicao} onChange={(e) => setVelocidadeTransicao(e.target.value)} placeholder="Ex: Rápida, Lenta, Equilibrada" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Contra-Ataques</label>
-                    <input type="number" min="0" value={contraAtaques} onChange={(e) => setContraAtaques(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Finalizados</label>
-                    <input type="number" min="0" value={contraAtaquesFinalizados} onChange={(e) => setContraAtaquesFinalizados(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Gols</label>
-                    <input type="number" min="0" value={golsContraAtaque} onChange={(e) => setGolsContraAtaque(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Transicao Defensiva */}
-            {activeTab === 'trans_def' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
-                  <textarea value={transDefensivaObs} onChange={(e) => setTransDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Reação à Perda</label>
-                    <textarea value={reacaoPerda} onChange={(e) => setReacaoPerda(e.target.value)} rows={2} placeholder="Ex: Pressão imediata, Recuo organizado" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Tempo de Reação</label>
-                    <input type="text" value={tempoReacao} onChange={(e) => setTempoReacao(e.target.value)} placeholder="Ex: Imediato, Lento, 3-5 segundos" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Bolas Paradas Ofensivas */}
-            {activeTab === 'bp_of' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Cobrador de Escanteio</label>
-                    <input type="text" value={escanteioCobrador} onChange={(e) => setEscanteioCobrador(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Tipo de Cobrança</label>
-                    <input type="text" value={escanteioTipo} onChange={(e) => setEscanteioTipo(e.target.value)} placeholder="Ex: Fechado, Aberto, Rasteiro" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Movimentações em Escanteios</label>
-                  <textarea value={escanteioMovimentacoes} onChange={(e) => setEscanteioMovimentacoes(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Características em Faltas</label>
-                  <textarea value={faltasCaracteristicas} onChange={(e) => setFaltasCaracteristicas(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-              </div>
-            )}
-
-            {/* Bolas Paradas Defensivas */}
-            {activeTab === 'bp_def' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Marcação em Escanteios</label>
-                    <input type="text" value={escanteioDefMarcacao} onChange={(e) => setEscanteioDefMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Posição do Goleiro</label>
-                    <textarea value={escanteioDefPosicaoGk} onChange={(e) => setEscanteioDefPosicaoGk(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Primeiro Pau</label>
-                    <input type="text" value={escanteioDefPrimeiroPau} onChange={(e) => setEscanteioDefPrimeiroPau(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-amber-500 mb-2">Segundo Pau</label>
-                    <input type="text" value={escanteioDefSegundoPau} onChange={(e) => setEscanteioDefSegundoPau(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Vulnerabilidades em Bolas Paradas</label>
-                  <textarea value={bpVulnerabilidades} onChange={(e) => setBpVulnerabilidades(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-              </div>
-            )}
-
-            {/* Conclusoes */}
-            {activeTab === 'geral' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Conclusões da Análise</label>
-                  <textarea value={conclusoes} onChange={(e) => setConclusoes(e.target.value)} rows={5} placeholder="Principais pontos observados na partida..." className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-amber-500 mb-2">Recomendações para Treino</label>
-                  <textarea value={recomendacoesTreino} onChange={(e) => setRecomendacoesTreino(e.target.value)} rows={5} placeholder="Aspectos a trabalhar nos próximos treinos..." className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
-                </div>
-              </div>
-            )}
-
-            {/* Prints Taticos */}
+            {activeTab === 'ofensiva' && <OrgOfensivaTab state={state} onChange={handleFieldChange} />}
+            {activeTab === 'defensiva' && <OrgDefensivaTab state={state} onChange={handleFieldChange} />}
+            {activeTab === 'trans_of' && <TransicoesTab state={state} onChange={handleFieldChange} tipo="ofensiva" />}
+            {activeTab === 'trans_def' && <TransicoesTab state={state} onChange={handleFieldChange} tipo="defensiva" />}
+            {activeTab === 'bp_of' && <BolasParadasTab state={state} onChange={handleFieldChange} tipo="ofensiva" />}
+            {activeTab === 'bp_def' && <BolasParadasTab state={state} onChange={handleFieldChange} tipo="defensiva" />}
+            {activeTab === 'goleiro' && <GoleiroTab state={state} onChange={handleFieldChange} />}
+            {activeTab === 'avancados' && <DadosAvancadosTab state={state} onChange={handleFieldChange} />}
+            {activeTab === 'adversario' && <AdversarioTab state={state} onChange={handleFieldChange} />}
+            {activeTab === 'geral' && <ConclusoesTab state={state} onChange={handleFieldChange} />}
             {activeTab === 'prints' && (
-              <div className="space-y-6">
-                {/* Upload Form */}
-                <div className="border border-dashed border-slate-600 rounded-xl p-6">
-                  <h4 className="text-sm font-semibold text-slate-100 mb-4">Adicionar Print Tático</h4>
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-amber-500 mb-2">Momento do Jogo</label>
-                      <select
-                        value={newPrintMomento}
-                        onChange={(e) => setNewPrintMomento(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
-                      >
-                        <option value="">Selecione</option>
-                        {momentos.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-amber-500 mb-2">Tempo (ex: 32&apos;)</label>
-                      <input
-                        type="text"
-                        value={newPrintTempo}
-                        onChange={(e) => setNewPrintTempo(e.target.value)}
-                        placeholder="Ex: 15', 45+2'"
-                        className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-amber-500 mb-2">Descrição</label>
-                      <input
-                        type="text"
-                        value={newPrintDescricao}
-                        onChange={(e) => setNewPrintDescricao(e.target.value)}
-                        placeholder="Ex: Saída de bola com 3 jogadores"
-                        className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
-                      />
-                    </div>
-                  </div>
-                  <label className="flex items-center justify-center gap-2 cursor-pointer bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-xl py-4 transition-colors">
-                    {uploadingPrint ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
-                    ) : (
-                      <Upload className="w-5 h-5 text-slate-400" />
-                    )}
-                    <span className="text-sm font-medium text-slate-300">
-                      {uploadingPrint ? 'Enviando...' : 'Clique para enviar imagem'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleUploadPrint}
-                      disabled={uploadingPrint}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* Prints List */}
-                {prints.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ImageIcon className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-                    <p className="text-slate-400">Nenhum print adicionado ainda</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {prints.map((print) => (
-                      <div key={print.id} className="border border-slate-700 rounded-xl overflow-hidden">
-                        <div className="aspect-video relative">
-                          <img
-                            src={print.imagem_url}
-                            alt={print.descricao || 'Print tático'}
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleDeletePrint(print)}
-                            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="p-3">
-                          <div className="flex items-center gap-2 mb-1">
-                            {print.momento && (
-                              <span className="text-xs bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded">
-                                {momentos.find(m => m.value === print.momento)?.label || print.momento}
-                              </span>
-                            )}
-                            {print.tempo_jogo && (
-                              <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">
-                                {print.tempo_jogo}
-                              </span>
-                            )}
-                          </div>
-                          {print.descricao && (
-                            <p className="text-sm text-slate-300">{print.descricao}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <PrintsTaticosTab
+                prints={prints}
+                uploadingPrint={uploadingPrint}
+                newPrintDescricao={newPrintDescricao}
+                newPrintMomento={newPrintMomento}
+                newPrintTempo={newPrintTempo}
+                onDescricaoChange={setNewPrintDescricao}
+                onMomentoChange={setNewPrintMomento}
+                onTempoChange={setNewPrintTempo}
+                onUpload={handleUploadPrint}
+                onDelete={handleDeletePrint}
+              />
             )}
           </div>
         </div>
