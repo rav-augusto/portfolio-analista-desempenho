@@ -1394,8 +1394,8 @@ export default function DashboardAtletasPage() {
                 </div>
               )}
 
-              {/* Detalhes de Gols e Assistências */}
-              {(golsDetalhes.corpo.total > 0 || assistDetalhes.total > 0) && (
+              {/* Detalhes de Gols */}
+              {golsDetalhes.corpo.total > 0 && (
                 <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
@@ -1403,11 +1403,11 @@ export default function DashboardAtletasPage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-slate-100">Perfil de Finalizacao</h3>
-                      <p className="text-[10px] text-slate-400">Distribuicao de gols e assistencias</p>
+                      <p className="text-[10px] text-slate-400">Distribuicao dos gols</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {/* Gols por Parte do Corpo */}
                     {golsDetalhes.corpo.total > 0 && (
                       <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
@@ -1546,52 +1546,6 @@ export default function DashboardAtletasPage() {
                       </div>
                     )}
 
-                    {/* Assistências por Tipo */}
-                    {assistDetalhes.total > 0 && (
-                      <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                        <p className="text-[10px] text-blue-400 font-medium mb-1 text-center">Tipo de Assistencia</p>
-                        <div style={{ height: '70px' }}>
-                          <Doughnut
-                            data={{
-                              labels: ['Passe', 'Cruzamento', 'Lancamento', 'Bola Parada'],
-                              datasets: [{
-                                data: [assistDetalhes.passe, assistDetalhes.cruzamento, assistDetalhes.lancamento, assistDetalhes.bolaParada],
-                                backgroundColor: ['#3b82f6', '#8b5cf6', '#06b6d4', '#f59e0b'],
-                                borderColor: '#0f172a',
-                                borderWidth: 2
-                              }]
-                            }}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                  backgroundColor: '#1e293b',
-                                  titleColor: '#e2e8f0',
-                                  bodyColor: '#e2e8f0',
-                                  borderColor: '#475569',
-                                  borderWidth: 1,
-                                  callbacks: {
-                                    label: (ctx) => {
-                                      const pct = assistDetalhes.total > 0 ? Math.round((ctx.raw as number / assistDetalhes.total) * 100) : 0
-                                      return `${ctx.raw} assists (${pct}%)`
-                                    }
-                                  }
-                                }
-                              },
-                              cutout: '60%'
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-center gap-2 mt-1 text-[8px] flex-wrap">
-                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Pas</span>
-                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Cru</span>
-                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>Lan</span>
-                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>BP</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
