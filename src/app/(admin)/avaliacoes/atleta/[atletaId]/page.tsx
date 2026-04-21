@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, Star, Calendar, ArrowLeft, User, TrendingUp, Clock } from 'lucide-react'
+import { Plus, Pencil, Trash2, Star, Calendar, ArrowLeft, User, TrendingUp, Clock, Ruler, Scale, Activity, ArrowUp, ArrowDown, Minus } from 'lucide-react'
 import Link from 'next/link'
 import {
   Chart as ChartJS,
@@ -69,6 +69,19 @@ type Avaliacao = {
   equilibrio_defensivo: number
   concentracao_def: number
   unidade_defensiva: number
+  // Avaliação Física
+  altura_avaliacao: number | null
+  peso_avaliacao: number | null
+  envergadura: number | null
+  velocidade_10m: number | null
+  velocidade_30m: number | null
+  salto_vertical: number | null
+  agilidade_teste: number | null
+  yoyo_nivel: string | null
+  yoyo_distancia: number | null
+  idade_biologica: number | null
+  estagio_phv: string | null
+  sentar_alcancar: number | null
   jogos: {
     adversario: string
     data_jogo: string
@@ -117,6 +130,8 @@ export default function AvaliacoesAtletaPage() {
         forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial,
         penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva,
         contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva,
+        altura_avaliacao, peso_avaliacao, envergadura, velocidade_10m, velocidade_30m,
+        salto_vertical, agilidade_teste, yoyo_nivel, yoyo_distancia, idade_biologica, estagio_phv, sentar_alcancar,
         jogos(adversario, data_jogo)
       `)
       .eq('atleta_id', atletaId)
@@ -350,6 +365,242 @@ export default function AvaliacoesAtletaPage() {
           Nova Avaliação
         </Link>
       </div>
+
+      {/* Evolução Física */}
+      {!loading && avaliacoes.some(av => av.altura_avaliacao || av.peso_avaliacao || av.velocidade_10m || av.salto_vertical) && (() => {
+        // Ordenar por data para evolução (mais antiga primeiro)
+        const avaliacoesOrdenadas = [...avaliacoes].reverse()
+        const temDadosFisicos = avaliacoesOrdenadas.some(av => av.altura_avaliacao || av.peso_avaliacao || av.envergadura)
+        const temTestesFisicos = avaliacoesOrdenadas.some(av => av.velocidade_10m || av.velocidade_30m || av.salto_vertical || av.agilidade_teste)
+        const temResistencia = avaliacoesOrdenadas.some(av => av.yoyo_distancia || av.sentar_alcancar)
+
+        const getVariacao = (valores: (number | null)[], menorMelhor = false) => {
+          const validos = valores.filter((v): v is number => v !== null)
+          if (validos.length < 2) return null
+          const primeira = validos[0]
+          const ultima = validos[validos.length - 1]
+          const diff = ultima - primeira
+          const positivo = menorMelhor ? diff < 0 : diff > 0
+          return { primeira, ultima, diff, positivo }
+        }
+
+        return (
+          <div className="rounded-2xl p-5 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+            <h3 className="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-emerald-500" />
+              Evolucao Fisica
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Dados Antropométricos */}
+              {temDadosFisicos && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <h4 className="text-xs font-semibold text-blue-400 mb-3 uppercase flex items-center gap-2">
+                    <Ruler className="w-4 h-4" /> Antropometria
+                  </h4>
+                  <div className="space-y-2">
+                    {(() => {
+                      const alturas = avaliacoesOrdenadas.map(av => av.altura_avaliacao)
+                      const v = getVariacao(alturas)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Altura</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}m</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-slate-400'}`}>
+                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                                {v.diff > 0 ? '+' : ''}{(v.diff * 100).toFixed(0)}cm
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    {(() => {
+                      const pesos = avaliacoesOrdenadas.map(av => av.peso_avaliacao)
+                      const v = getVariacao(pesos)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Peso</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(1)}kg</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.diff > 0 ? 'text-green-400' : 'text-amber-400'}`}>
+                                {v.diff > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                                {v.diff > 0 ? '+' : ''}{v.diff.toFixed(1)}kg
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    {(() => {
+                      const envs = avaliacoesOrdenadas.map(av => av.envergadura)
+                      const v = getVariacao(envs)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Envergadura</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}m</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-slate-400'}`}>
+                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                                {v.diff > 0 ? '+' : ''}{(v.diff * 100).toFixed(0)}cm
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Testes Físicos */}
+              {temTestesFisicos && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <h4 className="text-xs font-semibold text-amber-400 mb-3 uppercase flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" /> Testes Fisicos
+                  </h4>
+                  <div className="space-y-2">
+                    {(() => {
+                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_10m)
+                      const v = getVariacao(vals, true)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">10m</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}s</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
+                                {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
+                                {v.diff.toFixed(2)}s
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    {(() => {
+                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_30m)
+                      const v = getVariacao(vals, true)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">30m</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}s</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
+                                {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
+                                {v.diff.toFixed(2)}s
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    {(() => {
+                      const vals = avaliacoesOrdenadas.map(av => av.salto_vertical)
+                      const v = getVariacao(vals)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Salto</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(0)}cm</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
+                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                                {v.diff > 0 ? '+' : ''}{v.diff.toFixed(0)}cm
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    {(() => {
+                      const vals = avaliacoesOrdenadas.map(av => av.agilidade_teste)
+                      const v = getVariacao(vals, true)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Agilidade</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}s</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
+                                {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
+                                {v.diff.toFixed(2)}s
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Resistência e Flexibilidade */}
+              {temResistencia && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <h4 className="text-xs font-semibold text-purple-400 mb-3 uppercase flex items-center gap-2">
+                    <Scale className="w-4 h-4" /> Resist. e Flex.
+                  </h4>
+                  <div className="space-y-2">
+                    {(() => {
+                      const vals = avaliacoesOrdenadas.map(av => av.yoyo_distancia)
+                      const v = getVariacao(vals)
+                      const ultimoNivel = avaliacoesOrdenadas.filter(av => av.yoyo_nivel).pop()?.yoyo_nivel
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Yo-Yo</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima}m</span>
+                            {ultimoNivel && <span className="text-xs text-purple-400">Nv {ultimoNivel}</span>}
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
+                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                                {v.diff > 0 ? '+' : ''}{v.diff}m
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    {(() => {
+                      const vals = avaliacoesOrdenadas.map(av => av.sentar_alcancar)
+                      const v = getVariacao(vals)
+                      if (!v) return null
+                      return (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-400">Flexibilidade</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(0)}cm</span>
+                            {v.diff !== 0 && (
+                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
+                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                                {v.diff > 0 ? '+' : ''}{v.diff.toFixed(0)}cm
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Lista de Avaliações */}
       {loading ? (
