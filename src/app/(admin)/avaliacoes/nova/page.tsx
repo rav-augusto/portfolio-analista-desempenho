@@ -829,7 +829,7 @@ export default function NovaAvaliacaoPage() {
                 </div>
               </div>
             )}
-            </div>
+
             <div className="mt-4">
               <label className="block text-xs font-medium text-amber-500 uppercase mb-2">Contexto da Avaliação</label>
               <input
