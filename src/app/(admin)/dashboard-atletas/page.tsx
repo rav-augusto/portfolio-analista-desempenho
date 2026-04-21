@@ -1506,7 +1506,7 @@ export default function DashboardAtletasPage() {
                         <div style={{ height: '120px' }}>
                           <Doughnut
                             data={{
-                              labels: ['Jogada', 'Penalti', 'Falta', 'Contra-ataque'],
+                              labels: ['Jogada', 'Penalti', 'Bola Parada', 'Contra-ataque'],
                               datasets: [{
                                 data: [golsDetalhes.tipo.jogada, golsDetalhes.tipo.penalti, golsDetalhes.tipo.falta, golsDetalhes.tipo.contraAtaque],
                                 backgroundColor: ['#06b6d4', '#ef4444', '#eab308', '#10b981'],

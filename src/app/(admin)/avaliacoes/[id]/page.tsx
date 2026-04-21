@@ -797,7 +797,7 @@ export default function EditarAvaliacaoPage() {
                           style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-300">Falta</span>
+                        <span className="text-xs text-slate-300">Bola Parada</span>
                         <input type="number" min="0" max={parseInt(gols || '0')} value={golsFalta}
                           onChange={(e) => setGolsFalta(parseInt(e.target.value) || 0)}
                           className="w-14 px-2 py-1 text-sm text-center rounded-lg"
