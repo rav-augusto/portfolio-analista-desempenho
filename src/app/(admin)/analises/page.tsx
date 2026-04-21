@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, FileBarChart, Search, Calendar, Image as ImageIcon } from 'lucide-react'
+import { Plus, Pencil, Trash2, FileBarChart, Search, Calendar, Image as ImageIcon, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 
 type JogoData = {
@@ -181,8 +181,16 @@ export default function AnalisesPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Link
+                    href={`/analises/${analise.id}/dashboard`}
+                    className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors"
+                    title="Dashboard"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                  </Link>
+                  <Link
                     href={`/analises/${analise.id}`}
                     className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                    title="Editar"
                   >
                     <Pencil className="w-4 h-4" />
                   </Link>
