@@ -1407,7 +1407,7 @@ export default function DashboardAtletasPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                     {/* Gols por Parte do Corpo */}
                     {golsDetalhes.corpo.total > 0 && (
                       <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
