@@ -398,136 +398,152 @@ export default function UsuariosPage() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md rounded-2xl shadow-xl" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <div className="flex items-center justify-between p-5 border-b border-slate-700">
-              <h2 className="text-lg font-bold text-slate-100">
-                {modal.mode === 'create' ? 'Novo Usuario' : 'Editar Usuario'}
-              </h2>
-              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-200">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4">
-              {error && (
-                <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={formNome}
-                  onChange={(e) => setFormNome(e.target.value)}
-                  placeholder="Nome completo"
-                  className="w-full px-4 py-2.5 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  disabled={modal.mode === 'edit'}
-                  placeholder="email@exemplo.com"
-                  className="w-full px-4 py-2.5 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:opacity-50"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-                />
-              </div>
-
-              {modal.mode === 'create' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Senha</label>
-                  <div className="relative">
-                    <input
-                      type={showSenha ? 'text' : 'password'}
-                      value={formSenha}
-                      onChange={(e) => setFormSenha(e.target.value)}
-                      placeholder="Minimo 6 caracteres"
-                      className="w-full px-4 py-2.5 pr-10 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                      style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSenha(!showSenha)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
-                    >
-                      {showSenha ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Tipo de Usuario</label>
-                <select
-                  value={formRole}
-                  onChange={(e) => setFormRole(e.target.value as 'master' | 'analista' | 'atleta')}
-                  className="w-full px-4 py-2.5 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+        <>
+          <div
+            className="fixed inset-0 bg-black/70 z-40"
+            onClick={handleCloseModal}
+          />
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+            <div
+              className="w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto"
+              style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #334155' }}>
+                <h2 className="text-xl font-bold text-slate-100">
+                  {modal.mode === 'create' ? 'Novo Usuario' : 'Editar Usuario'}
+                </h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors"
                 >
-                  <option value="analista">Analista</option>
-                  <option value="atleta">Atleta</option>
-                  <option value="master">Master</option>
-                </select>
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {formRole === 'atleta' && (
+              {/* Body */}
+              <div className="px-6 py-5 space-y-5">
+                {error && (
+                  <div className="p-3 rounded-xl bg-red-500/10 text-red-400 text-sm" style={{ border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                    {error}
+                  </div>
+                )}
+
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Vincular ao Atleta</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Nome</label>
+                  <input
+                    type="text"
+                    value={formNome}
+                    onChange={(e) => setFormNome(e.target.value)}
+                    placeholder="Nome completo"
+                    className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={formEmail}
+                    onChange={(e) => setFormEmail(e.target.value)}
+                    disabled={modal.mode === 'edit'}
+                    placeholder="email@exemplo.com"
+                    className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
+                  />
+                </div>
+
+                {modal.mode === 'create' && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Senha</label>
+                    <div className="relative">
+                      <input
+                        type={showSenha ? 'text' : 'password'}
+                        value={formSenha}
+                        onChange={(e) => setFormSenha(e.target.value)}
+                        placeholder="Minimo 6 caracteres"
+                        className="w-full px-4 py-3 pr-12 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSenha(!showSenha)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                      >
+                        {showSenha ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de Usuario</label>
                   <select
-                    value={formAtletaId}
-                    onChange={(e) => setFormAtletaId(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                    style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+                    value={formRole}
+                    onChange={(e) => setFormRole(e.target.value as 'master' | 'analista' | 'atleta')}
+                    className="w-full px-4 py-3 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
                   >
-                    <option value="">Selecione um atleta...</option>
-                    {atletas.map(a => (
-                      <option key={a.id} value={a.id}>{a.nome}</option>
-                    ))}
+                    <option value="analista">Analista</option>
+                    <option value="atleta">Atleta</option>
+                    <option value="master">Master</option>
                   </select>
                 </div>
-              )}
 
-              {modal.mode === 'edit' && (
-                <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formAtivo}
-                      onChange={(e) => setFormAtivo(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-500/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                    <span className="ms-3 text-sm font-medium text-slate-300">Usuario ativo</span>
-                  </label>
-                </div>
-              )}
-            </div>
+                {formRole === 'atleta' && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Vincular ao Atleta</label>
+                    <select
+                      value={formAtletaId}
+                      onChange={(e) => setFormAtletaId(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
+                      style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
+                    >
+                      <option value="">Selecione um atleta...</option>
+                      {atletas.map(a => (
+                        <option key={a.id} value={a.id}>{a.nome}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
-            <div className="flex gap-3 p-5 border-t border-slate-700">
-              <button
-                onClick={handleCloseModal}
-                className="flex-1 px-4 py-2.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors font-medium"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 px-4 py-2.5 bg-amber-500 text-slate-900 rounded-lg hover:bg-amber-400 transition-colors font-semibold disabled:opacity-50"
-              >
-                {saving ? 'Salvando...' : 'Salvar'}
-              </button>
+                {modal.mode === 'edit' && (
+                  <div className="flex items-center justify-between p-4 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+                    <span className="text-sm font-medium text-slate-300">Usuario ativo</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formAtivo}
+                        onChange={(e) => setFormAtivo(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex gap-3 px-6 py-4" style={{ borderTop: '1px solid #334155' }}>
+                <button
+                  onClick={handleCloseModal}
+                  className="flex-1 px-4 py-3 rounded-xl text-slate-300 font-medium transition-colors hover:bg-slate-700"
+                  style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex-1 px-4 py-3 bg-amber-500 text-slate-900 rounded-xl font-semibold hover:bg-amber-400 transition-colors disabled:opacity-50"
+                >
+                  {saving ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   )
