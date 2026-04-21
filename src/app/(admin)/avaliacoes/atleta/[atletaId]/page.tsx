@@ -400,15 +400,16 @@ export default function AvaliacoesAtletaPage() {
                   </h4>
                   <div className="space-y-2">
                     {(() => {
-                      const alturas = avaliacoesOrdenadas.map(av => av.altura_avaliacao)
-                      const v = getVariacao(alturas)
-                      if (!v) return null
+                      const alturas = avaliacoesOrdenadas.map(av => av.altura_avaliacao).filter((v): v is number => v !== null)
+                      if (alturas.length === 0) return null
+                      const ultima = alturas[alturas.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.altura_avaliacao))
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Altura</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}m</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}m</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-slate-400'}`}>
                                 {v.positivo ? <ArrowUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                                 {v.diff > 0 ? '+' : ''}{(v.diff * 100).toFixed(0)}cm
@@ -419,15 +420,16 @@ export default function AvaliacoesAtletaPage() {
                       )
                     })()}
                     {(() => {
-                      const pesos = avaliacoesOrdenadas.map(av => av.peso_avaliacao)
-                      const v = getVariacao(pesos)
-                      if (!v) return null
+                      const pesos = avaliacoesOrdenadas.map(av => av.peso_avaliacao).filter((v): v is number => v !== null)
+                      if (pesos.length === 0) return null
+                      const ultima = pesos[pesos.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.peso_avaliacao))
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Peso</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(1)}kg</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(1)}kg</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.diff > 0 ? 'text-green-400' : 'text-amber-400'}`}>
                                 {v.diff > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                                 {v.diff > 0 ? '+' : ''}{v.diff.toFixed(1)}kg
@@ -438,15 +440,16 @@ export default function AvaliacoesAtletaPage() {
                       )
                     })()}
                     {(() => {
-                      const envs = avaliacoesOrdenadas.map(av => av.envergadura)
-                      const v = getVariacao(envs)
-                      if (!v) return null
+                      const envs = avaliacoesOrdenadas.map(av => av.envergadura).filter((v): v is number => v !== null)
+                      if (envs.length === 0) return null
+                      const ultima = envs[envs.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.envergadura))
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Envergadura</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}m</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}m</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-slate-400'}`}>
                                 {v.positivo ? <ArrowUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                                 {v.diff > 0 ? '+' : ''}{(v.diff * 100).toFixed(0)}cm
@@ -468,15 +471,16 @@ export default function AvaliacoesAtletaPage() {
                   </h4>
                   <div className="space-y-2">
                     {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_10m)
-                      const v = getVariacao(vals, true)
-                      if (!v) return null
+                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_10m).filter((v): v is number => v !== null)
+                      if (vals.length === 0) return null
+                      const ultima = vals[vals.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.velocidade_10m), true)
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">10m</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}s</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}s</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
                                 {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
                                 {v.diff.toFixed(2)}s
@@ -487,15 +491,16 @@ export default function AvaliacoesAtletaPage() {
                       )
                     })()}
                     {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_30m)
-                      const v = getVariacao(vals, true)
-                      if (!v) return null
+                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_30m).filter((v): v is number => v !== null)
+                      if (vals.length === 0) return null
+                      const ultima = vals[vals.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.velocidade_30m), true)
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">30m</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}s</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}s</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
                                 {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
                                 {v.diff.toFixed(2)}s
@@ -506,15 +511,16 @@ export default function AvaliacoesAtletaPage() {
                       )
                     })()}
                     {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.salto_vertical)
-                      const v = getVariacao(vals)
-                      if (!v) return null
+                      const vals = avaliacoesOrdenadas.map(av => av.salto_vertical).filter((v): v is number => v !== null)
+                      if (vals.length === 0) return null
+                      const ultima = vals[vals.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.salto_vertical))
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Salto</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(0)}cm</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(0)}cm</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
                                 {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                                 {v.diff > 0 ? '+' : ''}{v.diff.toFixed(0)}cm
@@ -525,15 +531,16 @@ export default function AvaliacoesAtletaPage() {
                       )
                     })()}
                     {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.agilidade_teste)
-                      const v = getVariacao(vals, true)
-                      if (!v) return null
+                      const vals = avaliacoesOrdenadas.map(av => av.agilidade_teste).filter((v): v is number => v !== null)
+                      if (vals.length === 0) return null
+                      const ultima = vals[vals.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.agilidade_teste), true)
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Agilidade</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(2)}s</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}s</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
                                 {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
                                 {v.diff.toFixed(2)}s
@@ -555,17 +562,18 @@ export default function AvaliacoesAtletaPage() {
                   </h4>
                   <div className="space-y-2">
                     {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.yoyo_distancia)
-                      const v = getVariacao(vals)
+                      const vals = avaliacoesOrdenadas.map(av => av.yoyo_distancia).filter((v): v is number => v !== null)
+                      if (vals.length === 0) return null
+                      const ultima = vals[vals.length - 1]
                       const ultimoNivel = avaliacoesOrdenadas.filter(av => av.yoyo_nivel).pop()?.yoyo_nivel
-                      if (!v) return null
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.yoyo_distancia))
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Yo-Yo</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima}m</span>
+                            <span className="text-lg font-bold text-slate-100">{ultima}m</span>
                             {ultimoNivel && <span className="text-xs text-purple-400">Nv {ultimoNivel}</span>}
-                            {v.diff !== 0 && (
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
                                 {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                                 {v.diff > 0 ? '+' : ''}{v.diff}m
@@ -576,15 +584,16 @@ export default function AvaliacoesAtletaPage() {
                       )
                     })()}
                     {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.sentar_alcancar)
-                      const v = getVariacao(vals)
-                      if (!v) return null
+                      const vals = avaliacoesOrdenadas.map(av => av.sentar_alcancar).filter((v): v is number => v !== null)
+                      if (vals.length === 0) return null
+                      const ultima = vals[vals.length - 1]
+                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.sentar_alcancar))
                       return (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-400">Flexibilidade</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{v.ultima.toFixed(0)}cm</span>
-                            {v.diff !== 0 && (
+                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(0)}cm</span>
+                            {v && v.diff !== 0 && (
                               <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
                                 {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                                 {v.diff > 0 ? '+' : ''}{v.diff.toFixed(0)}cm
