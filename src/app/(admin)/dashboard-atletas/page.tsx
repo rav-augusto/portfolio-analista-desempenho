@@ -1396,23 +1396,23 @@ export default function DashboardAtletasPage() {
 
               {/* Detalhes de Gols e Assistências */}
               {(golsDetalhes.corpo.total > 0 || assistDetalhes.total > 0) && (
-                <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
-                      <span className="text-lg">⚽</span>
+                <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>
+                      <span className="text-sm">⚽</span>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-100">Perfil de Finalizacao</h3>
-                      <p className="text-xs text-slate-400">Distribuicao de gols e assistencias</p>
+                      <h3 className="text-sm font-semibold text-slate-100">Perfil de Finalizacao</h3>
+                      <p className="text-[10px] text-slate-400">Distribuicao de gols e assistencias</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {/* Gols por Parte do Corpo */}
                     {golsDetalhes.corpo.total > 0 && (
-                      <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                        <p className="text-xs text-green-400 font-medium mb-3 text-center">Parte do Corpo</p>
-                        <div style={{ height: '120px' }}>
+                      <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <p className="text-[10px] text-green-400 font-medium mb-1 text-center">Parte do Corpo</p>
+                        <div style={{ height: '70px' }}>
                           <Doughnut
                             data={{
                               labels: ['Pe Direito', 'Pe Esquerdo', 'Cabeca'],
@@ -1446,19 +1446,19 @@ export default function DashboardAtletasPage() {
                             }}
                           />
                         </div>
-                        <div className="flex justify-center gap-3 mt-2 text-[10px]">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span>Dir</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Esq</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span>Cab</span>
+                        <div className="flex justify-center gap-2 mt-1 text-[8px]">
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Dir</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Esq</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Cab</span>
                         </div>
                       </div>
                     )}
 
                     {/* Gols por Zona */}
                     {golsDetalhes.zona.total > 0 && (
-                      <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                        <p className="text-xs text-green-400 font-medium mb-3 text-center">Zona do Gol</p>
-                        <div style={{ height: '120px' }}>
+                      <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <p className="text-[10px] text-green-400 font-medium mb-1 text-center">Zona do Gol</p>
+                        <div style={{ height: '70px' }}>
                           <Doughnut
                             data={{
                               labels: ['Dentro Area', 'Fora Area'],
@@ -1492,18 +1492,18 @@ export default function DashboardAtletasPage() {
                             }}
                           />
                         </div>
-                        <div className="flex justify-center gap-3 mt-2 text-[10px]">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-500"></span>Dentro</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-pink-500"></span>Fora</span>
+                        <div className="flex justify-center gap-2 mt-1 text-[8px]">
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Dentro</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-pink-500"></span>Fora</span>
                         </div>
                       </div>
                     )}
 
                     {/* Gols por Tipo */}
                     {golsDetalhes.tipo.total > 0 && (
-                      <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                        <p className="text-xs text-green-400 font-medium mb-3 text-center">Tipo de Gol</p>
-                        <div style={{ height: '120px' }}>
+                      <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <p className="text-[10px] text-green-400 font-medium mb-1 text-center">Tipo de Gol</p>
+                        <div style={{ height: '70px' }}>
                           <Doughnut
                             data={{
                               labels: ['Jogada', 'Penalti', 'Bola Parada', 'Contra-ataque'],
@@ -1537,20 +1537,20 @@ export default function DashboardAtletasPage() {
                             }}
                           />
                         </div>
-                        <div className="flex justify-center gap-2 mt-2 text-[9px] flex-wrap">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-500"></span>Jog</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span>Pen</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500"></span>Fal</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>CA</span>
+                        <div className="flex justify-center gap-2 mt-1 text-[8px] flex-wrap">
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>Jog</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>Pen</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>BP</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>CA</span>
                         </div>
                       </div>
                     )}
 
                     {/* Assistências por Tipo */}
                     {assistDetalhes.total > 0 && (
-                      <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                        <p className="text-xs text-blue-400 font-medium mb-3 text-center">Tipo de Assistencia</p>
-                        <div style={{ height: '120px' }}>
+                      <div className="rounded-lg p-2" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <p className="text-[10px] text-blue-400 font-medium mb-1 text-center">Tipo de Assistencia</p>
+                        <div style={{ height: '70px' }}>
                           <Doughnut
                             data={{
                               labels: ['Passe', 'Cruzamento', 'Lancamento', 'Bola Parada'],
@@ -1584,11 +1584,11 @@ export default function DashboardAtletasPage() {
                             }}
                           />
                         </div>
-                        <div className="flex justify-center gap-2 mt-2 text-[9px] flex-wrap">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Pas</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-500"></span>Cru</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-500"></span>Lan</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span>BP</span>
+                        <div className="flex justify-center gap-2 mt-1 text-[8px] flex-wrap">
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Pas</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Cru</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>Lan</span>
+                          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>BP</span>
                         </div>
                       </div>
                     )}
