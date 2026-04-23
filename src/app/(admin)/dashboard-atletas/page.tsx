@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock } from 'lucide-react'
 import Link from 'next/link'
@@ -167,26 +167,38 @@ export default function DashboardAtletasPage() {
     loadAtletas()
   }, [supabase])
 
-  // Carregar avaliações do atleta selecionado
-  useEffect(() => {
+  // Função para carregar avaliações
+  const loadAvaliacoes = useCallback(async () => {
     if (!atletaSelecionado) {
       setAvaliacoes([])
       return
     }
+    setLoadingAvaliacoes(true)
+    const { data } = await supabase
+      .from('avaliacoes_atleta')
+      .select('*')
+      .eq('atleta_id', atletaSelecionado)
+      .order('data_avaliacao', { ascending: true })
 
-    const loadAvaliacoes = async () => {
-      setLoadingAvaliacoes(true)
-      const { data } = await supabase
-        .from('avaliacoes_atleta')
-        .select('*')
-        .eq('atleta_id', atletaSelecionado)
-        .order('data_avaliacao', { ascending: true })
-
-      if (data) setAvaliacoes(data)
-      setLoadingAvaliacoes(false)
-    }
-    loadAvaliacoes()
+    if (data) setAvaliacoes(data)
+    setLoadingAvaliacoes(false)
   }, [atletaSelecionado, supabase])
+
+  // Carregar avaliações do atleta selecionado
+  useEffect(() => {
+    loadAvaliacoes()
+  }, [loadAvaliacoes])
+
+  // Recarregar dados quando a página recebe foco (após editar)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (atletaSelecionado) {
+        loadAvaliacoes()
+      }
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [atletaSelecionado, loadAvaliacoes])
 
   // Atleta atual
   const atletaAtual = useMemo(() => {

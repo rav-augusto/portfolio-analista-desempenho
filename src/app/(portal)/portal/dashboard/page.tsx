@@ -156,6 +156,17 @@ export default function PortalDashboardPage() {
     }
   }, [userLoading, usuario])
 
+  // Recarregar dados quando a página recebe foco (após editar)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (usuario?.atleta_id) {
+        loadData()
+      }
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [usuario])
+
   const loadData = async () => {
     if (!usuario?.atleta_id) return
 
