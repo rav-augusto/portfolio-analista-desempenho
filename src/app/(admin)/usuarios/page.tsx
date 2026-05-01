@@ -271,41 +271,42 @@ export default function UsuariosPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Usuarios</h1>
-          <p className="text-slate-400 mt-1">
-            {filteredUsuarios.length} usuario{filteredUsuarios.length !== 1 ? 's' : ''} encontrado{filteredUsuarios.length !== 1 ? 's' : ''}
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Usuarios</h1>
+          <p className="text-sm text-slate-400 mt-1">
+            {filteredUsuarios.length} usuario{filteredUsuarios.length !== 1 ? 's' : ''}
           </p>
         </div>
         <button
           onClick={() => handleOpenModal('create')}
-          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
+          className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500 text-slate-900 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-400 transition-colors shadow-lg"
         >
-          <Plus className="w-5 h-5" />
-          Novo Usuario
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Novo Usuario</span>
+          <span className="sm:hidden">Novo</span>
         </button>
       </div>
 
       {/* Search */}
-      <div className="rounded-2xl p-5 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="rounded-2xl p-4 sm:p-5 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-              <Search className="w-5 h-5 text-amber-500" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
             </div>
             <div>
-              <p className="font-semibold text-slate-100">Buscar Usuarios</p>
+              <p className="font-semibold text-sm sm:text-base text-slate-100">Buscar Usuarios</p>
               <p className="text-xs text-slate-400">{filteredUsuarios.length} usuario{filteredUsuarios.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Digite o nome, email ou role..."
+              placeholder="Nome, email ou role..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
               style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
             />
           </div>
@@ -325,69 +326,69 @@ export default function UsuariosPage() {
           <p className="text-sm text-slate-500">Tente ajustar sua busca ou cadastre um novo usuario</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {filteredUsuarios.map((usuario) => (
             <div
               key={usuario.id}
-              className={`rounded-xl p-4 flex items-center justify-between transition-colors ${
+              className={`rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 transition-colors ${
                 !usuario.ativo ? 'opacity-60' : ''
               }`}
               style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#0f172a', border: '2px solid #475569' }}>
-                  <span className="text-lg font-bold text-amber-500">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#0f172a', border: '2px solid #475569' }}>
+                  <span className="text-base sm:text-lg font-bold text-amber-500">
                     {usuario.nome.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-slate-100">{usuario.nome}</h3>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold text-sm sm:text-base text-slate-100 truncate">{usuario.nome}</h3>
                     {!usuario.ativo && (
-                      <span className="px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs font-medium">
+                      <span className="px-1.5 sm:px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-[10px] sm:text-xs font-medium">
                         Inativo
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-slate-400">{usuario.email}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${getRoleBadgeClass(usuario.role)}`}>
+                  <p className="text-xs sm:text-sm text-slate-400 truncate">{usuario.email}</p>
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
+                    <span className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium border ${getRoleBadgeClass(usuario.role)}`}>
                       {getRoleIcon(usuario.role)}
                       {getRoleLabel(usuario.role)}
                     </span>
                     {usuario.atleta && (
-                      <span className="text-xs text-slate-500">
+                      <span className="text-[10px] sm:text-xs text-slate-500 truncate">
                         Vinculado a: {usuario.atleta.nome}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2">
                 <button
                   onClick={() => handleToggleAtivo(usuario)}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                     usuario.ativo
                       ? 'text-green-400 hover:bg-green-500/10'
                       : 'text-red-400 hover:bg-red-500/10'
                   }`}
                   title={usuario.ativo ? 'Desativar' : 'Ativar'}
                 >
-                  {usuario.ativo ? <Check className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                  {usuario.ativo ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Ban className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                 </button>
                 <button
                   onClick={() => handleOpenModal('edit', usuario)}
-                  className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
                 >
-                  <Pencil className="w-4 h-4" />
+                  <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
                 {usuario.role !== 'master' && (
                   <button
                     onClick={() => handleDelete(usuario.id)}
                     disabled={deleting === usuario.id}
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                    className="p-1.5 sm:p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                 )}
               </div>

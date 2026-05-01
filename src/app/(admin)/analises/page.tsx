@@ -86,41 +86,42 @@ export default function AnalisesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Análises de Jogo</h1>
-          <p className="text-slate-400 mt-1">Gerencie as análises tático-técnicas</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Análises de Jogo</h1>
+          <p className="text-sm text-slate-400 mt-1">Gerencie as análises tático-técnicas</p>
         </div>
         {canCreate && (
           <Link
             href="/analises/nova"
-            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
+            className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500 text-slate-900 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-400 transition-colors shadow-lg"
           >
-            <Plus className="w-5 h-5" />
-            Nova Análise
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Nova Análise</span>
+            <span className="sm:hidden">Nova</span>
           </Link>
         )}
       </div>
 
       {/* Search */}
-      <div className="rounded-2xl p-5 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="rounded-2xl p-4 sm:p-5 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-              <Search className="w-5 h-5 text-amber-500" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
             </div>
             <div>
-              <p className="font-semibold text-slate-100">Buscar Análises</p>
-              <p className="text-xs text-slate-400">{filteredAnalises.length} análise{filteredAnalises.length !== 1 ? 's' : ''} encontrada{filteredAnalises.length !== 1 ? 's' : ''}</p>
+              <p className="font-semibold text-sm sm:text-base text-slate-100">Buscar Análises</p>
+              <p className="text-xs text-slate-400">{filteredAnalises.length} análise{filteredAnalises.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Digite o adversário, clube ou competição..."
+              placeholder="Adversário, clube ou competição..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
               style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
             />
           </div>
@@ -143,38 +144,38 @@ export default function AnalisesPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {filteredAnalises.map((analise) => {
             const jogo = getJogo(analise.jogos)
             return (
               <div
                 key={analise.id}
-                className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
+                className="rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 transition-colors hover:opacity-90"
                 style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <FileBarChart className="w-6 h-6 text-amber-500" />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <FileBarChart className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-100">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base text-slate-100 truncate">
                       {getClubeName(jogo?.clubes)} x {jogo?.adversario}
                     </h3>
-                    <div className="flex items-center gap-3 text-sm text-slate-400">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-400">
                       {jogo && (
                         <>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
                             {formatDate(jogo.data_jogo)}
                           </span>
-                          <span>{jogo.competicao}{jogo.fase && ` - ${jogo.fase}`}</span>
+                          <span className="truncate">{jogo.competicao}{jogo.fase && ` - ${jogo.fase}`}</span>
                           {analise.sistema_tatico && (
-                            <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-xs">
+                            <span className="bg-green-500/20 text-green-400 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">
                               {analise.sistema_tatico}
                             </span>
                           )}
                           {analise.prints_taticos && analise.prints_taticos.length > 0 && (
-                            <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded text-xs">
+                            <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs">
                               <ImageIcon className="w-3 h-3" />
                               {analise.prints_taticos.length}
                             </span>
@@ -184,30 +185,30 @@ export default function AnalisesPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-end gap-1.5 sm:gap-2">
                   <Link
                     href={`/analises/${analise.id}/dashboard`}
-                    className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors"
+                    className="p-1.5 sm:p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors"
                     title="Dashboard"
                   >
-                    <LayoutDashboard className="w-4 h-4" />
+                    <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Link>
                   {canEdit(analise.criado_por) && (
                     <Link
                       href={`/analises/${analise.id}`}
-                      className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
+                      className="p-1.5 sm:p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
                       title="Editar"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </Link>
                   )}
                   {canDelete(analise.criado_por) && (
                     <button
                       onClick={() => handleDelete(analise.id)}
                       disabled={deleting === analise.id}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-1.5 sm:p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                   )}
                 </div>

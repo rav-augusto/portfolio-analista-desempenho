@@ -297,41 +297,41 @@ export default function EditarAtletaPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <Link
           href="/atletas"
-          className="p-2 text-slate-500 hover:text-slate-400 hover:bg-slate-700 rounded-lg transition-colors"
+          className="p-1.5 sm:p-2 text-slate-500 hover:text-slate-400 hover:bg-slate-700 rounded-lg transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Editar Atleta</h1>
-          <p className="text-slate-400 mt-1">Atualize os dados do atleta</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Editar Atleta</h1>
+          <p className="text-sm text-slate-400 mt-1">Atualize os dados do atleta</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 max-w-3xl">
+      <div className="bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-700 max-w-3xl">
         <form onSubmit={handleSubmit} className="space-y-8">
 
           {/* Foto e Dados Básicos */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Dados Básicos</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 pb-2 border-b border-slate-700">Dados Básicos</h3>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-amber-500 mb-2">
                   Foto do Atleta
                 </label>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-600 transition-colors overflow-hidden border-2 border-dashed border-slate-600"
+                    className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-600 transition-colors overflow-hidden border-2 border-dashed border-slate-600 flex-shrink-0"
                   >
                     {fotoCropped ? (
                       <img src={fotoCropped} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
-                      <User className="w-8 h-8 text-slate-500" />
+                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-slate-500" />
                     )}
                   </div>
                   <input
@@ -341,14 +341,14 @@ export default function EditarAtletaPage() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="text-sm text-slate-400">
+                  <div className="text-xs sm:text-sm text-slate-400">
                     <p>Clique para alterar</p>
                     <p className="text-xs">PNG ou JPG - Você poderá ajustar</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-sm font-medium text-amber-500 mb-2">Clube *</label>
                   <select
@@ -390,7 +390,7 @@ export default function EditarAtletaPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Data de Nascimento</label>
                   <input
@@ -429,10 +429,10 @@ export default function EditarAtletaPage() {
 
           {/* Características */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Características</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 pb-2 border-b border-slate-700">Características</h3>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Posição Principal</label>
                   <select
@@ -461,7 +461,7 @@ export default function EditarAtletaPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Número</label>
                   <input
@@ -502,7 +502,7 @@ export default function EditarAtletaPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Peso (kg)</label>
                   <input
@@ -532,10 +532,10 @@ export default function EditarAtletaPage() {
 
           {/* Contato */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Contato</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 pb-2 border-b border-slate-700">Contato</h3>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Telefone</label>
                   <input
@@ -562,10 +562,10 @@ export default function EditarAtletaPage() {
 
           {/* Responsável */}
           <div>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 pb-2 border-b border-slate-700">Responsável (Categorias de Base)</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 pb-2 border-b border-slate-700">Responsável (Categorias de Base)</h3>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">Nome do Responsável</label>
                   <input
@@ -596,17 +596,17 @@ export default function EditarAtletaPage() {
             </div>
           )}
 
-          <div className="flex justify-end gap-4 pt-4 border-t border-slate-700">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t border-slate-700">
             <Link
               href="/atletas"
-              className="px-6 py-2 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors"
+              className="px-4 sm:px-6 py-2 text-center text-slate-400 hover:bg-slate-700 rounded-xl transition-colors order-2 sm:order-1"
             >
               Cancelar
             </Link>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 text-slate-900 px-4 sm:px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50 order-1 sm:order-2"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

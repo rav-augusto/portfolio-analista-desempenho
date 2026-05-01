@@ -139,22 +139,22 @@ export default function EditarClubePage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <Link
           href="/clubes"
           className="p-2 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Editar Clube</h1>
-          <p className="text-slate-400 mt-1">Atualize as informações do clube</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Editar Clube</h1>
+          <p className="text-sm sm:text-base text-slate-400 mt-1">Atualize as informações do clube</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 max-w-3xl">
-        <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-700 max-w-3xl">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
 
           {/* Dados Básicos */}
           <div>
@@ -193,8 +193,8 @@ export default function EditarClubePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-amber-500 mb-2">
                     Nome do Clube *
                   </label>
@@ -222,7 +222,7 @@ export default function EditarClubePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">
                     Cidade *
@@ -266,7 +266,7 @@ export default function EditarClubePage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">
                     Estádio / Centro de Treinamento
@@ -325,7 +325,7 @@ export default function EditarClubePage() {
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-amber-500 mb-2">
                     Email
@@ -360,17 +360,17 @@ export default function EditarClubePage() {
             </div>
           )}
 
-          <div className="flex justify-end gap-4 pt-4 border-t border-slate-700">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 border-t border-slate-700">
             <Link
               href="/clubes"
-              className="px-6 py-2 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors"
+              className="px-4 sm:px-6 py-2.5 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors text-center order-2 sm:order-1"
             >
               Cancelar
             </Link>
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 text-slate-900 px-4 sm:px-6 py-2.5 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50 order-1 sm:order-2"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

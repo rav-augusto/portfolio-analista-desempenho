@@ -156,30 +156,30 @@ export default function DashboardAnalisePage() {
   return (
     <div className="min-h-screen" style={{ background: '#0f172a' }}>
       {/* Header centralizado */}
-      <div className="max-w-md mx-auto px-4 pt-6 pb-4">
+      <div className="max-w-md mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-3 sm:pb-4">
         <div className="flex items-center justify-between">
-          <Link href="/analises" className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#1e293b', color: '#94a3b8' }}>
-            <ArrowLeft className="w-5 h-5" />
+          <Link href="/analises" className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center" style={{ background: '#1e293b', color: '#94a3b8' }}>
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
-          <div className="text-center">
-            <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>
+          <div className="text-center flex-1 min-w-0 px-2">
+            <div className="text-xs sm:text-sm font-semibold truncate" style={{ color: '#e2e8f0' }}>
               {jogo?.competicao}{jogo?.fase ? ` - ${jogo.fase}` : ''}
             </div>
-            <div className="text-xs" style={{ color: '#64748b' }}>
+            <div className="text-[10px] sm:text-xs" style={{ color: '#64748b' }}>
               {jogo?.data_jogo ? new Date(jogo.data_jogo + 'T12:00:00').toLocaleDateString('pt-BR') : ''}
             </div>
           </div>
-          <Link href={`/analises/${params.id}`} className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#1e293b', color: '#94a3b8' }}>
-            <Edit3 className="w-5 h-5" />
+          <Link href={`/analises/${params.id}`} className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center" style={{ background: '#1e293b', color: '#94a3b8' }}>
+            <Edit3 className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
         </div>
       </div>
 
-      {/* Layout 3 colunas lado a lado */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 320px)', gap: '16px', justifyContent: 'center', padding: '0 16px 24px' }}>
+      {/* Layout responsivo - stack no mobile, 3 colunas em desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-3 sm:px-4 pb-6 max-w-[1024px] mx-auto lg:max-w-none lg:justify-center" style={{ justifyItems: 'center' }}>
 
         {/* COLUNA ESQUERDA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="w-full lg:w-[320px]" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Organização Ofensiva */}
           {hasOrgOfensiva && (
               <Section title="Organizacao Ofensiva" color="linear-gradient(135deg, #22c55e, #16a34a)">
@@ -230,7 +230,7 @@ export default function DashboardAnalisePage() {
         </div>
 
         {/* COLUNA CENTRAL */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="w-full lg:w-[320px]" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Placar */}
         <div className="rounded-2xl p-6 text-center" style={{ background: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex justify-center mb-3">
@@ -293,7 +293,7 @@ export default function DashboardAnalisePage() {
         </div>
 
         {/* COLUNA DIREITA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="w-full lg:w-[320px]" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Organização Defensiva */}
             {hasOrgDefensiva && (
               <Section title="Organizacao Defensiva" color="linear-gradient(135deg, #ef4444, #dc2626)">

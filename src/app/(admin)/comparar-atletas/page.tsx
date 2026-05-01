@@ -320,56 +320,56 @@ export default function CompararAtletasPage() {
     >
       {atleta ? (
         <>
-          <div className={`${color === 'blue' ? 'bg-blue-600' : 'bg-red-600'} px-4 py-2`}>
-            <p className="text-white font-semibold text-sm truncate">{atleta.nome}</p>
+          <div className={`${color === 'blue' ? 'bg-blue-600' : 'bg-red-600'} px-3 sm:px-4 py-2`}>
+            <p className="text-white font-semibold text-xs sm:text-sm truncate">{atleta.nome}</p>
           </div>
-          <div className="p-4">
-            <div className="flex gap-4">
-              <div className="w-20 h-20 rounded-lg bg-slate-700 overflow-hidden flex-shrink-0">
+          <div className="p-3 sm:p-4">
+            <div className="flex gap-3 sm:gap-4">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-slate-700 overflow-hidden flex-shrink-0">
                 {atleta.foto_url ? (
                   <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-500">
-                    <Users className="w-8 h-8" />
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   {atleta.clubes?.escudo_url && (
-                    <img src={atleta.clubes.escudo_url} alt="" className="w-5 h-5 object-contain" />
+                    <img src={atleta.clubes.escudo_url} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
                   )}
-                  <span className="text-xs text-slate-400 truncate">{atleta.clubes?.nome}</span>
+                  <span className="text-[10px] sm:text-xs text-slate-400 truncate">{atleta.clubes?.nome}</span>
                 </div>
-                <p className="text-sm font-medium text-slate-100">{atleta.posicao}</p>
-                <p className="text-xs text-slate-400">{atleta.categoria}</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-100">{atleta.posicao}</p>
+                <p className="text-[10px] sm:text-xs text-slate-400">{atleta.categoria}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mt-4 text-center">
-              <div className="bg-slate-700 rounded-lg p-2">
-                <p className="text-lg font-bold text-slate-100">{calcularIdade(atleta.data_nascimento)}</p>
-                <p className="text-[10px] text-slate-400 uppercase">Idade</p>
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mt-3 sm:mt-4 text-center">
+              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
+                <p className="text-sm sm:text-lg font-bold text-slate-100">{calcularIdade(atleta.data_nascimento)}</p>
+                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Idade</p>
               </div>
-              <div className="bg-slate-700 rounded-lg p-2">
-                <p className="text-lg font-bold text-slate-100">{atleta.altura || '-'}</p>
-                <p className="text-[10px] text-slate-400 uppercase">Altura</p>
+              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
+                <p className="text-sm sm:text-lg font-bold text-slate-100">{atleta.altura || '-'}</p>
+                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Altura</p>
               </div>
-              <div className="bg-slate-700 rounded-lg p-2">
-                <p className="text-lg font-bold text-slate-100">{atleta.peso || '-'}</p>
-                <p className="text-[10px] text-slate-400 uppercase">Peso</p>
+              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
+                <p className="text-sm sm:text-lg font-bold text-slate-100">{atleta.peso || '-'}</p>
+                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Peso</p>
               </div>
-              <div className="bg-slate-700 rounded-lg p-2">
-                <p className="text-lg font-bold text-slate-100">{atleta.pe_dominante?.charAt(0) || '-'}</p>
-                <p className="text-[10px] text-slate-400 uppercase">Pé</p>
+              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
+                <p className="text-sm sm:text-lg font-bold text-slate-100">{atleta.pe_dominante?.charAt(0) || '-'}</p>
+                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Pé</p>
               </div>
             </div>
 
             {avaliacao && (
-              <div className={`mt-4 p-3 rounded-lg ${color === 'blue' ? 'bg-blue-900/30' : 'bg-red-900/30'}`}>
+              <div className={`mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg ${color === 'blue' ? 'bg-blue-900/30' : 'bg-red-900/30'}`}>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-400">Média Geral (CBF)</span>
-                  <span className={`text-2xl font-bold ${color === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>
+                  <span className="text-[10px] sm:text-xs text-slate-400">Média Geral (CBF)</span>
+                  <span className={`text-xl sm:text-2xl font-bold ${color === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>
                     {getMediaGeral(avaliacao)}
                   </span>
                 </div>
@@ -378,26 +378,26 @@ export default function CompararAtletasPage() {
 
             {/* Estatísticas de Jogo */}
             {(minutos.total > 0 || stats.gols > 0 || stats.assistencias > 0) && (
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="mt-2 sm:mt-3 grid grid-cols-3 gap-1.5 sm:gap-2">
                 {minutos.total > 0 && (
-                  <div className="p-2 rounded-lg bg-amber-900/20 border border-amber-500/30 text-center">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-900/20 border border-amber-500/30 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Clock className="w-3 h-3 text-amber-500" />
-                      <span className="text-lg font-bold text-amber-500">{minutos.total}&apos;</span>
+                      <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-500" />
+                      <span className="text-sm sm:text-lg font-bold text-amber-500">{minutos.total}&apos;</span>
                     </div>
-                    <span className="text-[9px] text-slate-500">{minutos.jogos} jogos</span>
+                    <span className="text-[8px] sm:text-[9px] text-slate-500">{minutos.jogos} jogos</span>
                   </div>
                 )}
                 {stats.gols > 0 && (
-                  <div className="p-2 rounded-lg bg-green-900/20 border border-green-500/30 text-center">
-                    <span className="text-lg font-bold text-green-500">{stats.gols}</span>
-                    <p className="text-[9px] text-slate-500">Gols</p>
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-green-900/20 border border-green-500/30 text-center">
+                    <span className="text-sm sm:text-lg font-bold text-green-500">{stats.gols}</span>
+                    <p className="text-[8px] sm:text-[9px] text-slate-500">Gols</p>
                   </div>
                 )}
                 {stats.assistencias > 0 && (
-                  <div className="p-2 rounded-lg bg-blue-900/20 border border-blue-500/30 text-center">
-                    <span className="text-lg font-bold text-blue-500">{stats.assistencias}</span>
-                    <p className="text-[9px] text-slate-500">Assists</p>
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-blue-900/20 border border-blue-500/30 text-center">
+                    <span className="text-sm sm:text-lg font-bold text-blue-500">{stats.assistencias}</span>
+                    <p className="text-[8px] sm:text-[9px] text-slate-500">Assists</p>
                   </div>
                 )}
               </div>
@@ -483,23 +483,23 @@ export default function CompararAtletasPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Comparar Atletas</h1>
-          <p className="text-slate-400 mt-1">Compare o desempenho de dois atletas lado a lado</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Comparar Atletas</h1>
+          <p className="text-sm text-slate-400 mt-1">Compare dois atletas lado a lado</p>
         </div>
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:bg-slate-700 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 text-slate-400 hover:bg-slate-700 rounded-lg transition-colors text-sm"
         >
           <Printer className="w-4 h-4" />
-          Imprimir
+          <span className="hidden sm:inline">Imprimir</span>
         </button>
       </div>
 
       {/* Selectors */}
-      <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="grid grid-cols-2 gap-4">
+      <div className="rounded-2xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="block text-sm font-medium text-blue-400 mb-2">Atleta 1</label>
             <select
@@ -532,34 +532,35 @@ export default function CompararAtletasPage() {
       </div>
 
       {/* Player Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {renderAtletaCard(atleta1, avaliacao1, minutos1, stats1, 'blue')}
         {renderAtletaCard(atleta2, avaliacao2, minutos2, stats2, 'red')}
       </div>
 
       {/* View Tabs */}
       {(atleta1 || atleta2) && (
-        <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-400">Visualizar:</span>
-            <div className="flex flex-wrap gap-2">
+        <div className="rounded-2xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
+            <span className="text-xs sm:text-sm font-medium text-slate-400">Visualizar:</span>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {[
-                { id: 'cbf', label: 'Dimensões CBF' },
-                { id: 'ofensivo', label: 'Princípios Ofensivos' },
-                { id: 'defensivo', label: 'Princípios Defensivos' },
-                { id: 'todos', label: 'Todos' },
+                { id: 'cbf', label: 'CBF', fullLabel: 'Dimensões CBF' },
+                { id: 'ofensivo', label: 'Ofensivo', fullLabel: 'Princípios Ofensivos' },
+                { id: 'defensivo', label: 'Defensivo', fullLabel: 'Princípios Defensivos' },
+                { id: 'todos', label: 'Todos', fullLabel: 'Todos' },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveView(tab.id as any)}
-                  className="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+                  className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
                   style={
                     activeView === tab.id
                       ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
                       : { backgroundColor: '#334155', color: '#94a3b8' }
                   }
                 >
-                  {tab.label}
+                  <span className="sm:hidden">{tab.label}</span>
+                  <span className="hidden sm:inline">{tab.fullLabel}</span>
                 </button>
               ))}
             </div>
@@ -569,22 +570,22 @@ export default function CompararAtletasPage() {
 
       {/* Charts & Stats */}
       {(avaliacao1 || avaliacao2) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
           {/* Radar Chart */}
-          <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Comparação Radar</h3>
-            <div className="aspect-square max-w-md mx-auto">
+          <div className="rounded-2xl p-4 sm:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4">Comparação Radar</h3>
+            <div className="aspect-square max-w-[280px] sm:max-w-md mx-auto">
               <Radar data={getRadarData()} options={radarOptions} />
             </div>
           </div>
 
           {/* Bar Chart */}
-          <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
+          <div className="rounded-2xl p-4 sm:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
               Comparação por Dimensão
             </h3>
-            <div style={{ height: activeView === 'todos' ? '500px' : '300px' }}>
+            <div style={{ height: activeView === 'todos' ? '400px' : '250px' }} className="sm:h-auto" >
               <Bar data={getBarData()} options={barOptions} />
             </div>
           </div>
@@ -593,18 +594,18 @@ export default function CompararAtletasPage() {
 
       {/* Stats Table */}
       {(avaliacao1 || avaliacao2) && (
-        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <h3 className="text-lg font-semibold text-slate-100 mb-4">Tabela Comparativa</h3>
+        <div className="rounded-2xl p-4 sm:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4">Tabela Comparativa</h3>
           {renderStatsTable()}
         </div>
       )}
 
       {/* Empty State */}
       {!atleta1 && !atleta2 && (
-        <div className="rounded-2xl p-12 shadow-sm text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <Users className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-100 mb-2">Selecione dois atletas para comparar</h3>
-          <p className="text-slate-400">Use os seletores acima para escolher os atletas</p>
+        <div className="rounded-2xl p-8 sm:p-12 shadow-sm text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <Users className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500 mx-auto mb-3 sm:mb-4" />
+          <h3 className="text-lg sm:text-xl font-semibold text-slate-100 mb-2">Selecione dois atletas</h3>
+          <p className="text-sm text-slate-400">Use os seletores acima para escolher</p>
         </div>
       )}
     </div>

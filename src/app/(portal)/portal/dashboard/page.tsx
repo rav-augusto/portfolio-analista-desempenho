@@ -568,27 +568,27 @@ export default function PortalDashboardPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-100">Meu Dashboard</h1>
-        <p className="text-slate-400 mt-1">Acompanhe sua evolucao completa</p>
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Meu Dashboard</h1>
+        <p className="text-sm text-slate-400 mt-1">Acompanhe sua evolucao completa</p>
       </div>
 
       {/* Card do Atleta */}
-      <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex items-center gap-6">
+      <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6">
           {/* Foto */}
-          <div className="w-24 h-24 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
             {atleta.foto_url ? (
               <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
             ) : (
-              <Users className="w-12 h-12 text-slate-500" />
+              <Users className="w-10 h-10 md:w-12 md:h-12 text-slate-500" />
             )}
           </div>
 
           {/* Nome e Info */}
-          <div className="flex-shrink-0">
-            <h2 className="text-2xl font-bold text-slate-100">{atleta.nome}</h2>
-            <p className="text-slate-400">
+          <div className="flex-1 text-center sm:text-left">
+            <h2 className="text-xl md:text-2xl font-bold text-slate-100">{atleta.nome}</h2>
+            <p className="text-sm md:text-base text-slate-400">
               {atleta.posicao || 'Posicao nao informada'}
               {getClubeName(atleta.clubes) && ` - ${getClubeName(atleta.clubes)}`}
             </p>
@@ -597,7 +597,7 @@ export default function PortalDashboardPage() {
           {/* Indicador de Evolucao */}
           {avaliacoes.length >= 2 && estatisticas && (
             <div
-              className="flex flex-col items-center justify-center px-4 py-2 rounded-xl ml-auto"
+              className="flex flex-col items-center justify-center px-3 md:px-4 py-2 rounded-xl"
               style={{
                 backgroundColor: estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                 border: estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)'
@@ -605,11 +605,11 @@ export default function PortalDashboardPage() {
             >
               <div className="flex items-center gap-2">
                 {estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? (
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
                 ) : (
-                  <TrendingUp className="w-5 h-5 text-red-500 rotate-180" />
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-red-500 rotate-180" />
                 )}
-                <p className={`text-2xl font-black ${estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'text-green-500' : 'text-red-500'}`}>
+                <p className={`text-xl md:text-2xl font-black ${estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? 'text-green-500' : 'text-red-500'}`}>
                   {estatisticas.mediaPrimeira > 0 ? (estatisticas.mediaUltima >= estatisticas.mediaPrimeira ? '+' : '') + (((estatisticas.mediaUltima - estatisticas.mediaPrimeira) / estatisticas.mediaPrimeira) * 100).toFixed(0) : 0}%
                 </p>
               </div>
@@ -630,48 +630,48 @@ export default function PortalDashboardPage() {
       ) : (
         <>
           {/* Tabs Geral / CBF / OFE / DEF */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-1 md:gap-2 mb-4 overflow-x-auto pb-1">
             <button
               onClick={() => setActiveTab('geral')}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl font-medium transition-all"
+              className="flex-1 min-w-[70px] flex items-center justify-center gap-1 md:gap-2 px-2 md:px-3 py-2 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap"
               style={activeTab === 'geral' ? { backgroundColor: '#8b5cf6', color: '#ffffff' } : { backgroundColor: '#334155', color: '#94a3b8', border: '1px solid #475569' }}
             >
-              <span>📊</span> Geral (20)
+              <span className="hidden sm:inline">📊</span> Geral
             </button>
             <button
               onClick={() => setActiveTab('cbf')}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl font-medium transition-all"
+              className="flex-1 min-w-[70px] flex items-center justify-center gap-1 md:gap-2 px-2 md:px-3 py-2 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap"
               style={activeTab === 'cbf' ? { backgroundColor: '#f59e0b', color: '#0f172a' } : { backgroundColor: '#334155', color: '#94a3b8', border: '1px solid #475569' }}
             >
-              <span>⚽</span> CBF (8)
+              <span className="hidden sm:inline">⚽</span> CBF
             </button>
             <button
               onClick={() => setActiveTab('ofe')}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl font-medium transition-all"
+              className="flex-1 min-w-[70px] flex items-center justify-center gap-1 md:gap-2 px-2 md:px-3 py-2 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap"
               style={activeTab === 'ofe' ? { backgroundColor: '#22c55e', color: '#0f172a' } : { backgroundColor: '#334155', color: '#94a3b8', border: '1px solid #475569' }}
             >
-              <span>↗️</span> OFE (6)
+              <span className="hidden sm:inline">↗️</span> OFE
             </button>
             <button
               onClick={() => setActiveTab('def')}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl font-medium transition-all"
+              className="flex-1 min-w-[70px] flex items-center justify-center gap-1 md:gap-2 px-2 md:px-3 py-2 rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap"
               style={activeTab === 'def' ? { backgroundColor: '#ef4444', color: '#ffffff' } : { backgroundColor: '#334155', color: '#94a3b8', border: '1px solid #475569' }}
             >
-              <span>🛡️</span> DEF (6)
+              <span className="hidden sm:inline">🛡️</span> DEF
             </button>
           </div>
 
           {/* Linha 1: Radar + Evolucao */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
             {/* Radar Chart */}
-            <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex items-center gap-2 mb-4">
-                <Trophy className="w-5 h-5" style={{ color: activeTab === 'geral' ? '#8b5cf6' : activeTab === 'cbf' ? '#f59e0b' : activeTab === 'ofe' ? '#22c55e' : '#ef4444' }} />
-                <h3 className="text-lg font-semibold text-slate-100">
+            <div className="rounded-2xl p-4 md:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
+                <Trophy className="w-4 h-4 md:w-5 md:h-5" style={{ color: activeTab === 'geral' ? '#8b5cf6' : activeTab === 'cbf' ? '#f59e0b' : activeTab === 'ofe' ? '#22c55e' : '#ef4444' }} />
+                <h3 className="text-base md:text-lg font-semibold text-slate-100">
                   Radar {activeTab === 'geral' ? 'Geral' : activeTab === 'cbf' ? 'CBF' : activeTab === 'ofe' ? 'Ofensivo' : 'Defensivo'}
                 </h3>
               </div>
-              <div className="h-[280px]">
+              <div className="h-[220px] md:h-[280px]">
                 <Radar data={radarData} options={radarOptions} />
               </div>
               {avaliacaoSelecionada && (
@@ -682,35 +682,35 @@ export default function PortalDashboardPage() {
             </div>
 
             {/* Grafico de Evolucao */}
-            <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="rounded-2xl p-4 md:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-amber-500" />
-                  <h3 className="text-lg font-semibold text-slate-100">Evolucao</h3>
-                  <span className="text-xs text-slate-500">(1a vs ultima avaliacao)</span>
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />
+                  <h3 className="text-base md:text-lg font-semibold text-slate-100">Evolucao</h3>
+                  <span className="text-xs text-slate-500 hidden sm:inline">(1a vs ultima)</span>
                 </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, backgroundColor: '#22c55e' }} />
+                <div className="flex items-center gap-2 md:gap-3 text-[10px] md:text-xs">
+                  <div className="flex items-center gap-1">
+                    <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, backgroundColor: '#22c55e' }} />
                     <span className="text-slate-400">Melhorou</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, backgroundColor: '#64748b' }} />
+                  <div className="flex items-center gap-1">
+                    <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, backgroundColor: '#64748b' }} />
                     <span className="text-slate-400">Igual</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, backgroundColor: '#ef4444' }} />
+                  <div className="flex items-center gap-1">
+                    <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, backgroundColor: '#ef4444' }} />
                     <span className="text-slate-400">Piorou</span>
                   </div>
                 </div>
               </div>
 
               {avaliacoes.length < 2 ? (
-                <div className="h-[240px] flex items-center justify-center text-slate-500 text-sm">
+                <div className="h-[180px] md:h-[240px] flex items-center justify-center text-slate-500 text-sm">
                   Necessario pelo menos 2 avaliacoes para comparar evolucao
                 </div>
               ) : (
-                <div className="h-[240px]">
+                <div className="h-[180px] md:h-[240px]">
                   <Bar data={evolucaoBarData} options={evolucaoBarOptions as object} />
                 </div>
               )}
@@ -718,69 +718,69 @@ export default function PortalDashboardPage() {
           </div>
 
           {/* Linha 2: Resumo (3 cards) e Destaques */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
             {/* Coluna 1: 3 cards empilhados */}
             <div className="flex flex-col gap-3">
               {/* Card 1: Medias */}
-              <div className="flex-1 rounded-2xl p-4 shadow-sm flex items-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex-1 rounded-2xl p-3 md:p-4 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                 {mediaPorGrupo && (
-                  <div className="flex items-center w-full">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5 text-violet-500" />
-                      <h3 className="text-lg font-semibold text-slate-100">Medias</h3>
+                  <div className="w-full">
+                    <div className="flex items-center gap-2 mb-3 md:mb-0">
+                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-violet-500" />
+                      <h3 className="text-base md:text-lg font-semibold text-slate-100">Medias</h3>
                     </div>
-                    <div className="flex-1 flex items-center justify-center gap-6">
+                    <div className="flex items-center justify-around md:justify-center gap-3 md:gap-6 mt-2">
                       <div className="flex flex-col items-center">
-                        <div className="relative" style={{ width: 44, height: 44 }}>
-                          <svg className="-rotate-90" width="44" height="44" viewBox="0 0 44 44">
-                            <circle cx="22" cy="22" r="18" stroke="#334155" strokeWidth="3" fill="none" />
-                            <circle cx="22" cy="22" r="18" stroke="#8b5cf6" strokeWidth="3" fill="none"
-                              strokeDasharray={`${(mediaGeral / 5) * 113} 113`} strokeLinecap="round" />
+                        <div className="relative" style={{ width: 40, height: 40 }}>
+                          <svg className="-rotate-90" width="40" height="40" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="16" stroke="#334155" strokeWidth="3" fill="none" />
+                            <circle cx="20" cy="20" r="16" stroke="#8b5cf6" strokeWidth="3" fill="none"
+                              strokeDasharray={`${(mediaGeral / 5) * 100} 100`} strokeLinecap="round" />
                           </svg>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold text-violet-500">{mediaGeral.toFixed(1)}</span>
+                            <span className="text-[10px] md:text-xs font-bold text-violet-500">{mediaGeral.toFixed(1)}</span>
                           </div>
                         </div>
-                        <span className="text-[10px] text-slate-500 mt-1">Geral</span>
+                        <span className="text-[9px] md:text-[10px] text-slate-500 mt-1">Geral</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="relative" style={{ width: 44, height: 44 }}>
-                          <svg className="-rotate-90" width="44" height="44" viewBox="0 0 44 44">
-                            <circle cx="22" cy="22" r="18" stroke="#334155" strokeWidth="3" fill="none" />
-                            <circle cx="22" cy="22" r="18" stroke="#f59e0b" strokeWidth="3" fill="none"
-                              strokeDasharray={`${(mediaPorGrupo.cbf / 5) * 113} 113`} strokeLinecap="round" />
+                        <div className="relative" style={{ width: 40, height: 40 }}>
+                          <svg className="-rotate-90" width="40" height="40" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="16" stroke="#334155" strokeWidth="3" fill="none" />
+                            <circle cx="20" cy="20" r="16" stroke="#f59e0b" strokeWidth="3" fill="none"
+                              strokeDasharray={`${(mediaPorGrupo.cbf / 5) * 100} 100`} strokeLinecap="round" />
                           </svg>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold text-amber-500">{mediaPorGrupo.cbf.toFixed(1)}</span>
+                            <span className="text-[10px] md:text-xs font-bold text-amber-500">{mediaPorGrupo.cbf.toFixed(1)}</span>
                           </div>
                         </div>
-                        <span className="text-[10px] text-slate-500 mt-1">CBF</span>
+                        <span className="text-[9px] md:text-[10px] text-slate-500 mt-1">CBF</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="relative" style={{ width: 44, height: 44 }}>
-                          <svg className="-rotate-90" width="44" height="44" viewBox="0 0 44 44">
-                            <circle cx="22" cy="22" r="18" stroke="#334155" strokeWidth="3" fill="none" />
-                            <circle cx="22" cy="22" r="18" stroke="#22c55e" strokeWidth="3" fill="none"
-                              strokeDasharray={`${(mediaPorGrupo.ofe / 5) * 113} 113`} strokeLinecap="round" />
+                        <div className="relative" style={{ width: 40, height: 40 }}>
+                          <svg className="-rotate-90" width="40" height="40" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="16" stroke="#334155" strokeWidth="3" fill="none" />
+                            <circle cx="20" cy="20" r="16" stroke="#22c55e" strokeWidth="3" fill="none"
+                              strokeDasharray={`${(mediaPorGrupo.ofe / 5) * 100} 100`} strokeLinecap="round" />
                           </svg>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold text-green-500">{mediaPorGrupo.ofe.toFixed(1)}</span>
+                            <span className="text-[10px] md:text-xs font-bold text-green-500">{mediaPorGrupo.ofe.toFixed(1)}</span>
                           </div>
                         </div>
-                        <span className="text-[10px] text-slate-500 mt-1">OFE</span>
+                        <span className="text-[9px] md:text-[10px] text-slate-500 mt-1">OFE</span>
                       </div>
                       <div className="flex flex-col items-center">
-                        <div className="relative" style={{ width: 44, height: 44 }}>
-                          <svg className="-rotate-90" width="44" height="44" viewBox="0 0 44 44">
-                            <circle cx="22" cy="22" r="18" stroke="#334155" strokeWidth="3" fill="none" />
-                            <circle cx="22" cy="22" r="18" stroke="#ef4444" strokeWidth="3" fill="none"
-                              strokeDasharray={`${(mediaPorGrupo.def / 5) * 113} 113`} strokeLinecap="round" />
+                        <div className="relative" style={{ width: 40, height: 40 }}>
+                          <svg className="-rotate-90" width="40" height="40" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="16" stroke="#334155" strokeWidth="3" fill="none" />
+                            <circle cx="20" cy="20" r="16" stroke="#ef4444" strokeWidth="3" fill="none"
+                              strokeDasharray={`${(mediaPorGrupo.def / 5) * 100} 100`} strokeLinecap="round" />
                           </svg>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold text-red-500">{mediaPorGrupo.def.toFixed(1)}</span>
+                            <span className="text-[10px] md:text-xs font-bold text-red-500">{mediaPorGrupo.def.toFixed(1)}</span>
                           </div>
                         </div>
-                        <span className="text-[10px] text-slate-500 mt-1">DEF</span>
+                        <span className="text-[9px] md:text-[10px] text-slate-500 mt-1">DEF</span>
                       </div>
                     </div>
                   </div>
@@ -788,17 +788,17 @@ export default function PortalDashboardPage() {
               </div>
 
               {/* Card 2: Perfil */}
-              <div className="flex-1 rounded-2xl p-4 shadow-sm flex items-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex-1 rounded-2xl p-3 md:p-4 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                 {perfilAtleta && (
-                  <div className="flex items-center w-full">
-                    <div className="flex items-center gap-2">
-                      <Scale className="w-5 h-5 text-cyan-500" />
-                      <h3 className="text-lg font-semibold text-slate-100">Perfil</h3>
+                  <div className="w-full">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Scale className="w-4 h-4 md:w-5 md:h-5 text-cyan-500" />
+                      <h3 className="text-base md:text-lg font-semibold text-slate-100">Perfil</h3>
                     </div>
-                    <div className="flex-1 flex flex-col items-center gap-3 px-4">
-                      <div className="w-full flex items-center gap-3">
-                        <span className="text-xs font-bold text-green-400">OFE</span>
-                        <div className="flex-1 h-7 rounded-full overflow-hidden flex shadow-lg" style={{ backgroundColor: '#1e293b', border: '2px solid #475569' }}>
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-full flex items-center gap-2 md:gap-3">
+                        <span className="text-[10px] md:text-xs font-bold text-green-400">OFE</span>
+                        <div className="flex-1 h-6 md:h-7 rounded-full overflow-hidden flex shadow-lg" style={{ backgroundColor: '#1e293b', border: '2px solid #475569' }}>
                           <div
                             className="h-full flex items-center justify-center transition-all duration-500"
                             style={{
@@ -807,7 +807,7 @@ export default function PortalDashboardPage() {
                               boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3), 0 0 10px rgba(34,197,94,0.5)'
                             }}
                           >
-                            <span className="text-xs font-bold text-white drop-shadow">{perfilAtleta.ofe.toFixed(1)}</span>
+                            <span className="text-[10px] md:text-xs font-bold text-white drop-shadow">{perfilAtleta.ofe.toFixed(1)}</span>
                           </div>
                           <div
                             className="h-full flex items-center justify-center transition-all duration-500"
@@ -817,12 +817,12 @@ export default function PortalDashboardPage() {
                               boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3), 0 0 10px rgba(239,68,68,0.5)'
                             }}
                           >
-                            <span className="text-xs font-bold text-white drop-shadow">{perfilAtleta.def.toFixed(1)}</span>
+                            <span className="text-[10px] md:text-xs font-bold text-white drop-shadow">{perfilAtleta.def.toFixed(1)}</span>
                           </div>
                         </div>
-                        <span className="text-xs font-bold text-red-400">DEF</span>
+                        <span className="text-[10px] md:text-xs font-bold text-red-400">DEF</span>
                       </div>
-                      <span className="text-sm font-medium text-slate-100 mt-10">
+                      <span className="text-xs md:text-sm font-medium text-slate-100 mt-2">
                         {perfilAtleta.percentOfe > 55 ? '↗️ Atleta Ofensivo' : perfilAtleta.percentDef > 55 ? '🛡️ Atleta Defensivo' : '⚖️ Atleta Equilibrado'}
                       </span>
                     </div>
@@ -831,14 +831,14 @@ export default function PortalDashboardPage() {
               </div>
 
               {/* Card 3: Evolucao */}
-              <div className="flex-1 rounded-2xl p-4 shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex-1 rounded-2xl p-3 md:p-4 shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                 {estatisticas ? (
                   <div className="w-full">
-                    <div className="flex items-center gap-2 mb-3">
-                      <TrendingUp className="w-5 h-5 text-amber-500" />
-                      <h3 className="text-lg font-semibold text-slate-100">Evolucao</h3>
+                    <div className="flex items-center gap-2 mb-2 md:mb-3">
+                      <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />
+                      <h3 className="text-base md:text-lg font-semibold text-slate-100">Evolucao</h3>
                     </div>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-1.5 md:gap-2">
                       <div
                         className="flex flex-col items-center p-2 rounded-lg"
                         style={{ background: 'linear-gradient(180deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 100%)', border: '1px solid rgba(34,197,94,0.3)' }}
@@ -891,10 +891,10 @@ export default function PortalDashboardPage() {
             </div>
 
             {/* Coluna 2: Destaques */}
-            <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex items-center gap-2 mb-4">
-                <BarChart3 className="w-5 h-5 text-green-400" />
-                <h3 className="text-lg font-semibold text-slate-100">Destaques</h3>
+            <div className="rounded-2xl p-4 md:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
+                <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+                <h3 className="text-base md:text-lg font-semibold text-slate-100">Destaques</h3>
               </div>
               {maioresEvolucoes && avaliacoes.length >= 2 ? (
                 <div className="space-y-4">
@@ -964,40 +964,40 @@ export default function PortalDashboardPage() {
 
           {/* Estatisticas de Jogo - Minutagem, Gols e Assistencias */}
           {(minutosData.total > 0 || golsAssistencias.gols > 0 || golsAssistencias.assistencias > 0) && (
-            <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
-                    <BarChart3 className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+                    <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-100">Estatisticas de Jogo</h3>
-                    <p className="text-xs text-slate-400">Minutagem, gols e assistencias</p>
+                    <h3 className="text-base md:text-lg font-semibold text-slate-100">Estatisticas de Jogo</h3>
+                    <p className="text-xs text-slate-400 hidden sm:block">Minutagem, gols e assistencias</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center sm:justify-end gap-2 md:gap-4">
                   {/* Gols */}
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
-                    <span className="text-xl">⚽</span>
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
+                    <span className="text-base md:text-xl">⚽</span>
                     <div className="text-center">
-                      <p className="text-2xl font-black text-green-500">{golsAssistencias.gols}</p>
-                      <p className="text-[10px] text-slate-400 uppercase">Gols</p>
+                      <p className="text-lg md:text-2xl font-black text-green-500">{golsAssistencias.gols}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Gols</p>
                     </div>
                   </div>
                   {/* Assistencias */}
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #3b82f640' }}>
-                    <span className="text-xl">🎯</span>
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #3b82f640' }}>
+                    <span className="text-base md:text-xl">🎯</span>
                     <div className="text-center">
-                      <p className="text-2xl font-black text-blue-500">{golsAssistencias.assistencias}</p>
-                      <p className="text-[10px] text-slate-400 uppercase">Assist.</p>
+                      <p className="text-lg md:text-2xl font-black text-blue-500">{golsAssistencias.assistencias}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Assist.</p>
                     </div>
                   </div>
                   {/* Minutagem */}
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
-                    <Clock className="w-5 h-5 text-amber-500" />
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
+                    <Clock className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />
                     <div className="text-center">
-                      <p className="text-2xl font-black text-amber-500">{minutosData.total}&apos;</p>
-                      <p className="text-[10px] text-slate-400 uppercase">{minutosData.jogos} jogos</p>
+                      <p className="text-lg md:text-2xl font-black text-amber-500">{minutosData.total}&apos;</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">{minutosData.jogos} jogos</p>
                     </div>
                   </div>
                 </div>
@@ -1125,13 +1125,13 @@ export default function PortalDashboardPage() {
 
           {/* Detalhes de Gols */}
           {golsDetalhes.corpo.total > 0 && (
-            <div className="rounded-2xl p-4 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-2xl p-3 md:p-4 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex items-center justify-between mb-3 md:mb-4">
                 <h3 className="text-sm font-semibold text-slate-100">Finalizacao</h3>
                 <span className="text-xs text-slate-400">Total: {golsDetalhes.corpo.total} gols</span>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Parte do Corpo */}
                 <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                   <p className="text-xs text-green-400 font-medium mb-2 text-center">Parte do Corpo</p>
@@ -1230,9 +1230,9 @@ export default function PortalDashboardPage() {
 
           {/* Detalhes da Avaliacao */}
           {avaliacoes.length > 0 && (
-            <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                <h3 className="text-lg font-semibold text-slate-100">Detalhes da Avaliacao</h3>
+            <div className="rounded-2xl p-4 md:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4 mb-4">
+                <h3 className="text-base md:text-lg font-semibold text-slate-100">Detalhes da Avaliacao</h3>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-400">Data:</span>
                   <select

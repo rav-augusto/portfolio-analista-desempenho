@@ -453,22 +453,22 @@ export default function EditarAnalisePage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/analises"
             className="p-2 text-slate-500 hover:text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">Editar Analise</h1>
-            <p className="text-slate-400 mt-1">Atualize a analise tatico-tecnica</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Editar Analise</h1>
+            <p className="text-sm sm:text-base text-slate-400 mt-1">Atualize a analise tatico-tecnica</p>
           </div>
         </div>
         <Link
           href={`/analises/${params.id}/dashboard`}
-          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors"
+          className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500 text-slate-900 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium hover:bg-amber-400 transition-colors"
         >
           <BarChart3 className="w-4 h-4" />
           Dashboard
@@ -478,7 +478,7 @@ export default function EditarAnalisePage() {
       {/* Form */}
       <form onSubmit={handleSubmit}>
         {/* Jogo Selection */}
-        <div className="rounded-2xl p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="rounded-2xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <label className="block text-sm font-medium text-amber-500 mb-2">
             Jogo *
           </label>
@@ -486,7 +486,7 @@ export default function EditarAnalisePage() {
             value={jogoId}
             onChange={(e) => setJogoId(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
             style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
           >
             <option value="">Selecione um jogo</option>
@@ -499,15 +499,15 @@ export default function EditarAnalisePage() {
         </div>
 
         {/* Tabs */}
-        <div className="rounded-2xl shadow-sm overflow-hidden mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-700">
-            <span className="text-sm font-medium text-slate-400 mr-2">Secao:</span>
+        <div className="rounded-2xl shadow-sm overflow-hidden mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 p-3 sm:p-4 border-b border-slate-700">
+            <span className="text-xs sm:text-sm font-medium text-slate-400 mr-1 sm:mr-2 w-full sm:w-auto mb-1 sm:mb-0">Secao:</span>
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors"
                 style={
                   activeTab === tab.id
                     ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
@@ -519,7 +519,7 @@ export default function EditarAnalisePage() {
             ))}
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {activeTab === 'ofensiva' && <OrgOfensivaTab state={state} onChange={handleFieldChange} />}
             {activeTab === 'defensiva' && <OrgDefensivaTab state={state} onChange={handleFieldChange} />}
             {activeTab === 'trans_of' && <TransicoesTab state={state} onChange={handleFieldChange} tipo="ofensiva" />}
@@ -553,17 +553,17 @@ export default function EditarAnalisePage() {
           </div>
         )}
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
           <Link
             href="/analises"
-            className="px-6 py-2 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors"
+            className="px-4 sm:px-6 py-2.5 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors text-center order-2 sm:order-1"
           >
             Cancelar
           </Link>
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 bg-amber-500 text-slate-900 px-4 sm:px-6 py-2.5 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50 order-1 sm:order-2"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

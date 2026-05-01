@@ -562,18 +562,17 @@ export default function EditarAvaliacaoPage() {
 
       {/* Painel de Performance - Barra Compacta */}
       <div className="rounded-2xl px-3 py-2" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
           {/* Foto do Atleta */}
           {atletaId && atletas.find(a => a.id === atletaId)?.foto_url ? (
             <img
               src={atletas.find(a => a.id === atletaId)?.foto_url || ''}
               alt="Atleta"
-              style={{ width: '72px', height: '72px' }}
-              className="rounded-full object-cover border-2 border-amber-500/50 flex-shrink-0"
+              className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-full object-cover border-2 border-amber-500/50 flex-shrink-0"
             />
           ) : (
-            <div style={{ width: '72px', height: '72px' }} className="rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center flex-shrink-0">
-              <span className="text-slate-400 text-xl font-bold">
+            <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center flex-shrink-0">
+              <span className="text-slate-400 text-lg sm:text-xl font-bold">
                 {atletaId ? atletas.find(a => a.id === atletaId)?.nome?.charAt(0) || '?' : '?'}
               </span>
             </div>
@@ -581,8 +580,8 @@ export default function EditarAvaliacaoPage() {
 
           {/* Gráfico Completo com Labels */}
           <div className="flex-1 flex justify-center">
-            <div className="flex items-center gap-3 bg-slate-700/30 rounded-lg px-3 py-1">
-              <div style={{ width: '120px', height: '120px' }}>
+            <div className="flex items-center gap-2 sm:gap-3 bg-slate-700/30 rounded-lg px-2 sm:px-3 py-1">
+              <div className="w-[80px] h-[80px] sm:w-[120px] sm:h-[120px]">
                 <Radar
                   data={getRadarDataCompleto()}
                   options={{
@@ -593,7 +592,7 @@ export default function EditarAvaliacaoPage() {
                         ticks: { display: false },
                         pointLabels: {
                           display: true,
-                          font: { size: 7, weight: 'bold' as const },
+                          font: { size: 6, weight: 'bold' as const },
                           color: '#94a3b8'
                         }
                       }
@@ -602,8 +601,8 @@ export default function EditarAvaliacaoPage() {
                 />
               </div>
               <div className="text-center">
-                <span className="text-blue-400 text-2xl font-black">{mediaGeral}</span>
-                <p className="text-[9px] text-slate-400 font-medium">MÉDIA</p>
+                <span className="text-blue-400 text-xl sm:text-2xl font-black">{mediaGeral}</span>
+                <p className="text-[8px] sm:text-[9px] text-slate-400 font-medium">MÉDIA</p>
               </div>
             </div>
           </div>
@@ -611,30 +610,30 @@ export default function EditarAvaliacaoPage() {
           {/* Mini Gráficos CBF, OFE, DEF */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center gap-1">
-              <div style={{ width: '40px', height: '40px' }}>
+              <div className="w-8 h-8 sm:w-10 sm:h-10">
                 <Radar data={getRadarDataCBF()} options={{...radarOptions, scales: { r: { ...radarOptions.scales.r, ticks: { display: false }, pointLabels: { display: false } }}}} />
               </div>
               <div className="text-center">
-                <span className="text-amber-400 text-xs font-bold">{mediaCBF}</span>
-                <p className="text-[7px] text-slate-500">CBF</p>
+                <span className="text-amber-400 text-[10px] sm:text-xs font-bold">{mediaCBF}</span>
+                <p className="text-[6px] sm:text-[7px] text-slate-500">CBF</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <div style={{ width: '40px', height: '40px' }}>
+              <div className="w-8 h-8 sm:w-10 sm:h-10">
                 <Radar data={getRadarDataOfensivo()} options={{...radarOptions, scales: { r: { ...radarOptions.scales.r, ticks: { display: false }, pointLabels: { display: false } }}}} />
               </div>
               <div className="text-center">
-                <span className="text-green-400 text-xs font-bold">{mediaOfensivo}</span>
-                <p className="text-[7px] text-slate-500">OFE</p>
+                <span className="text-green-400 text-[10px] sm:text-xs font-bold">{mediaOfensivo}</span>
+                <p className="text-[6px] sm:text-[7px] text-slate-500">OFE</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <div style={{ width: '40px', height: '40px' }}>
+              <div className="w-8 h-8 sm:w-10 sm:h-10">
                 <Radar data={getRadarDataDefensivo()} options={{...radarOptions, scales: { r: { ...radarOptions.scales.r, ticks: { display: false }, pointLabels: { display: false } }}}} />
               </div>
               <div className="text-center">
-                <span className="text-red-400 text-xs font-bold">{mediaDefensivo}</span>
-                <p className="text-[7px] text-slate-500">DEF</p>
+                <span className="text-red-400 text-[10px] sm:text-xs font-bold">{mediaDefensivo}</span>
+                <p className="text-[6px] sm:text-[7px] text-slate-500">DEF</p>
               </div>
             </div>
           </div>
@@ -643,9 +642,9 @@ export default function EditarAvaliacaoPage() {
 
         <form onSubmit={handleSubmit}>
         {/* Informações Básicas */}
-        <div className="rounded-2xl p-5 mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="col-span-2 lg:col-span-1">
+        <div className="rounded-2xl p-3 sm:p-5 mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-xs font-medium text-amber-500 uppercase mb-2">Atleta</label>
                 <select value={atletaId} onChange={(e) => setAtletaId(e.target.value)} required
                   className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30"
@@ -726,11 +725,11 @@ export default function EditarAvaliacaoPage() {
 
             {/* Detalhes de Gols */}
             {tipo === 'jogo' && parseInt(gols || '0') > 0 && (
-              <div className="mt-4 rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
+              <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
                 <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2">
                   <span>⚽</span> Detalhes dos {gols} Gol{parseInt(gols) > 1 ? 's' : ''}
                 </h4>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Parte do corpo */}
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase mb-2">Parte do Corpo</p>
@@ -870,15 +869,15 @@ export default function EditarAvaliacaoPage() {
 
           {/* Tabs */}
           <div className="rounded-2xl mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <div className="flex items-center gap-4 p-4 border-b" style={{ borderColor: '#475569' }}>
-              <span className="text-sm font-medium text-slate-400">Dimensões:</span>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 border-b" style={{ borderColor: '#475569' }}>
+              <span className="text-xs sm:text-sm font-medium text-slate-400">Dimensões:</span>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+                    className="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
                     style={
                       activeTab === tab.id
                         ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
@@ -891,19 +890,19 @@ export default function EditarAvaliacaoPage() {
               </div>
             </div>
 
-            <div className="p-4">
+            <div className="p-3 sm:p-4">
               {activeTab === 'cbf' && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                   {dimensoesCBF.map((dim) => renderDimensionCard(dim, notas[dim.key], (key, val) => setNotas(prev => ({ ...prev, [key]: val })), obsCBF[dim.key] || '', 'cbf'))}
                 </div>
               )}
               {activeTab === 'ofensivos' && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {principiosOfensivos.map((dim) => renderDimensionCard(dim, notasOfensivos[dim.key], (key, val) => setNotasOfensivos(prev => ({ ...prev, [key]: val })), obsOfensivos[dim.key] || '', 'ofensivo'))}
                 </div>
               )}
               {activeTab === 'defensivos' && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {principiosDefensivos.map((dim) => renderDimensionCard(dim, notasDefensivos[dim.key], (key, val) => setNotasDefensivos(prev => ({ ...prev, [key]: val })), obsDefensivos[dim.key] || '', 'defensivo'))}
                 </div>
               )}

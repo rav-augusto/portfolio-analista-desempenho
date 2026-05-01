@@ -49,34 +49,35 @@ export default function GuiaAvaliacaoPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-100">Guia de Avaliação</h1>
-        <p className="text-slate-400 mt-1">Metodologia completa para análise e avaliação de atletas de base</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Guia de Avaliação</h1>
+        <p className="text-sm sm:text-base text-slate-400 mt-1">Metodologia para análise e avaliação de atletas</p>
       </div>
 
       {/* Tabs */}
-      <div className="rounded-2xl shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="p-3" style={{ borderBottom: '1px solid #475569' }}>
-          <div className="flex gap-1">
+      <div className="rounded-2xl shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="p-2 sm:p-3" style={{ borderBottom: '1px solid #475569' }}>
+          <div className="flex flex-wrap gap-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
                 style={
                   activeTab === tab.id
                     ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
                     : { backgroundColor: '#334155', color: '#94a3b8' }
                 }
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Tab Carreira do Analista */}
           {activeTab === 'carreira' && (
             <div className="space-y-8">

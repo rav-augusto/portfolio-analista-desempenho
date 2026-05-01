@@ -170,23 +170,23 @@ export default function NovaAnalisePage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <Link
           href="/analises"
-          className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-amber-500 hover:bg-slate-700 rounded-xl transition-colors"
+          className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-slate-400 hover:text-amber-500 hover:bg-slate-700 rounded-xl transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Nova Análise</h1>
-          <p className="text-slate-400 mt-1">Adicione uma nova análise tático-técnica</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Nova Análise</h1>
+          <p className="text-sm sm:text-base text-slate-400 mt-1">Adicione uma nova análise tático-técnica</p>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
         {/* Jogo Selection */}
-        <div className="rounded-2xl p-5 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="rounded-2xl p-4 sm:p-5 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
           <label className="block text-xs font-medium text-amber-500 uppercase mb-2">
             Jogo *
           </label>
@@ -194,7 +194,7 @@ export default function NovaAnalisePage() {
             value={jogoId}
             onChange={(e) => setJogoId(e.target.value)}
             required
-            className="w-full px-4 py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30"
             style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}
           >
             <option value="">Selecione um jogo</option>
@@ -207,16 +207,16 @@ export default function NovaAnalisePage() {
         </div>
 
         {/* Tabs */}
-        <div className="rounded-2xl shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="flex items-center gap-4 p-4 border-b" style={{ borderColor: '#475569' }}>
-            <span className="text-sm font-medium text-slate-400">Seção:</span>
-            <div className="flex flex-wrap gap-2">
+        <div className="rounded-2xl shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 border-b" style={{ borderColor: '#475569' }}>
+            <span className="text-xs sm:text-sm font-medium text-slate-400">Seção:</span>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className="px-4 py-2 text-sm font-medium rounded-lg transition-all"
+                  className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
                   style={
                     activeTab === tab.id
                       ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
@@ -229,11 +229,11 @@ export default function NovaAnalisePage() {
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Organizacao Ofensiva */}
             {activeTab === 'ofensiva' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Sistema Tático</label>
                     <select
@@ -250,7 +250,7 @@ export default function NovaAnalisePage() {
                   <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
                   <textarea value={orgOfensivaObs} onChange={(e) => setOrgOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Saída de Bola</label>
                     <textarea value={saidaBola} onChange={(e) => setSaidaBola(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -260,7 +260,7 @@ export default function NovaAnalisePage() {
                     <textarea value={participacaoGoleiro} onChange={(e) => setParticipacaoGoleiro(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Linhas de Passe</label>
                     <textarea value={linhasPasse} onChange={(e) => setLinhasPasse(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -270,7 +270,7 @@ export default function NovaAnalisePage() {
                     <textarea value={amplitude} onChange={(e) => setAmplitude(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Criação Central</label>
                     <textarea value={criacaoCentral} onChange={(e) => setCriacaoCentral(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -284,7 +284,7 @@ export default function NovaAnalisePage() {
                     <textarea value={criacaoEsquerda} onChange={(e) => setCriacaoEsquerda(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Finalizações Total</label>
                     <input type="number" min="0" value={finalizacoesTotal} onChange={(e) => setFinalizacoesTotal(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -308,7 +308,7 @@ export default function NovaAnalisePage() {
             {/* Organizacao Defensiva */}
             {activeTab === 'defensiva' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Bloco Defensivo</label>
                     <select value={blocoDefensivo} onChange={(e) => setBlocoDefensivo(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }}>
@@ -325,7 +325,7 @@ export default function NovaAnalisePage() {
                   <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
                   <textarea value={orgDefensivaObs} onChange={(e) => setOrgDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Pressão</label>
                     <textarea value={pressao} onChange={(e) => setPressão(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -335,7 +335,7 @@ export default function NovaAnalisePage() {
                     <textarea value={coberturas} onChange={(e) => setCoberturas(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Linha Defensiva</label>
                     <textarea value={linhaDefensiva} onChange={(e) => setLinhaDefensiva(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -355,7 +355,7 @@ export default function NovaAnalisePage() {
                   <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
                   <textarea value={transOfensivaObs} onChange={(e) => setTransOfensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Primeira Ação</label>
                     <input type="text" value={primeiraAcao} onChange={(e) => setPrimeiraAcao(e.target.value)} placeholder="Ex: Bola longa, Jogo curto" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -365,7 +365,7 @@ export default function NovaAnalisePage() {
                     <input type="text" value={velocidadeTransicao} onChange={(e) => setVelocidadeTransicao(e.target.value)} placeholder="Ex: Rápida, Lenta, Equilibrada" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Contra-Ataques</label>
                     <input type="number" min="0" value={contraAtaques} onChange={(e) => setContraAtaques(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -389,7 +389,7 @@ export default function NovaAnalisePage() {
                   <label className="block text-sm font-medium text-amber-500 mb-2">Observações Gerais</label>
                   <textarea value={transDefensivaObs} onChange={(e) => setTransDefensivaObs(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Reação à Perda</label>
                     <textarea value={reacaoPerda} onChange={(e) => setReacaoPerda(e.target.value)} rows={2} placeholder="Ex: Pressão imediata, Recuo organizado" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -405,7 +405,7 @@ export default function NovaAnalisePage() {
             {/* Bolas Paradas Ofensivas */}
             {activeTab === 'bp_of' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Cobrador de Escanteio</label>
                     <input type="text" value={escanteioCobrador} onChange={(e) => setEscanteioCobrador(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -429,7 +429,7 @@ export default function NovaAnalisePage() {
             {/* Bolas Paradas Defensivas */}
             {activeTab === 'bp_def' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Marcação em Escanteios</label>
                     <input type="text" value={escanteioDefMarcacao} onChange={(e) => setEscanteioDefMarcacao(e.target.value)} placeholder="Ex: Individual, Zona, Mista" className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -439,7 +439,7 @@ export default function NovaAnalisePage() {
                     <textarea value={escanteioDefPosicaoGk} onChange={(e) => setEscanteioDefPosicaoGk(e.target.value)} rows={2} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-amber-500 mb-2">Primeiro Pau</label>
                     <input type="text" value={escanteioDefPrimeiroPau} onChange={(e) => setEscanteioDefPrimeiroPau(e.target.value)} className="w-full px-4 py-3 rounded-xl text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#0f172a', border: '1px solid #475569', color: '#e2e8f0' }} />
@@ -483,17 +483,17 @@ export default function NovaAnalisePage() {
           </div>
         )}
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
           <Link
             href="/analises"
-            className="px-6 py-2 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors"
+            className="px-4 sm:px-6 py-2.5 text-slate-400 hover:bg-slate-700 rounded-xl transition-colors text-center order-2 sm:order-1"
           >
             Cancelar
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-2 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 bg-amber-500 text-slate-900 px-4 sm:px-6 py-2.5 rounded-xl font-medium hover:bg-amber-400 transition-colors disabled:opacity-50 order-1 sm:order-2"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

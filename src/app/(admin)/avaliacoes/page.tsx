@@ -113,14 +113,14 @@ export default function AvaliacoesPage() {
       if (i < fullStars || (i === fullStars && almostFull)) {
         // Estrela cheia - preenchida de laranja
         stars.push(
-          <svg key={i} className="w-5 h-5" viewBox="0 0 24 24" fill="#f59e0b" stroke="none">
+          <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="#f59e0b" stroke="none">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
         )
       } else if (i === fullStars && hasHalf) {
         // Meia estrela
         stars.push(
-          <svg key={i} className="w-5 h-5" viewBox="0 0 24 24">
+          <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
             <defs>
               <linearGradient id={`half-${i}`}>
                 <stop offset="50%" stopColor="#f59e0b"/>
@@ -133,7 +133,7 @@ export default function AvaliacoesPage() {
       } else {
         // Estrela vazia - preenchida de cinza
         stars.push(
-          <svg key={i} className="w-5 h-5" viewBox="0 0 24 24" fill="#475569" stroke="none">
+          <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="#475569" stroke="none">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
         )
@@ -145,10 +145,10 @@ export default function AvaliacoesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">Avaliações de Atletas</h1>
-          <p className="text-slate-400 mt-1">Selecione um atleta para ver suas avaliações</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Avaliações de Atletas</h1>
+          <p className="text-sm text-slate-400 mt-1">Selecione um atleta para ver suas avaliações</p>
         </div>
         {canCreate && (
           <Link
@@ -162,11 +162,11 @@ export default function AvaliacoesPage() {
       </div>
 
       {/* Search */}
-      <div className="rounded-2xl p-5 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="rounded-2xl p-4 sm:p-5 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-              <Search className="w-5 h-5 text-amber-500" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
             </div>
             <div>
               <p className="font-semibold text-slate-100">Buscar Atletas</p>
@@ -207,12 +207,12 @@ export default function AvaliacoesPage() {
             <Link
               key={atleta.id}
               href={`/avaliacoes/atleta/${atleta.id}`}
-              className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
+              className="rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 transition-colors hover:opacity-90"
               style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
             >
               {/* Foto e nome */}
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#0f172a', border: '2px solid #475569' }}>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: '#0f172a', border: '2px solid #475569' }}>
                   {atleta.foto_url ? (
                     <img
                       src={atleta.foto_url}
@@ -220,22 +220,22 @@ export default function AvaliacoesPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-6 h-6 text-slate-500" />
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-slate-500" />
                   )}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-slate-100">{atleta.nome}</h3>
-                  <div className="flex items-center gap-3 text-sm text-slate-400">
-                    {atleta.posicao && <span>{atleta.posicao}</span>}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-slate-100 text-sm sm:text-base truncate">{atleta.nome}</h3>
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-400">
+                    {atleta.posicao && <span className="truncate">{atleta.posicao}</span>}
                     {atleta.clubes && (
-                      <span className="text-amber-500">{atleta.clubes.nome}</span>
+                      <span className="text-amber-500 truncate">{atleta.clubes.nome}</span>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Estrelas e quantidade de avaliações */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6">
                 {/* Estrelas da média */}
                 <div
                   className="flex items-center gap-0.5 cursor-pointer"
@@ -246,12 +246,12 @@ export default function AvaliacoesPage() {
 
                 <div className="text-right">
                   <div className="flex items-center gap-1">
-                    <span className="text-2xl font-bold text-amber-500">{atleta.total_avaliacoes}</span>
-                    <span className="text-sm text-slate-400">{atleta.total_avaliacoes === 1 ? 'avaliação' : 'avaliações'}</span>
+                    <span className="text-xl sm:text-2xl font-bold text-amber-500">{atleta.total_avaliacoes}</span>
+                    <span className="text-xs sm:text-sm text-slate-400">{atleta.total_avaliacoes === 1 ? 'aval.' : 'avals.'}</span>
                   </div>
-                  <p className="text-xs text-slate-500">Última: {formatDate(atleta.ultima_avaliacao)}</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500">Última: {formatDate(atleta.ultima_avaliacao)}</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-500" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 hidden sm:block" />
               </div>
             </Link>
           ))}
