@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import "./portfolio.css"
 
 export const metadata: Metadata = {
   title: "Augusto Nunes | Analista de Desempenho - Olhar da Base",
