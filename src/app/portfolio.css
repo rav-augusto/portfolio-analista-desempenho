@@ -7,9 +7,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* ========================================
-   VARIÁVEIS
+   VARIÁVEIS — escopadas com alta especificidade
    ======================================== */
-:root {
+html, html body {
     /* Núcleo dark analytics */
     --bg-base: #0a0e14;
     --bg-elev-1: #0f141c;
@@ -1805,4 +1805,51 @@ body::before {
     .stat-number { font-size: 1.75rem; }
     .modal-content { margin: var(--space-sm); }
     .hero-stats { grid-template-columns: 1fr; }
+}
+
+
+/* ========================================
+   OVERRIDES FORÇADOS — garantir que globals.css legacy não vença
+   ======================================== */
+html body .hero-title,
+html body .section-title,
+html body .nav-logo,
+html body .modal-header h2,
+html body .system-display,
+html body .stat-number,
+html body .footer-logo,
+html body .timeline-icon span,
+html body .player-header-modal .player-number,
+html body .match-result .score,
+html body .mini-stats span {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+html body .stat-number,
+html body .system-display,
+html body .timeline-icon span,
+html body .player-header-modal .player-number,
+html body .match-result .score,
+html body .mini-stats span {
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace !important;
+}
+
+html body .hero-title {
+    letter-spacing: -0.04em !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+}
+
+html body .section-title {
+    letter-spacing: -0.02em !important;
+    text-transform: none !important;
+}
+
+/* Remover overlay cinza pesado se globals.css estiver injetando algum bg-gradient na home */
+html body .hero-bg {
+    opacity: 0.35 !important;
+}
+html body .hero-subtitle {
+    color: #a8b3c1 !important;
+    opacity: 1 !important;
 }
