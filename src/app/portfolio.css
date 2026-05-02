@@ -441,6 +441,15 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    transition: var(--transition-base);
+}
+.stat-item:hover {
+    border-color: var(--primary);
+    background: var(--bg-elev-2);
 }
 .stat-label {
     font-family: var(--font-mono);
