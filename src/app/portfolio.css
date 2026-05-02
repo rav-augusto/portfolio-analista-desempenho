@@ -865,25 +865,48 @@ body::before {
 }
 .analise-image {
     position: relative;
-    height: 180px;
+    height: 200px;
     overflow: hidden;
     background: var(--bg-elev-2);
 }
 .analise-placeholder {
     width: 100%;
     height: 100%;
+    position: relative;
     background:
-        linear-gradient(135deg, var(--bg-elev-2), var(--bg-elev-3)),
-        repeating-linear-gradient(45deg, transparent 0, transparent 12px, var(--border-subtle) 12px, var(--border-subtle) 13px);
+        linear-gradient(135deg, rgba(10, 14, 20, 0.85) 0%, rgba(15, 25, 35, 0.7) 100%),
+        url('/images/hero-bg.png') center center / cover no-repeat;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: var(--primary);
 }
+.analise-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at center, var(--primary-glow) 0%, transparent 70%);
+    pointer-events: none;
+}
+.analise-placeholder::after {
+    content: '// MATCH_ANALYSIS';
+    position: absolute;
+    bottom: var(--space-md);
+    left: var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--primary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
 .analise-placeholder i {
-    font-size: 2rem;
-    margin-bottom: var(--space-sm);
+    font-size: 3rem;
+    margin-bottom: 0;
+    filter: drop-shadow(0 0 12px var(--primary-glow));
+    z-index: 1;
 }
 .analise-placeholder.empty {
     background: var(--bg-elev-2);
