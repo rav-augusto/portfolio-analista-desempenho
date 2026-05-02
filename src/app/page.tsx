@@ -53,17 +53,12 @@ export default function Home() {
   }, [])
 
   const loadAnalises = async () => {
-    // Diagnostico: query crua sem embed pra ver quantas analises o anon enxerga
-    const raw = await supabase.from('analises_jogo').select('id, jogo_id, created_at')
-    console.log('[home] DIAG raw analises_jogo:', { count: raw.data?.length, data: raw.data, error: raw.error })
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('analises_jogo')
-      .select('id, sistema_tatico, created_at, jogos!left(adversario, data_jogo, competicao, fase, clubes!left(nome))')
+      .select('id, sistema_tatico, created_at, jogos(adversario, data_jogo, competicao, fase, clubes(nome))')
       .order('created_at', { ascending: false })
       .limit(3)
 
-    console.log('[home] analises_jogo query:', { count: data?.length, data, error })
     if (data) setAnalises(data as unknown as Analise[])
   }
 
