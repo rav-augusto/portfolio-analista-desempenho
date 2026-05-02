@@ -55,7 +55,7 @@ export default function Home() {
   const loadAnalises = async () => {
     const { data, error } = await supabase
       .from('analises_jogo')
-      .select('id, sistema_tatico, created_at, jogos(adversario, data_jogo, competicao, fase, clubes(nome))')
+      .select('id, sistema_tatico, created_at, jogos!left(adversario, data_jogo, competicao, fase, clubes!left(nome))')
       .order('created_at', { ascending: false })
       .limit(3)
 
