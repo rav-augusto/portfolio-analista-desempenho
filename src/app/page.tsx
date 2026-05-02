@@ -57,7 +57,7 @@ export default function Home() {
       .from('analises_jogo')
       .select('id, sistema_tatico, created_at, jogos(adversario, data_jogo, competicao, fase, clubes(nome))')
       .order('created_at', { ascending: false })
-      .limit(6)
+      .limit(3)
 
     if (data) setAnalises(data as unknown as Analise[])
   }
