@@ -132,28 +132,42 @@ export default function Home() {
         </div>
         <div className="hero-content">
           <h1 className="hero-title">
-            <span className="title-line">ANALISTA DE</span>
-            <span className="title-line accent-text">DESEMPENHO</span>
+            <span className="title-line">Analise de</span>
+            <span className="title-line">desempenho</span>
+            <span className="title-line accent-text">como vantagem</span>
+            <span className="title-line accent-text">competitiva.</span>
           </h1>
-          <p className="hero-subtitle">Transformando dados em vantagem competitiva para categorias de base</p>
+          <p className="hero-subtitle">Augusto Nunes &mdash; analista formado pela CBF Academy, dedicado as categorias de base. Transformo video, dados e padroes em inteligencia aplicavel dentro do vestiario.</p>
           <div className="hero-cta">
             <a href="#analises" className="btn btn-primary">
               <i className="fas fa-chart-line"></i>
               Ver Analises
             </a>
             <a href="#contato" className="btn btn-secondary">
-              <i className="fas fa-envelope"></i>
-              Contato
+              <i className="fas fa-calendar-alt"></i>
+              Agendar Conversa
             </a>
           </div>
           <div className="hero-stats">
             <div className="stat-item">
-              <span className="stat-number">4</span>
-              <span className="stat-label">Momentos do Jogo</span>
+              <span className="stat-label">Categorias</span>
+              <span className="stat-number">SUB-12 &rarr; SUB-17</span>
+              <span className="stat-sublabel">range</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">8</span>
-              <span className="stat-label">Dimensoes CBF</span>
+              <span className="stat-label">Dimensoes</span>
+              <span className="stat-number">08</span>
+              <span className="stat-sublabel">CBF framework</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Atletas</span>
+              <span className="stat-number">20+</span>
+              <span className="stat-sublabel">no portfolio</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Resposta</span>
+              <span className="stat-number">&lt; 24h</span>
+              <span className="stat-sublabel">horas contato</span>
             </div>
           </div>
         </div>
