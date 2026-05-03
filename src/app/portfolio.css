@@ -109,7 +109,7 @@ img { max-width: 100%; height: auto; }
 ::selection { background: var(--primary-glow); color: var(--text-hi); }
 
 /* Grid de fundo discreto */
-body::before {
+body.portfolio-bg::before {
     content: '';
     position: fixed;
     inset: 0;

@@ -40,6 +40,13 @@ export default function Home() {
   const supabase = createClient()
 
   useEffect(() => {
+    document.body.classList.add('portfolio-bg')
+    return () => {
+      document.body.classList.remove('portfolio-bg')
+    }
+  }, [])
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
