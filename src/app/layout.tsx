@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -6,6 +6,26 @@ export const metadata: Metadata = {
   description: "Analista de Desempenho de Futebol especializado em categorias de base. Formacao CBF.",
   keywords: ["analista de desempenho", "futebol", "categorias de base", "CBF", "analise tatica"],
   authors: [{ name: "Augusto Nunes" }],
+  applicationName: "Olhar da Base",
+  appleWebApp: {
+    capable: true,
+    title: "Olhar da Base",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0a0a0b" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
+  ],
 }
 
 export default function RootLayout({

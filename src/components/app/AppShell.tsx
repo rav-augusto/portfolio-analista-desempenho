@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CircleDot, LogOut, Menu, X } from 'lucide-react'
@@ -43,6 +43,22 @@ export function AppShell({
     [menuItems, isMaster]
   )
 
+  // Travar scroll do body quando drawer aberto no mobile
+  useEffect(() => {
+    if (sidebarOpen) {
+      const prev = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = prev
+      }
+    }
+  }, [sidebarOpen])
+
+  // Fechar drawer ao mudar de rota
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [pathname])
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
@@ -60,7 +76,10 @@ export function AppShell({
   return (
     <div className="min-h-dvh bg-app text-strong">
       {/* Mobile header */}
-      <header className="lg:hidden sticky top-0 z-30 bg-app/90 backdrop-blur border-b border-line">
+      <header
+        className="lg:hidden sticky top-0 z-30 bg-app/95 backdrop-blur border-b border-line"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', logoBg)}>
@@ -75,25 +94,40 @@ export function AppShell({
           </div>
           <button
             type="button"
-            onClick={() => setSidebarOpen((s) => !s)}
-            aria-label={sidebarOpen ? 'Fechar menu' : 'Abrir menu'}
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menu"
             className="shrink-0 p-2 rounded-lg text-soft hover:text-strong hover:bg-surface-2 transition-colors"
           >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Menu className="w-5 h-5" />
           </button>
         </div>
       </header>
 
-      {/* Sidebar */}
+      {/* Backdrop (so mobile, com fade) */}
+      <div
+        className={cn(
+          'fixed inset-0 bg-overlay/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-200',
+          sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar / Drawer */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 w-64 bg-surface border-r border-line flex flex-col transition-transform duration-200 lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 w-[85%] max-w-xs lg:w-64 bg-surface border-r border-line flex flex-col transition-transform duration-200 lg:translate-x-0 lg:z-30',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+        aria-label="Menu principal"
       >
-        <div className="p-5 border-b border-line">
-          <div className="flex items-center gap-3">
-            <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center', logoBg)}>
+        <div className="p-5 border-b border-line flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center shrink-0', logoBg)}>
               <CircleDot className="w-6 h-6 text-app" />
             </div>
             <div className="min-w-0">
@@ -108,9 +142,17 @@ export function AppShell({
               </p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Fechar menu"
+            className="lg:hidden shrink-0 p-2 -mr-1 rounded-lg text-soft hover:text-strong hover:bg-surface-2 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 overscroll-contain">
           {filteredItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + '/')
@@ -118,9 +160,8 @@ export function AppShell({
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  'flex items-center gap-3 px-3 h-10 rounded-lg text-sm transition-colors',
+                  'flex items-center gap-3 px-3 h-11 rounded-lg text-sm transition-colors',
                   isActive
                     ? cn(activeBg, 'font-semibold')
                     : 'text-soft hover:text-strong hover:bg-surface-2'
@@ -148,7 +189,7 @@ export function AppShell({
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-2 w-full inline-flex items-center justify-center gap-2 h-9 px-3 rounded-lg text-sm font-medium text-soft hover:text-negative hover:bg-negative/10 transition-colors"
+            className="mt-2 w-full inline-flex items-center justify-center gap-2 h-10 px-3 rounded-lg text-sm font-medium text-soft hover:text-negative hover:bg-negative/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Sair
@@ -156,15 +197,13 @@ export function AppShell({
         </div>
       </aside>
 
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-overlay/70 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       <main className="lg:ml-64">
-        <div className="mx-auto max-w-7xl p-3 sm:p-4 md:p-6 lg:p-8">{children}</div>
+        <div
+          className="mx-auto max-w-7xl p-3 sm:p-4 md:p-6 lg:p-8"
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 1rem)' }}
+        >
+          {children}
+        </div>
       </main>
     </div>
   )
