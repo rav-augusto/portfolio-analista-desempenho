@@ -117,7 +117,7 @@ export function AppShell({
       <aside
         className={cn(
           'fixed inset-y-0 left-0 z-50 w-[85%] max-w-xs lg:w-64 bg-surface border-r border-line flex flex-col transition-transform duration-200 lg:translate-x-0 lg:z-30',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          !sidebarOpen && 'max-lg:-translate-x-full'
         )}
         style={{
           paddingTop: 'env(safe-area-inset-top)',
