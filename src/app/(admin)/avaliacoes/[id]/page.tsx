@@ -101,7 +101,14 @@ const tabs = [
   { id: 'cbf', label: 'Dimensões CBF' },
   { id: 'ofensivos', label: 'Princípios Ofensivos' },
   { id: 'defensivos', label: 'Princípios Defensivos' },
+  { id: 'fisico', label: 'Avaliação Física' },
   { id: 'conclusoes', label: 'Conclusões' },
+]
+
+const estagiosPHV = [
+  { value: 'pre', label: 'Pré-PHV (Antes do pico de crescimento)' },
+  { value: 'durante', label: 'Durante PHV (No pico de crescimento)' },
+  { value: 'pos', label: 'Pós-PHV (Após o pico de crescimento)' },
 ]
 
 export default function EditarAvaliacaoPage() {
@@ -159,6 +166,30 @@ export default function EditarAvaliacaoPage() {
   const [assistCruzamento, setAssistCruzamento] = useState(0)
   const [assistLancamento, setAssistLancamento] = useState(0)
   const [assistBolaPparada, setAssistBolaPparada] = useState(0)
+
+  // Avaliação Física - Dados Antropométricos
+  const [alturaAvaliacao, setAlturaAvaliacao] = useState('')
+  const [pesoAvaliacao, setPesoAvaliacao] = useState('')
+  const [envergadura, setEnvergadura] = useState('')
+
+  // Avaliação Física - Testes de Velocidade
+  const [velocidade10m, setVelocidade10m] = useState('')
+  const [velocidade30m, setVelocidade30m] = useState('')
+
+  // Avaliação Física - Potência e Agilidade
+  const [saltoVertical, setSaltoVertical] = useState('')
+  const [agilidadeTeste, setAgilidadeTeste] = useState('')
+
+  // Avaliação Física - Resistência
+  const [yoyoNivel, setYoyoNivel] = useState('')
+  const [yoyoDistancia, setYoyoDistancia] = useState('')
+
+  // Avaliação Física - Maturação
+  const [idadeBiologica, setIdadeBiologica] = useState('')
+  const [estagioPHV, setEstagioPHV] = useState('')
+
+  // Avaliação Física - Flexibilidade
+  const [sentarAlcancar, setSentarAlcancar] = useState('')
 
   // Conclusões
   const [pontosFortes, setPontosFortes] = useState('')
@@ -271,6 +302,20 @@ export default function EditarAvaliacaoPage() {
         setAssistCruzamento(av.assist_cruzamento || 0)
         setAssistLancamento(av.assist_lancamento || 0)
         setAssistBolaPparada(av.assist_bola_parada || 0)
+
+        // Avaliação Física
+        setAlturaAvaliacao(av.altura_avaliacao != null ? String(av.altura_avaliacao) : '')
+        setPesoAvaliacao(av.peso_avaliacao != null ? String(av.peso_avaliacao) : '')
+        setEnvergadura(av.envergadura != null ? String(av.envergadura) : '')
+        setVelocidade10m(av.velocidade_10m != null ? String(av.velocidade_10m) : '')
+        setVelocidade30m(av.velocidade_30m != null ? String(av.velocidade_30m) : '')
+        setSaltoVertical(av.salto_vertical != null ? String(av.salto_vertical) : '')
+        setAgilidadeTeste(av.agilidade_teste != null ? String(av.agilidade_teste) : '')
+        setYoyoNivel(av.yoyo_nivel || '')
+        setYoyoDistancia(av.yoyo_distancia != null ? String(av.yoyo_distancia) : '')
+        setIdadeBiologica(av.idade_biologica != null ? String(av.idade_biologica) : '')
+        setEstagioPHV(av.estagio_phv || '')
+        setSentarAlcancar(av.sentar_alcancar != null ? String(av.sentar_alcancar) : '')
       }
 
       setLoading(false)
@@ -441,7 +486,20 @@ export default function EditarAvaliacaoPage() {
       obs_unidade_defensiva: obsDefensivos.unidade_defensiva || null,
       pontos_fortes: pontosFortes || null,
       pontos_desenvolver: pontosDesenvolver || null,
-      observacoes: observacoes || null
+      observacoes: observacoes || null,
+      // Avaliação Física
+      altura_avaliacao: alturaAvaliacao ? parseFloat(alturaAvaliacao) : null,
+      peso_avaliacao: pesoAvaliacao ? parseFloat(pesoAvaliacao) : null,
+      envergadura: envergadura ? parseFloat(envergadura) : null,
+      velocidade_10m: velocidade10m ? parseFloat(velocidade10m) : null,
+      velocidade_30m: velocidade30m ? parseFloat(velocidade30m) : null,
+      salto_vertical: saltoVertical ? parseFloat(saltoVertical) : null,
+      agilidade_teste: agilidadeTeste ? parseFloat(agilidadeTeste) : null,
+      yoyo_nivel: yoyoNivel || null,
+      yoyo_distancia: yoyoDistancia ? parseInt(yoyoDistancia) : null,
+      idade_biologica: idadeBiologica ? parseFloat(idadeBiologica) : null,
+      estagio_phv: estagioPHV || null,
+      sentar_alcancar: sentarAlcancar ? parseFloat(sentarAlcancar) : null,
     }).eq('id', params.id)
 
     if (error) {
@@ -904,6 +962,160 @@ export default function EditarAvaliacaoPage() {
               {activeTab === 'defensivos' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {principiosDefensivos.map((dim) => renderDimensionCard(dim, notasDefensivos[dim.key], (key, val) => setNotasDefensivos(prev => ({ ...prev, [key]: val })), obsDefensivos[dim.key] || '', 'defensivo'))}
+                </div>
+              )}
+              {activeTab === 'fisico' && (
+                <div className="space-y-4">
+                  {/* Dados Antropométricos */}
+                  <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <h4 className="text-sm font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                      Dados Antropométricos
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Altura (m)</label>
+                        <input type="number" step="0.01" min="1.00" max="2.50" value={alturaAvaliacao} onChange={(e) => setAlturaAvaliacao(e.target.value)} placeholder="1.75"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Peso (kg)</label>
+                        <input type="number" step="0.1" min="30" max="150" value={pesoAvaliacao} onChange={(e) => setPesoAvaliacao(e.target.value)} placeholder="65.5"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Envergadura (m)</label>
+                        <input type="number" step="0.01" min="1.00" max="2.50" value={envergadura} onChange={(e) => setEnvergadura(e.target.value)} placeholder="1.80"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">IMC</label>
+                        <div className="px-3 py-2 text-sm rounded-lg text-amber-400 font-semibold"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                          {alturaAvaliacao && pesoAvaliacao ? (parseFloat(pesoAvaliacao) / Math.pow(parseFloat(alturaAvaliacao), 2)).toFixed(1) : '-'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Testes de Velocidade */}
+                  <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <h4 className="text-sm font-semibold text-amber-400 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                      Testes de Velocidade
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">10 metros (segundos)</label>
+                        <input type="number" step="0.01" min="1.00" max="5.00" value={velocidade10m} onChange={(e) => setVelocidade10m(e.target.value)} placeholder="1.85"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                        <p className="text-[9px] text-slate-500 mt-1">Explosao inicial</p>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">30 metros (segundos)</label>
+                        <input type="number" step="0.01" min="3.00" max="8.00" value={velocidade30m} onChange={(e) => setVelocidade30m(e.target.value)} placeholder="4.25"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                        <p className="text-[9px] text-slate-500 mt-1">Velocidade maxima</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Potência e Agilidade */}
+                  <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <h4 className="text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      Potencia e Agilidade
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Salto Vertical (cm)</label>
+                        <input type="number" step="0.5" min="10" max="100" value={saltoVertical} onChange={(e) => setSaltoVertical(e.target.value)} placeholder="45.5"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                        <p className="text-[9px] text-slate-500 mt-1">Potencia de pernas</p>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Teste Agilidade (segundos)</label>
+                        <input type="number" step="0.01" min="5.00" max="20.00" value={agilidadeTeste} onChange={(e) => setAgilidadeTeste(e.target.value)} placeholder="9.50"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                        <p className="text-[9px] text-slate-500 mt-1">Teste T ou Illinois</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Resistência */}
+                  <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <h4 className="text-sm font-semibold text-purple-400 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-500" />
+                      Resistencia (Yo-Yo Test)
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Nivel Alcancado</label>
+                        <input type="text" value={yoyoNivel} onChange={(e) => setYoyoNivel(e.target.value)} placeholder="15.1"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Distancia (metros)</label>
+                        <input type="number" min="100" max="5000" value={yoyoDistancia} onChange={(e) => setYoyoDistancia(e.target.value)} placeholder="1200"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Maturação */}
+                  <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <h4 className="text-sm font-semibold text-pink-400 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-pink-500" />
+                      Maturacao
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Idade Biologica</label>
+                        <input type="number" step="0.1" min="8" max="25" value={idadeBiologica} onChange={(e) => setIdadeBiologica(e.target.value)} placeholder="14.5"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                        <p className="text-[9px] text-slate-500 mt-1">Estimada pelo clube/medico</p>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Estagio PHV</label>
+                        <select value={estagioPHV} onChange={(e) => setEstagioPHV(e.target.value)}
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-pink-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                          <option value="">Selecione...</option>
+                          {estagiosPHV.map(e => (
+                            <option key={e.value} value={e.value}>{e.label}</option>
+                          ))}
+                        </select>
+                        <p className="text-[9px] text-slate-500 mt-1">Pico de Velocidade de Crescimento</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Flexibilidade */}
+                  <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-cyan-500" />
+                      Flexibilidade
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-medium text-slate-400 mb-1">Sentar e Alcancar (cm)</label>
+                        <input type="number" step="0.5" min="-20" max="60" value={sentarAlcancar} onChange={(e) => setSentarAlcancar(e.target.value)} placeholder="25.0"
+                          className="w-full px-3 py-2 text-sm rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                          style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                        <p className="text-[9px] text-slate-500 mt-1">Flexibilidade da cadeia posterior</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
               {activeTab === 'conclusoes' && (
