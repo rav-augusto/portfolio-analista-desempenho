@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
   // Redirecionar para dashboard se já logado e tentando acessar login
   if (request.nextUrl.pathname === '/login' && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/admin'
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
