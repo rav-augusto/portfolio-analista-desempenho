@@ -14,6 +14,14 @@ import {
   explicarInsights,
   type AvaliacaoComPosicao,
 } from '@/lib/stats/desempenho'
+import {
+  resumoFisico,
+  serieFisica,
+  serieIMC,
+  interpretarMaturacao,
+  idadeCronologicaEm,
+  METRICAS_FISICAS,
+} from '@/lib/stats/desenvolvimento'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import {
   Chart as ChartJS,
@@ -111,6 +119,18 @@ type Avaliacao = {
   pontos_fortes: string | null
   pontos_desenvolver: string | null
   observacoes: string | null
+  // Avaliacao fisica / maturacao (006_avaliacao_fisica.sql)
+  altura_avaliacao: number | null
+  peso_avaliacao: number | null
+  envergadura: number | null
+  velocidade_10m: number | null
+  velocidade_30m: number | null
+  salto_vertical: number | null
+  agilidade_teste: number | null
+  yoyo_distancia: number | null
+  sentar_alcancar: number | null
+  idade_biologica: number | null
+  estagio_phv: string | null
 }
 
 // Dimensoes CBF
@@ -291,6 +311,53 @@ export default function DashboardAtletasPage() {
     () => calcularComparativoPosicao(statsJogo, atletaAtual?.posicao ?? null, mediasPorPosicao),
     [statsJogo, atletaAtual, mediasPorPosicao]
   )
+
+  // ---- Desenvolvimento (físico + maturação) ----
+  const perfilMaturacao = useMemo(() => {
+    const ref = avaliacaoSelecionada ?? (avaliacoes.length ? avaliacoes[avaliacoes.length - 1] : null)
+    if (!ref) return null
+    const idadeCron = idadeCronologicaEm(atletaAtual?.data_nascimento ?? null, ref.data_avaliacao)
+    return interpretarMaturacao(ref.idade_biologica, idadeCron, ref.estagio_phv)
+  }, [avaliacaoSelecionada, avaliacoes, atletaAtual])
+
+  const resumoFisicoData = useMemo(() => resumoFisico(avaliacoes), [avaliacoes])
+  const imcSerie = useMemo(() => serieIMC(avaliacoes), [avaliacoes])
+  const metricasFisicasDisponiveis = useMemo(
+    () => METRICAS_FISICAS.filter(m => serieFisica(avaliacoes, m.key).valores.length > 0),
+    [avaliacoes]
+  )
+  const [metricaFisicaSel, setMetricaFisicaSel] = useState<string>('velocidade_30m')
+  const graficoFisico = useMemo(() => {
+    const metrica = METRICAS_FISICAS.find(m => (m.key as string) === metricaFisicaSel) ?? metricasFisicasDisponiveis[0]
+    if (!metrica) return null
+    const serie = serieFisica(avaliacoes, metrica.key)
+    if (serie.valores.length === 0) return null
+    return {
+      metrica,
+      data: {
+        labels: serie.labels,
+        datasets: [{
+          label: `${metrica.label} (${metrica.unidade})`,
+          data: serie.valores,
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6, 182, 212, 0.15)',
+          tension: 0.3,
+          fill: true,
+          borderWidth: 3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#06b6d4',
+          pointBorderColor: '#1e293b',
+          pointBorderWidth: 2,
+        }],
+      },
+    }
+  }, [avaliacoes, metricaFisicaSel, metricasFisicasDisponiveis])
+
+  const temDesenvolvimento =
+    resumoFisicoData.length > 0 ||
+    imcSerie.valores.length > 0 ||
+    (perfilMaturacao != null && perfilMaturacao.classificacao !== 'sem_dados')
 
   // Participações acumuladas ao longo dos jogos (trajetória de crescimento)
   const participacoesAcumuladasChartData = useMemo(() => {
@@ -761,6 +828,9 @@ export default function DashboardAtletasPage() {
       stats: statsJogo,
       medias: mediaPorGrupo ? { geral: mediaGeral, cbf: mediaPorGrupo.cbf, ofe: mediaPorGrupo.ofe, def: mediaPorGrupo.def } : null,
       comparativo: comparativoPosicao,
+      maturacao: perfilMaturacao,
+      fisico: resumoFisicoData,
+      imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
       observacoes: avaliacaoSelecionada?.observacoes ?? null,
@@ -1706,6 +1776,128 @@ export default function DashboardAtletasPage() {
                       <p className="text-[10px] text-slate-500 mt-2 text-center">
                         Quanto ele faria numa temporada de {nJogosProjecao} jogos, mantendo o ritmo atual de {mediasJogo.participacoesPorJogo.toFixed(2)} participação em gol por jogo (gols + assistências).
                       </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ===== DESENVOLVIMENTO: Físico + Maturação ===== */}
+              {temDesenvolvimento && (
+                <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}>
+                      <Ruler className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold text-slate-100">Desenvolvimento Físico e Maturação</h3>
+                      <p className="text-xs text-slate-400 hidden sm:block">Evolução física ao longo do tempo e leitura de maturação</p>
+                    </div>
+                  </div>
+
+                  {/* Card de Maturação */}
+                  {perfilMaturacao && perfilMaturacao.classificacao !== 'sem_dados' && (
+                    <div
+                      className="rounded-xl p-3 md:p-4 mb-4"
+                      style={{
+                        backgroundColor: '#0f172a',
+                        border: `1px solid ${perfilMaturacao.classificacao === 'precoce' ? '#f59e0b' : perfilMaturacao.classificacao === 'tardio' ? '#06b6d4' : '#22c55e'}55`,
+                      }}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                        <span
+                          className="text-xs md:text-sm font-bold px-2 py-1 rounded-lg self-start"
+                          style={{
+                            backgroundColor: perfilMaturacao.classificacao === 'precoce' ? 'rgba(245,158,11,0.15)' : perfilMaturacao.classificacao === 'tardio' ? 'rgba(6,182,212,0.15)' : 'rgba(34,197,94,0.15)',
+                            color: perfilMaturacao.classificacao === 'precoce' ? '#fbbf24' : perfilMaturacao.classificacao === 'tardio' ? '#22d3ee' : '#4ade80',
+                          }}
+                        >
+                          🧬 {perfilMaturacao.classificacaoLabel}
+                        </span>
+                        <div className="flex items-center gap-3 md:gap-5">
+                          <div className="text-center">
+                            <p className="text-base md:text-lg font-black text-slate-100">{perfilMaturacao.idadeCronologica?.toFixed(1) ?? '—'}</p>
+                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase">Idade real</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-base md:text-lg font-black text-cyan-400">{perfilMaturacao.idadeBiologica?.toFixed(1) ?? '—'}</p>
+                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase">Idade biológica</p>
+                          </div>
+                          <div className="text-center">
+                            <p className={`text-base md:text-lg font-black ${(perfilMaturacao.diferenca ?? 0) >= 1 ? 'text-amber-400' : (perfilMaturacao.diferenca ?? 0) <= -1 ? 'text-cyan-400' : 'text-green-400'}`}>
+                              {perfilMaturacao.diferenca != null ? `${perfilMaturacao.diferenca > 0 ? '+' : ''}${perfilMaturacao.diferenca.toFixed(1)}` : '—'}
+                            </p>
+                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase">Diferença</p>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[11px] md:text-xs text-slate-400 leading-snug">{perfilMaturacao.descricao}</p>
+                    </div>
+                  )}
+
+                  {/* Cards de evolução física */}
+                  {(resumoFisicoData.length > 0 || imcSerie.valores.length > 0) && (
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 mb-4">
+                      {resumoFisicoData.map((r) => {
+                        const corDelta = r.melhorou === null ? '#94a3b8' : r.melhorou ? '#4ade80' : '#f87171'
+                        const seta = r.melhorou === null ? '' : r.melhorou ? '▲' : '▼'
+                        const fmtNum = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
+                        return (
+                          <div key={r.key} className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                            <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1 truncate" title={r.label}>{r.label}</p>
+                            <p className="text-base md:text-xl font-black text-slate-100">{fmtNum(r.ultimo)}<span className="text-[10px] text-slate-500 ml-0.5">{r.unidade}</span></p>
+                            <p className="text-[10px] md:text-[11px] leading-snug" style={{ color: corDelta }}>
+                              {r.melhorou === null ? '1ª medição' : `${seta} ${fmtNum(Math.abs(r.delta))} ${r.unidade} vs início`}
+                            </p>
+                          </div>
+                        )
+                      })}
+                      {imcSerie.valores.length > 0 && (
+                        <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                          <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">IMC</p>
+                          <p className="text-base md:text-xl font-black text-slate-100">{imcSerie.valores[imcSerie.valores.length - 1].toLocaleString('pt-BR', { maximumFractionDigits: 1 })}</p>
+                          <p className="text-[10px] md:text-[11px] text-slate-500 leading-snug">peso / altura²</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Gráfico de evolução física (selecionável) */}
+                  {graficoFisico && (
+                    <div>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                        <p className="text-xs text-cyan-300 font-medium flex items-center gap-1">📈 Evolução física</p>
+                        <select
+                          value={metricaFisicaSel}
+                          onChange={(e) => setMetricaFisicaSel(e.target.value)}
+                          className="px-2 py-1 rounded-lg text-xs focus:outline-none"
+                          style={{ backgroundColor: '#334155', border: '1px solid #475569', color: '#e2e8f0' }}
+                        >
+                          {metricasFisicasDisponiveis.map((m) => (
+                            <option key={m.key as string} value={m.key as string}>{m.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mb-2">
+                        {graficoFisico.metrica.descricao}
+                        {graficoFisico.metrica.melhorQuando === 'menor' ? ' (linha caindo = melhorando)' : ' (linha subindo = melhorando)'}
+                      </p>
+                      <div style={{ height: '180px' }}>
+                        <Line
+                          data={graficoFisico.data}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                              y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(71, 85, 105, 0.3)' } },
+                              x: { ticks: { color: '#e2e8f0', font: { size: 10 } }, grid: { display: false } },
+                            },
+                            plugins: {
+                              legend: { display: false },
+                              tooltip: { backgroundColor: '#0f172a', titleColor: '#06b6d4', bodyColor: '#ffffff', borderColor: '#06b6d4', borderWidth: 1, padding: 12 },
+                            },
+                          }}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

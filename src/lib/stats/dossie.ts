@@ -2,6 +2,7 @@
 // Abre uma nova janela com layout claro e chama window.print(). Sem dependências externas.
 
 import { explicarMedias, explicarInsights, type EstatisticasJogo, type ComparativoPosicao } from './desempenho'
+import type { PerfilMaturacao, ResumoMetrica } from './desenvolvimento'
 
 export type DossieAtleta = {
   nome: string
@@ -25,6 +26,9 @@ export type DossieParams = {
   stats: EstatisticasJogo
   medias: DossieMediasGrupo
   comparativo: ComparativoPosicao | null
+  maturacao?: PerfilMaturacao | null
+  fisico?: ResumoMetrica[]
+  imc?: number | null
   pontosFortes: string | null
   pontosDesenvolver: string | null
   observacoes: string | null
@@ -102,6 +106,51 @@ export function gerarDossieHTML(p: DossieParams): string {
     </section>`
     : ''
 
+  const fmtN = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
+  const mat = p.maturacao
+  const fisico = p.fisico ?? []
+  const temMat = !!mat && mat.classificacao !== 'sem_dados'
+  const blocoDesenvolvimento =
+    temMat || fisico.length > 0 || p.imc != null
+      ? `
+    <section>
+      <h2>Desenvolvimento — Físico e Maturação</h2>
+      ${
+        temMat
+          ? `<div class="mat">
+               <span class="badge">${esc(mat!.classificacaoLabel)}</span>
+               <span>Idade real: <b>${mat!.idadeCronologica != null ? fmt(mat!.idadeCronologica, 1) : '—'}</b></span>
+               <span>Idade biológica: <b>${mat!.idadeBiologica != null ? fmt(mat!.idadeBiologica, 1) : '—'}</b></span>
+               <span>Diferença: <b>${mat!.diferenca != null ? `${mat!.diferenca > 0 ? '+' : ''}${fmt(mat!.diferenca, 1)}` : '—'}</b></span>
+             </div>
+             <p class="mat-desc">${esc(mat!.descricao)}</p>`
+          : ''
+      }
+      ${
+        fisico.length > 0
+          ? `<table>
+               <thead><tr><th>Teste físico</th><th>Atual</th><th>Início</th><th>Evolução</th></tr></thead>
+               <tbody>
+                 ${fisico
+                   .map(
+                     r => `<tr>
+                       <td>${esc(r.label)}</td>
+                       <td class="num">${fmtN(r.ultimo)} ${esc(r.unidade)}</td>
+                       <td class="num">${fmtN(r.primeiro)} ${esc(r.unidade)}</td>
+                       <td class="num ${r.melhorou === null ? '' : r.melhorou ? 'pos' : 'neg'}">${r.melhorou === null ? '1ª medição' : `${r.melhorou ? 'melhorou' : 'piorou'} ${fmtN(Math.abs(r.delta))} ${r.unidade}`}</td>
+                     </tr>`
+                   )
+                   .join('')}
+                 ${p.imc != null ? `<tr><td>IMC</td><td class="num">${fmtN(p.imc)}</td><td class="num">—</td><td class="num">peso / altura²</td></tr>` : ''}
+               </tbody>
+             </table>`
+          : p.imc != null
+            ? `<p>IMC atual: <b>${fmtN(p.imc)}</b></p>`
+            : ''
+      }
+    </section>`
+      : ''
+
   const textoBloco = (titulo: string, cor: string, texto: string | null) =>
     texto
       ? `<div class="texto-bloco" style="border-left-color:${cor}">
@@ -157,6 +206,10 @@ export function gerarDossieHTML(p: DossieParams): string {
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
   td.pos { color: #16a34a; font-weight: 700; }
   td.neg { color: #dc2626; font-weight: 700; }
+  .mat { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 12px; color: #475569; margin-bottom: 8px; }
+  .mat b { color: #0f172a; }
+  .mat .badge { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+  .mat-desc { font-size: 12px; color: #475569; line-height: 1.5; margin-bottom: 10px; }
   .texto-bloco { border-left: 4px solid; padding: 8px 12px; margin-bottom: 10px; background: #f8fafc; border-radius: 0 8px 8px 0; }
   .texto-bloco h3 { font-size: 12px; text-transform: uppercase; margin-bottom: 4px; }
   .texto-bloco p { font-size: 13px; color: #334155; line-height: 1.5; }
@@ -208,6 +261,7 @@ export function gerarDossieHTML(p: DossieParams): string {
   </section>
 
   ${blocoMedias}
+  ${blocoDesenvolvimento}
   ${blocoComparativo}
   ${blocoTextos}
 
