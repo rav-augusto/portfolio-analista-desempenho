@@ -3,7 +3,16 @@
 import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
-import { Users, TrendingUp, Scale, Star, BarChart3, Trophy, Clock, User } from 'lucide-react'
+import { Users, TrendingUp, Scale, Star, BarChart3, Trophy, Clock, User, FileDown, Target } from 'lucide-react'
+import {
+  calcularEstatisticasJogo,
+  calcularSerieAcumulada,
+  calcularMediasPorPosicao,
+  calcularComparativoPosicao,
+  projetarTemporada,
+  type AvaliacaoComPosicao,
+} from '@/lib/stats/desempenho'
+import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -143,6 +152,8 @@ export default function PortalDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'geral' | 'cbf' | 'ofe' | 'def'>('geral')
   const [avaliacaoIndex, setAvaliacaoIndex] = useState<number>(-1) // -1 = ultima
+  const [avaliacoesPosicao, setAvaliacoesPosicao] = useState<AvaliacaoComPosicao[]>([]) // agregado p/ comparativo
+  const [nJogosProjecao, setNJogosProjecao] = useState<number>(30)
   const supabase = createClient()
   const { user: usuario, isLoading: userLoading } = useUser()
 
@@ -166,6 +177,31 @@ export default function PortalDashboardPage() {
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
   }, [usuario])
+
+  // Carregar agregado (todas avaliações + posição) para comparativo por posição
+  useEffect(() => {
+    const loadAgregado = async () => {
+      const { data } = await supabase
+        .from('avaliacoes_atleta')
+        .select('atleta_id, minutos_jogados, gols, assistencias, atletas(posicao)')
+
+      if (data) {
+        const linhas: AvaliacaoComPosicao[] = data.map((row) => {
+          const atletasRel = row.atletas as { posicao: string | null } | { posicao: string | null }[] | null
+          const posicao = Array.isArray(atletasRel) ? atletasRel[0]?.posicao ?? null : atletasRel?.posicao ?? null
+          return {
+            atleta_id: row.atleta_id,
+            minutos_jogados: row.minutos_jogados,
+            gols: row.gols,
+            assistencias: row.assistencias,
+            posicao,
+          }
+        })
+        setAvaliacoesPosicao(linhas)
+      }
+    }
+    loadAgregado()
+  }, [supabase])
 
   const loadData = async () => {
     if (!usuario?.atleta_id) return
@@ -216,11 +252,59 @@ export default function PortalDashboardPage() {
     return { total, jogos: avaliacoesComMinutos.length, avaliacoes: avaliacoesComMinutos }
   }, [avaliacoes])
 
-  // Total de gols e assistencias
-  const golsAssistencias = useMemo(() => {
-    const totalGols = avaliacoes.reduce((acc, a) => acc + (a.gols || 0), 0)
-    const totalAssistencias = avaliacoes.reduce((acc, a) => acc + (a.assistencias || 0), 0)
-    return { gols: totalGols, assistencias: totalAssistencias }
+  // Estatísticas de jogo consolidadas (lib compartilhada admin/portal)
+  const statsJogo = useMemo(() => calcularEstatisticasJogo(avaliacoes), [avaliacoes])
+  const golsAssistencias = statsJogo // { gols, assistencias, participacoes, ... }
+  const mediasJogo = statsJogo.medias
+  const insightsOfensivos = statsJogo.insights
+
+  // Projeção de temporada
+  const projecao = useMemo(() => projetarTemporada(statsJogo, nJogosProjecao), [statsJogo, nJogosProjecao])
+
+  // Comparativo com a média da posição
+  const mediasPorPosicao = useMemo(() => calcularMediasPorPosicao(avaliacoesPosicao), [avaliacoesPosicao])
+  const comparativoPosicao = useMemo(
+    () => calcularComparativoPosicao(statsJogo, atleta?.posicao ?? null, mediasPorPosicao),
+    [statsJogo, atleta, mediasPorPosicao]
+  )
+
+  // Participações acumuladas (trajetória)
+  const participacoesAcumuladasChartData = useMemo(() => {
+    const serie = calcularSerieAcumulada(avaliacoes)
+    if (!serie) return null
+    return {
+      labels: serie.labels,
+      datasets: [
+        {
+          label: 'Participações (G+A)',
+          data: serie.participacoesAcumuladas,
+          borderColor: '#a855f7',
+          backgroundColor: 'rgba(168, 85, 247, 0.15)',
+          tension: 0.3,
+          fill: true,
+          borderWidth: 3,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#a855f7',
+          pointBorderColor: '#1e293b',
+          pointBorderWidth: 2,
+        },
+        {
+          label: 'Gols',
+          data: serie.golsAcumulados,
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          tension: 0.3,
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: '#1e293b',
+          pointBorderWidth: 2,
+        },
+      ],
+    }
   }, [avaliacoes])
 
   // Detalhes dos gols (parte do corpo, zona, tipo)
@@ -542,6 +626,43 @@ export default function PortalDashboardPage() {
     }
   }
 
+  // Idade do atleta (para o dossiê)
+  const calcularIdade = (dataNascimento: string | null) => {
+    if (!dataNascimento) return null
+    const hoje = new Date()
+    const nascimento = new Date(dataNascimento + 'T12:00:00')
+    let idade = hoje.getFullYear() - nascimento.getFullYear()
+    const mes = hoje.getMonth() - nascimento.getMonth()
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) idade--
+    return idade
+  }
+
+  // Exportar dossiê do atleta (PDF via impressão do navegador)
+  const handleExportarDossie = () => {
+    if (!atleta) return
+    const ok = abrirDossieParaImpressao({
+      atleta: {
+        nome: atleta.nome,
+        posicao: atleta.posicao,
+        clube: getClubeName(atleta.clubes),
+        idade: calcularIdade(atleta.data_nascimento),
+        altura: atleta.altura,
+        peso: atleta.peso,
+        fotoUrl: atleta.foto_url,
+      },
+      stats: statsJogo,
+      medias: mediaPorGrupo ? { geral: mediaGeral, cbf: mediaPorGrupo.cbf, ofe: mediaPorGrupo.ofe, def: mediaPorGrupo.def } : null,
+      comparativo: comparativoPosicao,
+      pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
+      pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
+      observacoes: avaliacaoSelecionada?.observacoes ?? null,
+      dataAvaliacao: avaliacaoSelecionada?.data_avaliacao ?? null,
+    })
+    if (!ok) {
+      alert('Não foi possível abrir a janela do dossiê. Verifique se o bloqueador de pop-ups está desativado.')
+    }
+  }
+
   if (loading || userLoading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -617,6 +738,19 @@ export default function PortalDashboardPage() {
                 {estatisticas.mediaUltima > estatisticas.mediaPrimeira ? 'Evoluindo' : estatisticas.mediaUltima < estatisticas.mediaPrimeira ? 'Em Queda' : 'Estavel'}
               </p>
             </div>
+          )}
+
+          {/* Exportar dossiê PDF */}
+          {avaliacoes.length > 0 && (
+            <button
+              onClick={handleExportarDossie}
+              className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
+              style={{ backgroundColor: '#334155', border: '1px solid #64748b', color: '#e2e8f0' }}
+              title="Gerar dossiê em PDF"
+            >
+              <FileDown className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
+              <span className="hidden sm:inline">Dossiê PDF</span>
+            </button>
           )}
         </div>
       </div>
@@ -975,7 +1109,7 @@ export default function PortalDashboardPage() {
                     <p className="text-xs text-slate-400 hidden sm:block">Minutagem, gols e assistencias</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-center sm:justify-end gap-2 md:gap-4">
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 md:gap-4">
                   {/* Gols */}
                   <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #22c55e40' }}>
                     <span className="text-base md:text-xl">⚽</span>
@@ -992,6 +1126,14 @@ export default function PortalDashboardPage() {
                       <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Assist.</p>
                     </div>
                   </div>
+                  {/* Participacoes (G+A) */}
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #a855f740' }}>
+                    <span className="text-base md:text-xl">🅖🅐</span>
+                    <div className="text-center">
+                      <p className="text-lg md:text-2xl font-black text-violet-400">{golsAssistencias.participacoes}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Particip.</p>
+                    </div>
+                  </div>
                   {/* Minutagem */}
                   <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
                     <Clock className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />
@@ -1002,6 +1144,42 @@ export default function PortalDashboardPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Linha de medias (por jogo / por partida 60') */}
+              {minutosData.total > 0 && (
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-1 mb-4 -mt-1 text-[11px] md:text-xs text-slate-400">
+                  <span className="flex items-center gap-1"><span className="text-slate-500">⌀ Min/jogo:</span><span className="font-semibold text-amber-400">{mediasJogo.minutosPorJogo.toFixed(0)}&apos;</span></span>
+                  <span className="flex items-center gap-1"><span className="text-slate-500">G+A/jogo:</span><span className="font-semibold text-violet-300">{mediasJogo.participacoesPorJogo.toFixed(2)}</span></span>
+                  <span className="flex items-center gap-1"><span className="text-slate-500">Gols/partida (60&apos;):</span><span className="font-semibold text-green-400">{mediasJogo.golsPorPartida.toFixed(2)}</span></span>
+                  <span className="flex items-center gap-1"><span className="text-slate-500">G+A/partida (60&apos;):</span><span className="font-semibold text-violet-300">{mediasJogo.participacoesPorPartida.toFixed(2)}</span></span>
+                </div>
+              )}
+
+              {/* Insights ofensivos */}
+              {insightsOfensivos.totalJogos > 0 && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-4">
+                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Jogos decisivos</p>
+                    <p className="text-lg md:text-xl font-black text-cyan-400">{insightsOfensivos.percentDecisivo.toFixed(0)}%</p>
+                    <p className="text-[9px] md:text-[10px] text-slate-500">{insightsOfensivos.jogosDecisivos} de {insightsOfensivos.totalJogos} jogos com G/A</p>
+                  </div>
+                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Sequencia atual</p>
+                    <p className="text-lg md:text-xl font-black text-orange-400">{insightsOfensivos.sequenciaAtual > 0 ? `🔥 ${insightsOfensivos.sequenciaAtual}` : '—'}</p>
+                    <p className="text-[9px] md:text-[10px] text-slate-500">{insightsOfensivos.sequenciaAtual > 0 ? 'jogos seguidos com participacao' : 'sem participacao no ultimo jogo'}</p>
+                  </div>
+                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Melhor sequencia</p>
+                    <p className="text-lg md:text-xl font-black text-amber-400">{insightsOfensivos.melhorSequencia}</p>
+                    <p className="text-[9px] md:text-[10px] text-slate-500">recorde de jogos seguidos com G/A</p>
+                  </div>
+                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Ritmo de gol</p>
+                    <p className="text-lg md:text-xl font-black text-green-400">{insightsOfensivos.minutosPorGol > 0 ? `${insightsOfensivos.minutosPorGol.toFixed(0)}'` : '—'}</p>
+                    <p className="text-[9px] md:text-[10px] text-slate-500">{insightsOfensivos.minutosPorGol > 0 ? '1 gol a cada' : 'sem gols registrados'}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Graficos lado a lado */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1120,6 +1298,110 @@ export default function PortalDashboardPage() {
                   </div>
                 )}
               </div>
+
+              {/* Grafico de Participacoes Acumuladas (trajetoria de crescimento) */}
+              {participacoesAcumuladasChartData && golsAssistencias.participacoes > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs text-violet-300 font-medium mb-2 flex items-center gap-1">
+                    📈 Participacoes Acumuladas (trajetoria)
+                  </p>
+                  <div style={{ height: '180px' }}>
+                    <Line
+                      data={participacoesAcumuladasChartData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index' as const, intersect: false },
+                        scales: {
+                          y: { min: 0, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(71, 85, 105, 0.3)' } },
+                          x: { ticks: { color: '#e2e8f0', font: { size: 10 } }, grid: { display: false } }
+                        },
+                        plugins: {
+                          legend: { display: true, position: 'top' as const, labels: { color: '#e2e8f0', boxWidth: 12, padding: 8, font: { size: 10 } } },
+                          tooltip: { backgroundColor: '#0f172a', titleColor: '#a855f7', bodyColor: '#ffffff', borderColor: '#a855f7', borderWidth: 1, padding: 12 }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Comparativo com a media da posicao */}
+              {comparativoPosicao && (
+                <div className="mt-4 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Target className="w-4 h-4 text-cyan-400" />
+                    <p className="text-xs md:text-sm font-medium text-slate-200">
+                      Comparativo com a posicao — <span className="text-cyan-400">{comparativoPosicao.posicao}</span>
+                      <span className="text-slate-500"> ({comparativoPosicao.atletasNaPosicao} atletas)</span>
+                    </p>
+                  </div>
+                  <div className="space-y-2.5">
+                    {comparativoPosicao.metricas.map((m) => {
+                      const acima = m.percentVsMedia >= 0
+                      const escala = Math.max(m.atleta, m.media, 0.01) * 1.25
+                      return (
+                        <div key={m.label} className="flex items-center gap-2 md:gap-3">
+                          <span className="text-[10px] md:text-xs text-slate-400 w-16 md:w-24 flex-shrink-0">{m.label}</span>
+                          <div className="flex-1 h-5 rounded-full relative overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
+                            <div className="h-full rounded-full transition-all" style={{ width: `${(m.atleta / escala) * 100}%`, backgroundColor: acima ? '#22c55e' : '#ef4444', opacity: 0.85 }} />
+                            <div className="absolute top-0 bottom-0" style={{ left: `${(m.media / escala) * 100}%`, width: 2, backgroundColor: '#e2e8f0' }} title={`Media da posicao: ${m.media.toFixed(2)}`} />
+                            <span className="absolute inset-0 flex items-center pl-2 text-[10px] font-bold text-white drop-shadow">{m.atleta.toFixed(2)}</span>
+                          </div>
+                          <span className={`text-[10px] md:text-xs font-bold w-12 text-right ${acima ? 'text-green-400' : 'text-red-400'}`}>
+                            {acima ? '+' : ''}{m.percentVsMedia.toFixed(0)}%
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-2 flex items-center gap-1">
+                    <span className="inline-block" style={{ width: 8, height: 8, backgroundColor: '#e2e8f0' }} /> linha branca = media da posicao
+                  </p>
+                </div>
+              )}
+
+              {/* Projecao de temporada */}
+              {statsJogo.jogos > 0 && (
+                <div className="mt-4 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-violet-400" />
+                      <p className="text-xs md:text-sm font-medium text-slate-200">Projecao de temporada</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] md:text-xs text-slate-500">N de jogos:</span>
+                      <select
+                        value={nJogosProjecao}
+                        onChange={(e) => setNJogosProjecao(Number(e.target.value))}
+                        className="px-2 py-1 rounded-lg text-xs focus:outline-none"
+                        style={{ backgroundColor: '#334155', border: '1px solid #475569', color: '#e2e8f0' }}
+                      >
+                        <option value={20}>20</option>
+                        <option value={30}>30</option>
+                        <option value={38}>38</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 md:gap-3">
+                    <div className="text-center rounded-lg p-2" style={{ backgroundColor: '#1e293b' }}>
+                      <p className="text-lg md:text-xl font-black text-green-400">{Math.round(projecao.gols)}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Gols proj.</p>
+                    </div>
+                    <div className="text-center rounded-lg p-2" style={{ backgroundColor: '#1e293b' }}>
+                      <p className="text-lg md:text-xl font-black text-blue-400">{Math.round(projecao.assistencias)}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Assist. proj.</p>
+                    </div>
+                    <div className="text-center rounded-lg p-2" style={{ backgroundColor: '#1e293b' }}>
+                      <p className="text-lg md:text-xl font-black text-violet-400">{Math.round(projecao.participacoes)}</p>
+                      <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">G+A proj.</p>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-2 text-center">
+                    Estimativa no ritmo atual de {mediasJogo.participacoesPorJogo.toFixed(2)} G+A por jogo
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
