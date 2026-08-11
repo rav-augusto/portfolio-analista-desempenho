@@ -1,7 +1,7 @@
 // Gera um dossiê imprimível (PDF via "Salvar como PDF" do navegador) do atleta.
 // Abre uma nova janela com layout claro e chama window.print(). Sem dependências externas.
 
-import type { EstatisticasJogo, ComparativoPosicao } from './desempenho'
+import { explicarMedias, explicarInsights, type EstatisticasJogo, type ComparativoPosicao } from './desempenho'
 
 export type DossieAtleta = {
   nome: string
@@ -147,6 +147,10 @@ export function gerarDossieHTML(p: DossieParams): string {
   .stat-rotulo { font-size: 10px; text-transform: uppercase; color: #64748b; margin-top: 6px; letter-spacing: .3px; }
   .linha-medias { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; color: #475569; }
   .linha-medias b { color: #0f172a; }
+  .lista-exp { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+  .lista-exp li { font-size: 13px; color: #0f172a; padding-left: 10px; border-left: 3px solid #f59e0b; }
+  .lista-exp li b { font-size: 16px; color: #0f172a; margin-right: 2px; }
+  .lista-exp .desc { font-size: 11px; color: #64748b; line-height: 1.4; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
   th { background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #64748b; }
@@ -186,16 +190,21 @@ export function gerarDossieHTML(p: DossieParams): string {
   </section>
 
   <section>
-    <h2>Médias e Ritmo</h2>
-    <div class="linha-medias">
-      <span>⌀ Min/jogo: <b>${fmt(stats.medias.minutosPorJogo, 0)}'</b></span>
-      <span>G+A/jogo: <b>${fmt(stats.medias.participacoesPorJogo)}</b></span>
-      <span>Gols/partida (60'): <b>${fmt(stats.medias.golsPorPartida)}</b></span>
-      <span>G+A/partida (60'): <b>${fmt(stats.medias.participacoesPorPartida)}</b></span>
-      <span>Jogos decisivos: <b>${fmt(stats.insights.percentDecisivo, 0)}%</b></span>
-      <span>Melhor sequência: <b>${stats.insights.melhorSequencia} jogos</b></span>
-      ${stats.insights.minutosPorGol > 0 ? `<span>1 gol a cada: <b>${fmt(stats.insights.minutosPorGol, 0)}'</b></span>` : ''}
-    </div>
+    <h2>Médias e Participação em Gol</h2>
+    <ul class="lista-exp">
+      ${explicarMedias(stats)
+        .map(m => `<li><b>${esc(m.valor)}</b> &nbsp;${esc(m.titulo)}<br/><span class="desc">${esc(m.descricao)}</span></li>`)
+        .join('')}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Regularidade e Ritmo</h2>
+    <ul class="lista-exp">
+      ${explicarInsights(stats)
+        .map(m => `<li><b>${esc(m.valor)}</b> &nbsp;${esc(m.titulo)}<br/><span class="desc">${esc(m.descricao)}</span></li>`)
+        .join('')}
+    </ul>
   </section>
 
   ${blocoMedias}

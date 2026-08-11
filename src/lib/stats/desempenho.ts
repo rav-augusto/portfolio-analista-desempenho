@@ -244,7 +244,7 @@ export function calcularComparativoPosicao(
         percentVsMedia: diff(stats.medias.golsPorPartida, media.golsPorPartida),
       },
       {
-        label: 'G+A/partida',
+        label: 'Particip./partida',
         atleta: stats.medias.participacoesPorPartida,
         media: media.participacoesPorPartida,
         percentVsMedia: diff(stats.medias.participacoesPorPartida, media.participacoesPorPartida),
@@ -257,4 +257,90 @@ export function calcularComparativoPosicao(
       },
     ],
   }
+}
+
+// ---- Textos explicativos (frases prontas p/ UI e dossiê) ----
+
+export type MetricaExplicada = {
+  chave: string
+  titulo: string
+  valor: string
+  descricao: string
+}
+
+// Formata número no padrão brasileiro (vírgula decimal).
+const fmtBR = (n: number, casas: number) =>
+  n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
+
+const plural = (n: number, sing: string, plur: string) => (n === 1 ? sing : plur)
+
+// Médias de participação em gol — cada uma vira uma frase clara.
+export function explicarMedias(stats: EstatisticasJogo): MetricaExplicada[] {
+  const m = stats.medias
+  return [
+    {
+      chave: 'min_jogo',
+      titulo: 'Minutos em campo por jogo',
+      valor: `${Math.round(m.minutosPorJogo)}'`,
+      descricao: `Em média joga ${Math.round(m.minutosPorJogo)} minutos por partida (o jogo completo tem ${MINUTOS_PARTIDA}').`,
+    },
+    {
+      chave: 'ga_jogo',
+      titulo: 'Participações em gol por jogo',
+      valor: fmtBR(m.participacoesPorJogo, 2),
+      descricao: `A cada jogo participa de ${fmtBR(m.participacoesPorJogo, 2)} gol em média (gols + assistências somados).`,
+    },
+    {
+      chave: 'gols_partida',
+      titulo: 'Gols a cada partida completa',
+      valor: fmtBR(m.golsPorPartida, 2),
+      descricao: `Se jogasse os ${MINUTOS_PARTIDA}' inteiros, faria ${fmtBR(m.golsPorPartida, 2)} gol — compara de forma justa quem joga tempos diferentes.`,
+    },
+    {
+      chave: 'ga_partida',
+      titulo: 'Participações a cada partida completa',
+      valor: fmtBR(m.participacoesPorPartida, 2),
+      descricao: `Numa partida completa de ${MINUTOS_PARTIDA}', participaria de ${fmtBR(m.participacoesPorPartida, 2)} gol (gols + assistências).`,
+    },
+  ]
+}
+
+// Insights (regularidade, sequências, ritmo) — cada um vira uma frase clara.
+export function explicarInsights(stats: EstatisticasJogo): MetricaExplicada[] {
+  const i = stats.insights
+  return [
+    {
+      chave: 'decisivo',
+      titulo: 'Jogos decisivos',
+      valor: `${Math.round(i.percentDecisivo)}%`,
+      descricao: `Foi decisivo em ${Math.round(i.percentDecisivo)}% dos jogos — fez gol ou deu assistência em ${i.jogosDecisivos} de ${i.totalJogos} ${plural(i.totalJogos, 'jogo', 'jogos')}.`,
+    },
+    {
+      chave: 'seq_atual',
+      titulo: 'Sequência atual',
+      valor: i.sequenciaAtual > 0 ? `🔥 ${i.sequenciaAtual}` : '—',
+      descricao:
+        i.sequenciaAtual > 0
+          ? `Está há ${i.sequenciaAtual} ${plural(i.sequenciaAtual, 'jogo', 'jogos')} seguidos participando de gol.`
+          : 'No jogo mais recente não fez gol nem deu assistência.',
+    },
+    {
+      chave: 'melhor_seq',
+      titulo: 'Melhor sequência',
+      valor: `${i.melhorSequencia}`,
+      descricao:
+        i.melhorSequencia > 0
+          ? `Recorde de ${i.melhorSequencia} ${plural(i.melhorSequencia, 'jogo', 'jogos')} seguidos participando de gol.`
+          : 'Ainda sem jogos seguidos com participação em gol.',
+    },
+    {
+      chave: 'ritmo_gol',
+      titulo: 'Ritmo de gol',
+      valor: i.minutosPorGol > 0 ? `${Math.round(i.minutosPorGol)}'` : '—',
+      descricao:
+        i.minutosPorGol > 0
+          ? `Marca 1 gol a cada ${Math.round(i.minutosPorGol)} minutos em campo.`
+          : 'Ainda sem gols registrados.',
+    },
+  ]
 }

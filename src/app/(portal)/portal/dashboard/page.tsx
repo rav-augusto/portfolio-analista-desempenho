@@ -10,6 +10,8 @@ import {
   calcularMediasPorPosicao,
   calcularComparativoPosicao,
   projetarTemporada,
+  explicarMedias,
+  explicarInsights,
   type AvaliacaoComPosicao,
 } from '@/lib/stats/desempenho'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
@@ -257,6 +259,8 @@ export default function PortalDashboardPage() {
   const golsAssistencias = statsJogo // { gols, assistencias, participacoes, ... }
   const mediasJogo = statsJogo.medias
   const insightsOfensivos = statsJogo.insights
+  const mediasExplicadas = useMemo(() => explicarMedias(statsJogo), [statsJogo])
+  const insightsExplicados = useMemo(() => explicarInsights(statsJogo), [statsJogo])
 
   // Projeção de temporada
   const projecao = useMemo(() => projetarTemporada(statsJogo, nJogosProjecao), [statsJogo, nJogosProjecao])
@@ -1145,39 +1149,39 @@ export default function PortalDashboardPage() {
                 </div>
               </div>
 
-              {/* Linha de medias (por jogo / por partida 60') */}
+              {/* Medias explicadas (cada numero vira uma frase) */}
               {minutosData.total > 0 && (
-                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-1 mb-4 -mt-1 text-[11px] md:text-xs text-slate-400">
-                  <span className="flex items-center gap-1"><span className="text-slate-500">⌀ Min/jogo:</span><span className="font-semibold text-amber-400">{mediasJogo.minutosPorJogo.toFixed(0)}&apos;</span></span>
-                  <span className="flex items-center gap-1"><span className="text-slate-500">G+A/jogo:</span><span className="font-semibold text-violet-300">{mediasJogo.participacoesPorJogo.toFixed(2)}</span></span>
-                  <span className="flex items-center gap-1"><span className="text-slate-500">Gols/partida (60&apos;):</span><span className="font-semibold text-green-400">{mediasJogo.golsPorPartida.toFixed(2)}</span></span>
-                  <span className="flex items-center gap-1"><span className="text-slate-500">G+A/partida (60&apos;):</span><span className="font-semibold text-violet-300">{mediasJogo.participacoesPorPartida.toFixed(2)}</span></span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
+                  {mediasExplicadas.map((m) => {
+                    const cor: Record<string, string> = { min_jogo: '#f59e0b', ga_jogo: '#a855f7', gols_partida: '#22c55e', ga_partida: '#a855f7' }
+                    return (
+                      <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg md:text-xl font-black" style={{ color: cor[m.chave] }}>{m.valor}</span>
+                          <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
+                        </div>
+                        <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 
-              {/* Insights ofensivos */}
+              {/* Insights explicados */}
               {insightsOfensivos.totalJogos > 0 && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 mb-4">
-                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Jogos decisivos</p>
-                    <p className="text-lg md:text-xl font-black text-cyan-400">{insightsOfensivos.percentDecisivo.toFixed(0)}%</p>
-                    <p className="text-[9px] md:text-[10px] text-slate-500">{insightsOfensivos.jogosDecisivos} de {insightsOfensivos.totalJogos} jogos com G/A</p>
-                  </div>
-                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Sequencia atual</p>
-                    <p className="text-lg md:text-xl font-black text-orange-400">{insightsOfensivos.sequenciaAtual > 0 ? `🔥 ${insightsOfensivos.sequenciaAtual}` : '—'}</p>
-                    <p className="text-[9px] md:text-[10px] text-slate-500">{insightsOfensivos.sequenciaAtual > 0 ? 'jogos seguidos com participacao' : 'sem participacao no ultimo jogo'}</p>
-                  </div>
-                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Melhor sequencia</p>
-                    <p className="text-lg md:text-xl font-black text-amber-400">{insightsOfensivos.melhorSequencia}</p>
-                    <p className="text-[9px] md:text-[10px] text-slate-500">recorde de jogos seguidos com G/A</p>
-                  </div>
-                  <div className="rounded-xl p-2.5 md:p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <p className="text-[9px] md:text-[10px] text-slate-400 uppercase mb-1">Ritmo de gol</p>
-                    <p className="text-lg md:text-xl font-black text-green-400">{insightsOfensivos.minutosPorGol > 0 ? `${insightsOfensivos.minutosPorGol.toFixed(0)}'` : '—'}</p>
-                    <p className="text-[9px] md:text-[10px] text-slate-500">{insightsOfensivos.minutosPorGol > 0 ? '1 gol a cada' : 'sem gols registrados'}</p>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
+                  {insightsExplicados.map((m) => {
+                    const cor: Record<string, string> = { decisivo: '#22d3ee', seq_atual: '#fb923c', melhor_seq: '#fbbf24', ritmo_gol: '#4ade80' }
+                    return (
+                      <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg md:text-xl font-black" style={{ color: cor[m.chave] }}>{m.valor}</span>
+                          <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
+                        </div>
+                        <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 
@@ -1329,13 +1333,16 @@ export default function PortalDashboardPage() {
               {/* Comparativo com a media da posicao */}
               {comparativoPosicao && (
                 <div className="mt-4 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-1">
                     <Target className="w-4 h-4 text-cyan-400" />
                     <p className="text-xs md:text-sm font-medium text-slate-200">
                       Comparativo com a posicao — <span className="text-cyan-400">{comparativoPosicao.posicao}</span>
                       <span className="text-slate-500"> ({comparativoPosicao.atletasNaPosicao} atletas)</span>
                     </p>
                   </div>
+                  <p className="text-[11px] text-slate-400 mb-3">
+                    Como este atleta se compara com a media de quem joga na mesma posicao. O % a direita mostra o quanto ele esta acima (verde) ou abaixo (vermelho) dessa media.
+                  </p>
                   <div className="space-y-2.5">
                     {comparativoPosicao.metricas.map((m) => {
                       const acima = m.percentVsMedia >= 0
@@ -1398,7 +1405,7 @@ export default function PortalDashboardPage() {
                     </div>
                   </div>
                   <p className="text-[10px] text-slate-500 mt-2 text-center">
-                    Estimativa no ritmo atual de {mediasJogo.participacoesPorJogo.toFixed(2)} G+A por jogo
+                    Quanto ele faria numa temporada de {nJogosProjecao} jogos, mantendo o ritmo atual de {mediasJogo.participacoesPorJogo.toFixed(2)} participacao em gol por jogo (gols + assistencias).
                   </p>
                 </div>
               )}
