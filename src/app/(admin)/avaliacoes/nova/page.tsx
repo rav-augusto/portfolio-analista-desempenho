@@ -161,6 +161,11 @@ export default function NovaAvaliacaoPage() {
   const [golsFalta, setGolsFalta] = useState(0)
   const [golsContraAtaque, setGolsContraAtaque] = useState(0)
 
+  // Eventos por jogo (migração 007) — estado-objeto para reduzir boilerplate
+  const [eventos, setEventos] = useState<Record<string, string>>({})
+  const setEv = (k: string, v: string) => setEventos(p => ({ ...p, [k]: v }))
+  const evNum = (k: string) => (eventos[k] && eventos[k].trim() !== '' ? parseInt(eventos[k]) : null)
+
   // Avaliação Física - Dados Antropométricos
   const [alturaAvaliacao, setAlturaAvaliacao] = useState('')
   const [pesoAvaliacao, setPesoAvaliacao] = useState('')
@@ -331,6 +336,22 @@ export default function NovaAvaliacaoPage() {
       gols_penalti: golsPenalti,
       gols_falta: golsFalta,
       gols_contra_ataque: golsContraAtaque,
+      // Eventos por jogo (007)
+      finalizacoes_no_alvo: evNum('finalizacoes_no_alvo'),
+      finalizacoes_fora: evNum('finalizacoes_fora'),
+      finalizacoes_bloqueadas: evNum('finalizacoes_bloqueadas'),
+      passes_certos: evNum('passes_certos'),
+      passes_errados: evNum('passes_errados'),
+      passes_decisivos: evNum('passes_decisivos'),
+      duelos_ganhos: evNum('duelos_ganhos'),
+      duelos_perdidos: evNum('duelos_perdidos'),
+      desarmes: evNum('desarmes'),
+      interceptacoes: evNum('interceptacoes'),
+      perdas_posse: evNum('perdas_posse'),
+      faltas_cometidas: evNum('faltas_cometidas'),
+      faltas_sofridas: evNum('faltas_sofridas'),
+      cartoes_amarelos: evNum('cartoes_amarelos'),
+      cartoes_vermelhos: evNum('cartoes_vermelhos'),
       // Dimensões CBF
       forca: parseFloat(notas.forca),
       velocidade: parseFloat(notas.velocidade),
@@ -707,6 +728,35 @@ export default function NovaAvaliacaoPage() {
                 </>
               )}
             </div>
+
+            {/* Estatísticas do jogo (eventos - migração 007) */}
+            {tipo === 'jogo' && (
+              <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2"><span>📊</span> Estatísticas do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional)</span></h4>
+                {([
+                  { titulo: 'Finalizações', cor: '#22c55e', campos: [['finalizacoes_no_alvo', 'No alvo'], ['finalizacoes_fora', 'Para fora'], ['finalizacoes_bloqueadas', 'Bloqueadas']] },
+                  { titulo: 'Passes', cor: '#3b82f6', campos: [['passes_certos', 'Certos'], ['passes_errados', 'Errados'], ['passes_decisivos', 'Decisivos']] },
+                  { titulo: 'Duelos e defesa', cor: '#f59e0b', campos: [['duelos_ganhos', 'Duelos ganhos'], ['duelos_perdidos', 'Duelos perdidos'], ['desarmes', 'Desarmes'], ['interceptacoes', 'Interceptações']] },
+                  { titulo: 'Perdas e disciplina', cor: '#ef4444', campos: [['perdas_posse', 'Perdas de posse'], ['faltas_cometidas', 'Faltas cometidas'], ['faltas_sofridas', 'Faltas sofridas'], ['cartoes_amarelos', 'Amarelos'], ['cartoes_vermelhos', 'Vermelhos']] },
+                ] as { titulo: string; cor: string; campos: [string, string][] }[]).map((grupo) => (
+                  <div key={grupo.titulo} className="mb-3 last:mb-0">
+                    <p className="text-[10px] uppercase mb-1.5 font-medium" style={{ color: grupo.cor }}>{grupo.titulo}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                      {grupo.campos.map(([k, label]) => (
+                        <div key={k}>
+                          <label className="block text-[10px] text-slate-400 mb-1 truncate">{label}</label>
+                          <input
+                            type="number" min="0" value={eventos[k] ?? ''} onChange={(e) => setEv(k, e.target.value)} placeholder="0"
+                            className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                            style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Detalhes de Gols */}
             {tipo === 'jogo' && parseInt(gols || '0') > 0 && (
