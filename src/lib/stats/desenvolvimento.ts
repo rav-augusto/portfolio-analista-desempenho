@@ -188,3 +188,49 @@ export function idadeCronologicaEm(dataNascimento: string | null, dataRef: strin
   const anos = (ref - nasc) / (1000 * 60 * 60 * 24 * 365.25)
   return Math.round(anos * 10) / 10
 }
+
+// ---- Estimativa de maturação (Mirwald et al., 2002) ----
+// Estima o "maturity offset" (anos até/desde o PHV) a partir de medidas simples,
+// e deriva o estágio PHV e a idade biológica estimada. Equação para MENINOS.
+// avgAPHV ~13.8 anos (referência populacional de meninos) para ancorar a idade biológica.
+const AVG_APHV_MENINOS = 13.8
+
+export type EstimativaMaturacao = {
+  maturityOffset: number // anos até (negativo) / desde (positivo) o PHV
+  aphv: number // idade estimada no pico de crescimento
+  idadeBiologica: number // estimada (1 casa)
+  estagioPHV: 'pre' | 'durante' | 'pos'
+}
+
+export function estimarMaturacaoMirwald(input: {
+  alturaCm: number | null // altura em pé (cm)
+  alturaSentadoCm: number | null // altura sentado (cm)
+  pesoKg: number | null
+  idadeAnos: number | null // idade cronológica decimal na data da avaliação
+}): EstimativaMaturacao | null {
+  const { alturaCm, alturaSentadoCm, pesoKg, idadeAnos } = input
+  if (!alturaCm || !alturaSentadoCm || !pesoKg || !idadeAnos) return null
+  if (alturaSentadoCm >= alturaCm) return null // sentado não pode ser >= em pé
+
+  const legLength = alturaCm - alturaSentadoCm
+
+  // Mirwald (meninos)
+  const maturityOffset =
+    -9.236 +
+    0.0002708 * (legLength * alturaSentadoCm) +
+    -0.001663 * (idadeAnos * legLength) +
+    0.007216 * (idadeAnos * alturaSentadoCm) +
+    0.02292 * ((pesoKg / alturaCm) * 100)
+
+  const aphv = idadeAnos - maturityOffset
+  const idadeBiologica = Math.round((AVG_APHV_MENINOS + maturityOffset) * 10) / 10
+  const estagioPHV: 'pre' | 'durante' | 'pos' =
+    maturityOffset < -1 ? 'pre' : maturityOffset > 1 ? 'pos' : 'durante'
+
+  return {
+    maturityOffset: Math.round(maturityOffset * 100) / 100,
+    aphv: Math.round(aphv * 10) / 10,
+    idadeBiologica,
+    estagioPHV,
+  }
+}

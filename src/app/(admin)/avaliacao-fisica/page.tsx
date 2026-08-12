@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Activity, Save, Search, Trash2 } from 'lucide-react'
+import { Activity, Save, Search, Trash2, Pencil, X } from 'lucide-react'
+import { estimarMaturacaoMirwald, idadeCronologicaEm } from '@/lib/stats/desenvolvimento'
 
-type Atleta = { id: string; nome: string; posicao: string | null }
+type Atleta = { id: string; nome: string; posicao: string | null; data_nascimento: string | null }
 
 type AvaliacaoFisicaRow = {
   id: string
@@ -30,6 +31,7 @@ const campoInicial = {
   data_avaliacao: hoje(),
   altura_avaliacao: '',
   peso_avaliacao: '',
+  altura_sentado: '', // cm — só para o cálculo de maturação (não é salvo)
   envergadura: '',
   velocidade_10m: '',
   velocidade_30m: '',
@@ -81,10 +83,12 @@ export default function AvaliacaoFisicaPage() {
   const [form, setForm] = useState({ ...campoInicial })
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<{ tipo: 'ok' | 'erro'; texto: string } | null>(null)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [ultimaEstimativa, setUltimaEstimativa] = useState('')
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.from('atletas').select('id, nome, posicao').order('nome')
+      const { data } = await supabase.from('atletas').select('id, nome, posicao, data_nascimento').order('nome')
       if (data) setAtletas(data)
     }
     load()
@@ -112,6 +116,32 @@ export default function AvaliacaoFisicaPage() {
   const numero = (v: string) => (v.trim() === '' ? null : Number(v))
   const inteiro = (v: string) => (v.trim() === '' ? null : parseInt(v, 10))
 
+  // Idade cronológica do atleta na data da avaliação
+  const atletaObj = atletas.find(a => a.id === atletaSel)
+  const idadeAnos = atletaObj ? idadeCronologicaEm(atletaObj.data_nascimento, form.data_avaliacao || hoje()) : null
+
+  // Estimativa de maturação (Mirwald) a partir de altura + peso + altura sentado + idade
+  const estimativa = useMemo(
+    () =>
+      estimarMaturacaoMirwald({
+        alturaCm: form.altura_avaliacao ? Number(form.altura_avaliacao) * 100 : null,
+        alturaSentadoCm: form.altura_sentado ? Number(form.altura_sentado) : null,
+        pesoKg: form.peso_avaliacao ? Number(form.peso_avaliacao) : null,
+        idadeAnos,
+      }),
+    [form.altura_avaliacao, form.altura_sentado, form.peso_avaliacao, idadeAnos]
+  )
+
+  // Auto-preenche estágio PHV + idade biológica quando a estimativa muda (usuário pode ajustar depois)
+  useEffect(() => {
+    if (!estimativa) return
+    const chave = `${estimativa.estagioPHV}:${estimativa.idadeBiologica}`
+    if (chave !== ultimaEstimativa) {
+      setForm(f => ({ ...f, estagio_phv: estimativa.estagioPHV, idade_biologica: String(estimativa.idadeBiologica) }))
+      setUltimaEstimativa(chave)
+    }
+  }, [estimativa, ultimaEstimativa])
+
   const handleSalvar = async () => {
     if (!atletaSel) {
       setMsg({ tipo: 'erro', texto: 'Selecione um atleta.' })
@@ -119,7 +149,7 @@ export default function AvaliacaoFisicaPage() {
     }
     setSaving(true)
     setMsg(null)
-    const { error } = await supabase.from('avaliacoes_fisicas').insert({
+    const payload = {
       atleta_id: atletaSel,
       data_avaliacao: form.data_avaliacao || hoje(),
       altura_avaliacao: numero(form.altura_avaliacao),
@@ -135,15 +165,51 @@ export default function AvaliacaoFisicaPage() {
       estagio_phv: form.estagio_phv || null,
       sentar_alcancar: numero(form.sentar_alcancar),
       observacoes: form.observacoes.trim() || null,
-    })
+    }
+    const { error } = editId
+      ? await supabase.from('avaliacoes_fisicas').update(payload).eq('id', editId)
+      : await supabase.from('avaliacoes_fisicas').insert(payload)
     setSaving(false)
     if (error) {
       setMsg({ tipo: 'erro', texto: `Erro ao salvar: ${error.message}` })
       return
     }
-    setMsg({ tipo: 'ok', texto: 'Avaliação física salva!' })
+    setMsg({ tipo: 'ok', texto: editId ? 'Avaliação física atualizada!' : 'Avaliação física salva!' })
     setForm({ ...campoInicial })
+    setEditId(null)
+    setUltimaEstimativa('')
     loadHistorico()
+  }
+
+  const handleEditar = (h: AvaliacaoFisicaRow) => {
+    setEditId(h.id)
+    setUltimaEstimativa('bloqueado') // não sobrescreve os valores carregados
+    setForm({
+      data_avaliacao: h.data_avaliacao,
+      altura_avaliacao: h.altura_avaliacao?.toString() ?? '',
+      peso_avaliacao: h.peso_avaliacao?.toString() ?? '',
+      altura_sentado: '',
+      envergadura: h.envergadura?.toString() ?? '',
+      velocidade_10m: h.velocidade_10m?.toString() ?? '',
+      velocidade_30m: h.velocidade_30m?.toString() ?? '',
+      salto_vertical: h.salto_vertical?.toString() ?? '',
+      agilidade_teste: h.agilidade_teste?.toString() ?? '',
+      yoyo_nivel: h.yoyo_nivel ?? '',
+      yoyo_distancia: h.yoyo_distancia?.toString() ?? '',
+      idade_biologica: h.idade_biologica?.toString() ?? '',
+      estagio_phv: h.estagio_phv ?? '',
+      sentar_alcancar: h.sentar_alcancar?.toString() ?? '',
+      observacoes: h.observacoes ?? '',
+    })
+    setMsg(null)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCancelarEdicao = () => {
+    setEditId(null)
+    setForm({ ...campoInicial })
+    setUltimaEstimativa('')
+    setMsg(null)
   }
 
   const handleExcluir = async (id: string) => {
@@ -195,7 +261,14 @@ export default function AvaliacaoFisicaPage() {
           {/* Formulário */}
           <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h3 className="text-base md:text-lg font-semibold text-slate-100">Nova avaliação física</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base md:text-lg font-semibold text-slate-100">{editId ? 'Editar avaliação física' : 'Nova avaliação física'}</h3>
+                {editId && (
+                  <button onClick={handleCancelarEdicao} className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg" style={{ border: '1px solid #475569' }}>
+                    <X className="w-3 h-3" /> cancelar
+                  </button>
+                )}
+              </div>
               <div>
                 <label className="block text-[10px] font-medium text-slate-400 mb-1">Data</label>
                 <input type="date" value={form.data_avaliacao} onChange={e => set('data_avaliacao', e.target.value)}
@@ -246,9 +319,29 @@ export default function AvaliacaoFisicaPage() {
                 </div>
               </div>
 
-              {/* Maturação */}
+              {/* Maturação (calculada automaticamente - Mirwald) */}
               <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #06b6d455' }}>
-                <h4 className="text-sm font-semibold text-cyan-400 mb-3">🧬 Maturação (diferencial da base)</h4>
+                <h4 className="text-sm font-semibold text-cyan-400 mb-1">🧬 Maturação (calculada automaticamente)</h4>
+                <p className="text-[10px] text-slate-500 mb-3">Preencha <b>altura</b>, <b>peso</b> e <b>altura sentado</b> — o sistema estima o estágio PHV e a idade biológica pela equação de Mirwald (meninos). Você pode ajustar depois.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+                  <Campo label="Altura sentado (cm)" value={form.altura_sentado} onChange={v => set('altura_sentado', v)} step="0.1" placeholder="90" dica="Sentado, tronco ereto" />
+                  <div>
+                    <label className="block text-[10px] font-medium text-slate-400 mb-1">Idade na avaliação</label>
+                    <div className="px-3 py-2 text-sm rounded-lg text-slate-300" style={INPUT_STYLE}>{idadeAnos != null ? `${idadeAnos} anos` : '—'}</div>
+                  </div>
+                </div>
+                {idadeAnos == null && form.altura_sentado && (
+                  <p className="text-[10px] text-amber-400 mb-3">O atleta não tem data de nascimento cadastrada — sem a idade não dá pra calcular. Cadastre em Atletas.</p>
+                )}
+                {estimativa && (
+                  <div className="rounded-lg p-3 mb-3" style={{ backgroundColor: '#0e2a33', border: '1px solid #06b6d4' }}>
+                    <p className="text-xs text-cyan-300 font-semibold mb-1">✓ Estimativa automática (Mirwald)</p>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Idade biológica ≈ <b className="text-cyan-300">{estimativa.idadeBiologica} anos</b> · Estágio <b className="text-cyan-300">{estimativa.estagioPHV === 'pre' ? 'pré-PHV (antes do estirão)' : estimativa.estagioPHV === 'durante' ? 'durante o estirão' : 'pós-PHV (depois do estirão)'}</b> · {estimativa.maturityOffset >= 0 ? `+${estimativa.maturityOffset}` : estimativa.maturityOffset} anos do pico (APHV ≈ {estimativa.aphv})
+                    </p>
+                    <p className="text-[10px] text-slate-500 mt-1">Já preenchido nos campos abaixo — ajuste se tiver medição oficial do clube.</p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <Campo label="Idade biológica (anos)" value={form.idade_biologica} onChange={v => set('idade_biologica', v)} step="0.1" placeholder="14.5" />
                   <div>
@@ -279,7 +372,7 @@ export default function AvaliacaoFisicaPage() {
               className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm disabled:opacity-60"
               style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: '#fff' }}>
               <Save className="w-4 h-4" />
-              {saving ? 'Salvando...' : 'Salvar avaliação física'}
+              {saving ? 'Salvando...' : editId ? 'Atualizar avaliação' : 'Salvar avaliação física'}
             </button>
           </div>
 
@@ -313,8 +406,11 @@ export default function AvaliacaoFisicaPage() {
                         <td className="py-2 pr-3">{h.yoyo_distancia ?? '—'}m</td>
                         <td className="py-2 pr-3">{h.idade_biologica ?? '—'}</td>
                         <td className="py-2 pr-3">{h.estagio_phv ?? '—'}</td>
-                        <td className="py-2 text-right">
-                          <button onClick={() => handleExcluir(h.id)} className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10">
+                        <td className="py-2 text-right whitespace-nowrap">
+                          <button onClick={() => handleEditar(h)} className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10" title="Editar">
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleExcluir(h.id)} className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10" title="Excluir">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
