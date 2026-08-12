@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target } from 'lucide-react'
+import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import {
   calcularEstatisticasJogo,
@@ -22,9 +22,10 @@ import {
   idadeCronologicaEm,
   METRICAS_FISICAS,
 } from '@/lib/stats/desenvolvimento'
-import { calcularIDA, calcularIDP } from '@/lib/stats/indices'
+import { calcularIDA, calcularIDP, classificarIndice } from '@/lib/stats/indices'
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
+import type { DadosAnaliseIA } from '@/lib/stats/ia'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -182,6 +183,9 @@ export default function DashboardAtletasPage() {
   const [modeloComparativo, setModeloComparativo] = useState<1 | 2 | 3 | 4>(1)
   const [dimensoesVisiveis, setDimensoesVisiveis] = useState<string[]>(dimensoesCBF.map(d => d.key)) // Começa com CBF
   const [avaliacoesPosicao, setAvaliacoesPosicao] = useState<AvaliacaoComPosicao[]>([]) // agregado p/ comparativo por posição
+  const [analiseIA, setAnaliseIA] = useState<string>('')
+  const [loadingIA, setLoadingIA] = useState(false)
+  const [erroIA, setErroIA] = useState<string>('')
   const supabase = createClient()
 
   // Dimensoes ativas baseadas na tab
@@ -874,6 +878,63 @@ export default function DashboardAtletasPage() {
     }
   }
 
+  // Gerar análise por IA
+  const handleAnaliseIA = async () => {
+    if (!atletaAtual) return
+    setLoadingIA(true)
+    setErroIA('')
+    setAnaliseIA('')
+    const payload: DadosAnaliseIA = {
+      nome: atletaAtual.nome,
+      posicao: atletaAtual.posicao,
+      clube: getClubeName(atletaAtual.clubes),
+      idade: calcularIdade(atletaAtual.data_nascimento),
+      ida: ida.disponivel ? { valor: ida.valor, disponivel: true, classificacao: classificarIndice(ida.valor) } : null,
+      idp: idp.disponivel ? { valor: idp.valor, disponivel: true, classificacao: classificarIndice(idp.valor) } : null,
+      maturacao:
+        perfilMaturacao && perfilMaturacao.classificacao !== 'sem_dados'
+          ? {
+              classificacao: perfilMaturacao.classificacaoLabel,
+              idadeBiologica: perfilMaturacao.idadeBiologica,
+              idadeCronologica: perfilMaturacao.idadeCronologica,
+              estagio: perfilMaturacao.estagioPHVLabel,
+            }
+          : null,
+      medias: mediaPorGrupo ? { geral: mediaGeral, cbf: mediaPorGrupo.cbf, ofe: mediaPorGrupo.ofe, def: mediaPorGrupo.def } : null,
+      jogo: {
+        gols: statsJogo.gols,
+        assistencias: statsJogo.assistencias,
+        participacoes: statsJogo.participacoes,
+        jogos: statsJogo.jogos,
+        minutos: statsJogo.minutos,
+        golsPorPartida: statsJogo.medias.golsPorPartida,
+        participacoesPorPartida: statsJogo.medias.participacoesPorPartida,
+        percentDecisivo: statsJogo.insights.percentDecisivo,
+        minutosPorJogo: statsJogo.medias.minutosPorJogo,
+      },
+      fisico: resumoFisicoData.map(r => ({ label: r.label, ultimo: r.ultimo, unidade: r.unidade, evoluiu: r.melhorou })),
+      pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
+      pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
+    }
+    try {
+      const resp = await fetch('/api/analise-ia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await resp.json()
+      if (!resp.ok) {
+        setErroIA(data?.error || 'Falha ao gerar análise.')
+      } else {
+        setAnaliseIA(data.analise || '')
+      }
+    } catch {
+      setErroIA('Não foi possível conectar à IA. Tente novamente.')
+    } finally {
+      setLoadingIA(false)
+    }
+  }
+
   const radarOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -1112,19 +1173,59 @@ export default function DashboardAtletasPage() {
                   </div>
                 )}
 
-                {/* Exportar dossiê PDF */}
+                {/* Ações: IA + dossiê */}
                 {avaliacoes.length > 0 && (
-                  <button
-                    onClick={handleExportarDossie}
-                    className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
-                    style={{ backgroundColor: '#334155', border: '1px solid #64748b', color: '#e2e8f0' }}
-                    title="Gerar dossiê em PDF"
-                  >
-                    <FileDown className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
-                    <span className="hidden sm:inline">Dossiê PDF</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleAnaliseIA}
+                      disabled={loadingIA}
+                      className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors disabled:opacity-60"
+                      style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: '1px solid #a78bfa', color: '#fff' }}
+                      title="Gerar análise com Inteligência Artificial"
+                    >
+                      {loadingIA ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
+                      )}
+                      <span className="hidden sm:inline">{loadingIA ? 'Analisando...' : 'Análise IA'}</span>
+                    </button>
+                    <button
+                      onClick={handleExportarDossie}
+                      className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
+                      style={{ backgroundColor: '#334155', border: '1px solid #64748b', color: '#e2e8f0' }}
+                      title="Gerar dossiê em PDF"
+                    >
+                      <FileDown className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
+                      <span className="hidden sm:inline">Dossiê PDF</span>
+                    </button>
+                  </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Resultado da análise por IA */}
+          {(analiseIA || erroIA || loadingIA) && (
+            <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #7c3aed55' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-violet-400" />
+                <h3 className="text-base md:text-lg font-semibold text-slate-100">Análise por IA</h3>
+                <span className="text-[10px] text-slate-500">gerada a partir dos dados do atleta</span>
+              </div>
+              {loadingIA && <p className="text-sm text-slate-400">Gerando análise... isso pode levar alguns segundos.</p>}
+              {erroIA && <p className="text-sm text-red-400">{erroIA}</p>}
+              {analiseIA && (
+                <div className="space-y-2">
+                  {analiseIA.split('\n').filter(l => l.trim()).map((linha, i) => {
+                    if (linha.startsWith('## ')) {
+                      return <h4 key={i} className="text-sm md:text-base font-bold text-violet-300 mt-3">{linha.replace(/^##\s*/, '')}</h4>
+                    }
+                    const semMarcacao = linha.replace(/^[-*]\s*/, '• ').replace(/\*\*/g, '')
+                    return <p key={i} className="text-sm text-slate-300 leading-relaxed">{semMarcacao}</p>
+                  })}
+                </div>
+              )}
             </div>
           )}
 
