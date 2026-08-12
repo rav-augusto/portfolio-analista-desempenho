@@ -542,20 +542,22 @@ export default function EditarAvaliacaoPage() {
     const numValue = parseFloat(value)
     const hasObs = obs && obs.trim().length > 0
     const showHelp = dim.diagram || dim.hasHelp
-    const passos = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+    const cor = getScoreColor(numValue)
+    const floor = Math.floor(numValue)
+    const temHalf = numValue - floor === 0.5
+    const fundoChip = (i: number) =>
+      i <= floor ? cor : i === floor + 1 && temHalf ? `linear-gradient(90deg, ${cor} 50%, #1e293b 50%)` : '#1e293b'
     return (
-      <div key={dim.key} className="rounded-lg px-3 py-2.5 transition-colors" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-lg font-black w-7 text-center leading-none tabular-nums" style={{ color: getScoreColor(numValue) }}>{value}</span>
-            <span className="text-sm font-medium text-slate-200 truncate">{dim.label}</span>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
+      <div key={dim.key} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <span className="text-sm font-medium text-slate-200 truncate">{dim.label}</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-sm font-black px-2 py-0.5 rounded-md tabular-nums" style={{ color: cor, backgroundColor: `${cor}22` }}>{value}</span>
             {showHelp && (
               <button
                 type="button"
                 onClick={() => openHelp(dim.label, dim.desc, dim.diagram)}
-                className="w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded-md text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
                 title="Ver detalhes"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
@@ -564,25 +566,38 @@ export default function EditarAvaliacaoPage() {
             <button
               type="button"
               onClick={() => setObsModal({ open: true, key: dim.key, label: dim.label, type: obsType, value: obs })}
-              className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${hasObs ? 'text-amber-400 bg-amber-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
+              className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${hasObs ? 'text-amber-400 bg-amber-500/10' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-700'}`}
               title={hasObs ? 'Editar observação' : 'Adicionar observação'}
             >
               <MessageSquare className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-[3px]">
-          {passos.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setValue(dim.key, String(p))}
-              title={`Nota ${p}`}
-              aria-label={`Nota ${p}`}
-              className="flex-1 h-2.5 rounded-sm transition-all hover:brightness-110"
-              style={{ backgroundColor: p <= numValue ? getScoreColor(numValue) : '#334155' }}
-            />
-          ))}
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 flex-1">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setValue(dim.key, String(i))}
+                aria-label={`Nota ${i}`}
+                className="flex-1 h-7 rounded-md text-[11px] font-bold flex items-center justify-center transition-all hover:brightness-110"
+                style={{ background: fundoChip(i), color: i <= numValue ? '#0f172a' : '#64748b' }}
+              >
+                {i}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setValue(dim.key, temHalf ? String(floor) : String(Math.min(5, numValue + 0.5)))}
+            title="Meio ponto (ex.: 3,5)"
+            aria-label="Meio ponto"
+            className="w-7 h-7 rounded-md text-xs font-bold shrink-0 transition-all"
+            style={temHalf ? { backgroundColor: cor, color: '#0f172a' } : { backgroundColor: '#1e293b', color: '#94a3b8', border: '1px solid #334155' }}
+          >
+            ½
+          </button>
         </div>
       </div>
     )
