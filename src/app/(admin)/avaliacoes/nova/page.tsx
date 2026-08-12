@@ -459,41 +459,47 @@ export default function NovaAvaliacaoPage() {
     const numValue = parseFloat(value)
     const hasObs = obs && obs.trim().length > 0
     const showHelp = dim.diagram || dim.hasHelp
+    const passos = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
     return (
-      <div key={dim.key} className="rounded-xl p-4 transition-colors" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-slate-200">{dim.label}</span>
-          <div className="flex items-center gap-1.5">
+      <div key={dim.key} className="rounded-lg px-3 py-2.5 transition-colors" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-lg font-black w-7 text-center leading-none tabular-nums" style={{ color: getScoreColor(numValue) }}>{value}</span>
+            <span className="text-sm font-medium text-slate-200 truncate">{dim.label}</span>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
             {showHelp && (
               <button
                 type="button"
                 onClick={() => openHelp(dim.label, dim.desc, dim.diagram)}
-                className="w-7 h-7 flex items-center justify-center rounded-lg transition-all hover:brightness-125 hover:scale-105"
-                style={{ backgroundColor: '#3b82f6' }}
+                className="w-6 h-6 flex items-center justify-center rounded-md text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
                 title="Ver detalhes"
               >
-                <HelpCircle className="w-4 h-4 text-white" />
+                <HelpCircle className="w-3.5 h-3.5" />
               </button>
             )}
             <button
               type="button"
               onClick={() => setObsModal({ open: true, key: dim.key, label: dim.label, type: obsType, value: obs })}
-              className="w-7 h-7 flex items-center justify-center rounded-lg transition-all hover:brightness-125 hover:scale-105"
-              style={{ backgroundColor: hasObs ? '#f59e0b' : '#475569' }}
+              className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${hasObs ? 'text-amber-400 bg-amber-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
               title={hasObs ? 'Editar observação' : 'Adicionar observação'}
             >
-              <MessageSquare className={`w-4 h-4 ${hasObs ? 'text-slate-900' : 'text-white'}`} />
+              <MessageSquare className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xl font-black min-w-[40px] text-center" style={{ color: getScoreColor(numValue) }}>{value}</span>
-          <input
-            type="range" min="1" max="5" step="0.5" value={value}
-            onChange={(e) => setValue(dim.key, e.target.value)}
-            className="flex-1 h-2 rounded-full appearance-none cursor-pointer"
-            style={{ background: `linear-gradient(to right, ${getScoreColor(numValue)} ${((numValue - 1) / 4) * 100}%, #334155 ${((numValue - 1) / 4) * 100}%)` }}
-          />
+        <div className="flex items-center gap-[3px]">
+          {passos.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setValue(dim.key, String(p))}
+              title={`Nota ${p}`}
+              aria-label={`Nota ${p}`}
+              className="flex-1 h-2.5 rounded-sm transition-all hover:brightness-110"
+              style={{ backgroundColor: p <= numValue ? getScoreColor(numValue) : '#334155' }}
+            />
+          ))}
         </div>
       </div>
     )
