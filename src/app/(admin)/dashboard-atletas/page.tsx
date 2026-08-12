@@ -22,6 +22,8 @@ import {
   idadeCronologicaEm,
   METRICAS_FISICAS,
 } from '@/lib/stats/desenvolvimento'
+import { calcularIDA, calcularIDP } from '@/lib/stats/indices'
+import { IndiceCard } from '@/components/app/IndiceCard'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import {
   Chart as ChartJS,
@@ -355,9 +357,38 @@ export default function DashboardAtletasPage() {
   }, [avaliacoes, metricaFisicaSel, metricasFisicasDisponiveis])
 
   const temDesenvolvimento =
+    mediaGeral > 0 ||
     resumoFisicoData.length > 0 ||
     imcSerie.valores.length > 0 ||
     (perfilMaturacao != null && perfilMaturacao.classificacao !== 'sem_dados')
+
+  // ---- Índices compostos (IDA / IDP) ----
+  const evolucaoTecnicaGeral = useMemo(() => {
+    if (avaliacoes.length < 2) return null
+    const mediaDe = (a: Avaliacao) => {
+      const vals = todasDimensoes.map(d => (a[d.key as keyof Avaliacao] as number) || 0).filter(v => v > 0)
+      return vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : 0
+    }
+    const p = mediaDe(avaliacoes[0])
+    const u = mediaDe(avaliacoes[avaliacoes.length - 1])
+    if (p === 0 && u === 0) return null
+    return u - p
+  }, [avaliacoes])
+
+  const ida = useMemo(() => {
+    const comparaveis = resumoFisicoData.filter(r => r.melhorou !== null)
+    const percentFisico = comparaveis.length ? (comparaveis.filter(r => r.melhorou).length / comparaveis.length) * 100 : null
+    return calcularIDA({ mediaGeralTecnica: mediaGeral, evolucaoTecnica: evolucaoTecnicaGeral, percentFisicoMelhorou: percentFisico })
+  }, [mediaGeral, evolucaoTecnicaGeral, resumoFisicoData])
+
+  const idp = useMemo(() => {
+    let producaoVs: number | null = null
+    if (comparativoPosicao) {
+      const rel = comparativoPosicao.metricas.filter(m => m.label.toLowerCase().includes('partida'))
+      producaoVs = rel.length ? rel.reduce((a, m) => a + m.percentVsMedia, 0) / rel.length : null
+    }
+    return calcularIDP({ percentDecisivo: statsJogo.insights.percentDecisivo, producaoVsPosicao: producaoVs, temJogos: statsJogo.jogos > 0 })
+  }, [comparativoPosicao, statsJogo])
 
   // Participações acumuladas ao longo dos jogos (trajetória de crescimento)
   const participacoesAcumuladasChartData = useMemo(() => {
@@ -828,6 +859,8 @@ export default function DashboardAtletasPage() {
       stats: statsJogo,
       medias: mediaPorGrupo ? { geral: mediaGeral, cbf: mediaPorGrupo.cbf, ofe: mediaPorGrupo.ofe, def: mediaPorGrupo.def } : null,
       comparativo: comparativoPosicao,
+      ida,
+      idp,
       maturacao: perfilMaturacao,
       fisico: resumoFisicoData,
       imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
@@ -1492,6 +1525,11 @@ export default function DashboardAtletasPage() {
                     </div>
                   </div>
 
+                  {/* Índice de Desempenho (IDP) */}
+                  <div className="mb-4">
+                    <IndiceCard titulo="Índice de Desempenho (IDP)" subtitulo="Produção em campo vs a posição + regularidade" indice={idp} cor="#f59e0b" />
+                  </div>
+
                   {/* Médias explicadas (cada número vira uma frase) */}
                   {minutosData.total > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
@@ -1789,9 +1827,14 @@ export default function DashboardAtletasPage() {
                       <Ruler className="w-4 h-4 md:w-5 md:h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold text-slate-100">Desenvolvimento Físico e Maturação</h3>
-                      <p className="text-xs text-slate-400 hidden sm:block">Evolução física ao longo do tempo e leitura de maturação</p>
+                      <h3 className="text-base md:text-lg font-semibold text-slate-100">Desenvolvimento do Atleta</h3>
+                      <p className="text-xs text-slate-400 hidden sm:block">Índice de desenvolvimento, maturação e evolução física</p>
                     </div>
+                  </div>
+
+                  {/* Índice de Desenvolvimento (IDA) */}
+                  <div className="mb-4">
+                    <IndiceCard titulo="Índice de Desenvolvimento (IDA)" subtitulo="Nível técnico + trajetória + evolução física" indice={ida} cor="#06b6d4" />
                   </div>
 
                   {/* Card de Maturação */}

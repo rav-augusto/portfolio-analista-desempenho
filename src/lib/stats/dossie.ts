@@ -3,6 +3,7 @@
 
 import { explicarMedias, explicarInsights, type EstatisticasJogo, type ComparativoPosicao } from './desempenho'
 import type { PerfilMaturacao, ResumoMetrica } from './desenvolvimento'
+import { classificarIndice, type Indice } from './indices'
 
 export type DossieAtleta = {
   nome: string
@@ -26,6 +27,8 @@ export type DossieParams = {
   stats: EstatisticasJogo
   medias: DossieMediasGrupo
   comparativo: ComparativoPosicao | null
+  ida?: Indice | null
+  idp?: Indice | null
   maturacao?: PerfilMaturacao | null
   fisico?: ResumoMetrica[]
   imc?: number | null
@@ -151,6 +154,24 @@ export function gerarDossieHTML(p: DossieParams): string {
     </section>`
       : ''
 
+  const indiceHTML = (nome: string, ind: Indice | null | undefined, cor: string) => {
+    if (!ind || !ind.disponivel) return ''
+    const comps = ind.componentes.filter(c => c.disponivel)
+    return `<div class="indice">
+      <div class="indice-topo">
+        <span class="indice-valor" style="color:${cor}">${ind.valor}<small>/100</small></span>
+        <div><b>${esc(nome)}</b><br/><span class="indice-classe" style="color:${cor}">${esc(classificarIndice(ind.valor))}</span></div>
+      </div>
+      <ul class="indice-comps">
+        ${comps.map(c => `<li>${esc(c.label)} — <b>${Math.round(c.score)}</b> <span class="desc">(${esc(c.detalhe)})</span></li>`).join('')}
+      </ul>
+    </div>`
+  }
+  const blocoIndices =
+    p.ida?.disponivel || p.idp?.disponivel
+      ? `<section><h2>Índices Gerais</h2><div class="indices-grid">${indiceHTML('Desenvolvimento (IDA)', p.ida, '#0891b2')}${indiceHTML('Desempenho (IDP)', p.idp, '#d97706')}</div></section>`
+      : ''
+
   const textoBloco = (titulo: string, cor: string, texto: string | null) =>
     texto
       ? `<div class="texto-bloco" style="border-left-color:${cor}">
@@ -206,6 +227,15 @@ export function gerarDossieHTML(p: DossieParams): string {
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
   td.pos { color: #16a34a; font-weight: 700; }
   td.neg { color: #dc2626; font-weight: 700; }
+  .indices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .indice { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; background: #f8fafc; }
+  .indice-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .indice-valor { font-size: 30px; font-weight: 800; line-height: 1; }
+  .indice-valor small { font-size: 12px; color: #94a3b8; font-weight: 600; }
+  .indice-classe { font-size: 11px; font-weight: 700; }
+  .indice-comps { list-style: none; font-size: 11px; color: #475569; }
+  .indice-comps li { padding: 1px 0; }
+  .indice-comps .desc { color: #94a3b8; }
   .mat { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 12px; color: #475569; margin-bottom: 8px; }
   .mat b { color: #0f172a; }
   .mat .badge { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
@@ -260,6 +290,7 @@ export function gerarDossieHTML(p: DossieParams): string {
     </ul>
   </section>
 
+  ${blocoIndices}
   ${blocoMedias}
   ${blocoDesenvolvimento}
   ${blocoComparativo}
