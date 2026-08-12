@@ -101,7 +101,6 @@ const tabs = [
   { id: 'cbf', label: 'Dimensões CBF' },
   { id: 'ofensivos', label: 'Princípios Ofensivos' },
   { id: 'defensivos', label: 'Princípios Defensivos' },
-  { id: 'fisico', label: 'Avaliação Física' },
   { id: 'conclusoes', label: 'Conclusões' },
 ]
 

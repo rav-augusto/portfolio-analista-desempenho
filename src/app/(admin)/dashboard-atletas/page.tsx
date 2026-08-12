@@ -21,6 +21,7 @@ import {
   interpretarMaturacao,
   idadeCronologicaEm,
   METRICAS_FISICAS,
+  type AvaliacaoFisica,
 } from '@/lib/stats/desenvolvimento'
 import { calcularIDA, calcularIDP, classificarIndice } from '@/lib/stats/indices'
 import { IndiceCard } from '@/components/app/IndiceCard'
@@ -183,6 +184,7 @@ export default function DashboardAtletasPage() {
   const [modeloComparativo, setModeloComparativo] = useState<1 | 2 | 3 | 4>(1)
   const [dimensoesVisiveis, setDimensoesVisiveis] = useState<string[]>(dimensoesCBF.map(d => d.key)) // Começa com CBF
   const [avaliacoesPosicao, setAvaliacoesPosicao] = useState<AvaliacaoComPosicao[]>([]) // agregado p/ comparativo por posição
+  const [avaliacoesFisicas, setAvaliacoesFisicas] = useState<AvaliacaoFisica[]>([]) // avaliacoes fisicas separadas
   const [analiseIA, setAnaliseIA] = useState<string>('')
   const [loadingIA, setLoadingIA] = useState(false)
   const [erroIA, setErroIA] = useState<string>('')
@@ -252,6 +254,23 @@ export default function DashboardAtletasPage() {
     loadAvaliacoes()
   }, [loadAvaliacoes])
 
+  // Carregar avaliações FÍSICAS (tabela separada) do atleta selecionado
+  useEffect(() => {
+    const loadFisicas = async () => {
+      if (!atletaSelecionado) {
+        setAvaliacoesFisicas([])
+        return
+      }
+      const { data } = await supabase
+        .from('avaliacoes_fisicas')
+        .select('*')
+        .eq('atleta_id', atletaSelecionado)
+        .order('data_avaliacao', { ascending: true })
+      setAvaliacoesFisicas((data as AvaliacaoFisica[]) ?? [])
+    }
+    loadFisicas()
+  }, [atletaSelecionado, supabase])
+
   // Recarregar dados quando a página recebe foco (após editar)
   useEffect(() => {
     const handleFocus = () => {
@@ -318,25 +337,25 @@ export default function DashboardAtletasPage() {
     [statsJogo, atletaAtual, mediasPorPosicao]
   )
 
-  // ---- Desenvolvimento (físico + maturação) ----
+  // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
   const perfilMaturacao = useMemo(() => {
-    const ref = avaliacaoSelecionada ?? (avaliacoes.length ? avaliacoes[avaliacoes.length - 1] : null)
-    if (!ref) return null
-    const idadeCron = idadeCronologicaEm(atletaAtual?.data_nascimento ?? null, ref.data_avaliacao)
-    return interpretarMaturacao(ref.idade_biologica, idadeCron, ref.estagio_phv)
-  }, [avaliacaoSelecionada, avaliacoes, atletaAtual])
+    const ordenadas = [...avaliacoesFisicas].sort((a, b) => new Date(b.data_avaliacao).getTime() - new Date(a.data_avaliacao).getTime())
+    const ref = ordenadas[0] ?? null
+    const idadeCron = ref ? idadeCronologicaEm(atletaAtual?.data_nascimento ?? null, ref.data_avaliacao) : null
+    return interpretarMaturacao(ref?.idade_biologica ?? null, idadeCron, ref?.estagio_phv ?? null)
+  }, [avaliacoesFisicas, atletaAtual])
 
-  const resumoFisicoData = useMemo(() => resumoFisico(avaliacoes), [avaliacoes])
-  const imcSerie = useMemo(() => serieIMC(avaliacoes), [avaliacoes])
+  const resumoFisicoData = useMemo(() => resumoFisico(avaliacoesFisicas), [avaliacoesFisicas])
+  const imcSerie = useMemo(() => serieIMC(avaliacoesFisicas), [avaliacoesFisicas])
   const metricasFisicasDisponiveis = useMemo(
-    () => METRICAS_FISICAS.filter(m => serieFisica(avaliacoes, m.key).valores.length > 0),
-    [avaliacoes]
+    () => METRICAS_FISICAS.filter(m => serieFisica(avaliacoesFisicas, m.key).valores.length > 0),
+    [avaliacoesFisicas]
   )
   const [metricaFisicaSel, setMetricaFisicaSel] = useState<string>('velocidade_30m')
   const graficoFisico = useMemo(() => {
     const metrica = METRICAS_FISICAS.find(m => (m.key as string) === metricaFisicaSel) ?? metricasFisicasDisponiveis[0]
     if (!metrica) return null
-    const serie = serieFisica(avaliacoes, metrica.key)
+    const serie = serieFisica(avaliacoesFisicas, metrica.key)
     if (serie.valores.length === 0) return null
     return {
       metrica,
@@ -358,7 +377,7 @@ export default function DashboardAtletasPage() {
         }],
       },
     }
-  }, [avaliacoes, metricaFisicaSel, metricasFisicasDisponiveis])
+  }, [avaliacoesFisicas, metricaFisicaSel, metricasFisicasDisponiveis])
 
   const temDesenvolvimento =
     mediaGeral > 0 ||

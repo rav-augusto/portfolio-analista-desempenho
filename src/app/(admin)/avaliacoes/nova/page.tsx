@@ -98,11 +98,11 @@ const tipos = [
   { value: 'geral', label: 'Avaliação Geral' },
 ]
 
+// Avaliação Física agora é separada (menu "Avaliação Física") — removida daqui.
 const tabs = [
   { id: 'cbf', label: 'Dimensões CBF' },
   { id: 'ofensivos', label: 'Princípios Ofensivos' },
   { id: 'defensivos', label: 'Princípios Defensivos' },
-  { id: 'fisico', label: 'Avaliação Física' },
   { id: 'conclusoes', label: 'Conclusões' },
 ]
 
