@@ -29,8 +29,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await client.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 4000,
+      // Haiku 4.5: rápido e ~10x mais barato que Opus; qualidade ótima para resumir dados em texto.
+      model: 'claude-haiku-4-5',
+      max_tokens: 2048,
       system: SISTEMA_ANALISE,
       messages: [{ role: 'user', content: montarPromptAnalise(dados) }],
     })
