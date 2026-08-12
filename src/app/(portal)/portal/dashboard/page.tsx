@@ -819,6 +819,16 @@ export default function PortalDashboardPage() {
       fisico: resumoFisicoData.map(r => ({ label: r.label, ultimo: r.ultimo, unidade: r.unidade, evoluiu: r.melhorou })),
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
+      comparativo: comparativoPosicao ? comparativoPosicao.metricas.map(m => ({ label: m.label, atleta: m.atleta, media: m.media, percentVsMedia: m.percentVsMedia })) : null,
+      finalizacao: golsDetalhes.corpo.total > 0 || golsDetalhes.tipo.total > 0 ? {
+        peDireito: golsDetalhes.corpo.peDireito, peEsquerdo: golsDetalhes.corpo.peEsquerdo, cabeca: golsDetalhes.corpo.cabeca,
+        dentroArea: golsDetalhes.zona.dentroArea, foraArea: golsDetalhes.zona.foraArea,
+        jogada: golsDetalhes.tipo.jogada, penalti: golsDetalhes.tipo.penalti, bolaParada: golsDetalhes.tipo.falta, contraAtaque: golsDetalhes.tipo.contraAtaque,
+        total: golsDetalhes.corpo.total,
+      } : null,
+      insights: { sequenciaAtual: statsJogo.insights.sequenciaAtual, melhorSequencia: statsJogo.insights.melhorSequencia, minutosPorGol: statsJogo.insights.minutosPorGol },
+      perfil: perfilAtleta ? { percentOfe: perfilAtleta.percentOfe, percentDef: perfilAtleta.percentDef } : null,
+      evolucaoTecnica: evolucaoTecnicaGeral,
     }
   }
 
@@ -934,25 +944,11 @@ export default function PortalDashboardPage() {
               <button
                 onClick={handleAnaliseGratis}
                 className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
-                style={{ backgroundColor: '#334155', border: '1px solid #22c55e80', color: '#e2e8f0' }}
-                title="Gerar parecer tecnico automatico (gratis, sem IA)"
+                style={{ background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)', color: '#fff' }}
+                title="Gerar analise tecnica do atleta"
               >
-                <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
-                <span className="hidden sm:inline">Parecer rapido</span>
-              </button>
-              <button
-                onClick={handleAnaliseIA}
-                disabled={loadingIA}
-                className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors disabled:opacity-60"
-                style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: '1px solid #a78bfa', color: '#fff' }}
-                title="Gerar analise com Inteligencia Artificial"
-              >
-                {loadingIA ? (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
-                )}
-                <span className="hidden sm:inline">{loadingIA ? 'Analisando...' : 'Analise IA'}</span>
+                <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="hidden sm:inline">Analise</span>
               </button>
               <button
                 onClick={handleExportarDossie}
@@ -973,7 +969,7 @@ export default function PortalDashboardPage() {
         <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #7c3aed55' }}>
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-violet-400" />
-            <h3 className="text-base md:text-lg font-semibold text-slate-100">Parecer do Atleta</h3>
+            <h3 className="text-base md:text-lg font-semibold text-slate-100">Analise do Atleta</h3>
           </div>
           {loadingIA && <p className="text-sm text-slate-400">Gerando analise... isso pode levar alguns segundos.</p>}
           {erroIA && <p className="text-sm text-red-400">{erroIA}</p>}
