@@ -25,7 +25,7 @@ import {
 import { calcularIDA, calcularIDP, classificarIndice } from '@/lib/stats/indices'
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
-import type { DadosAnaliseIA } from '@/lib/stats/ia'
+import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -879,12 +879,9 @@ export default function DashboardAtletasPage() {
   }
 
   // Gerar análise por IA
-  const handleAnaliseIA = async () => {
-    if (!atletaAtual) return
-    setLoadingIA(true)
-    setErroIA('')
-    setAnaliseIA('')
-    const payload: DadosAnaliseIA = {
+  const montarPayloadIA = (): DadosAnaliseIA | null => {
+    if (!atletaAtual) return null
+    return {
       nome: atletaAtual.nome,
       posicao: atletaAtual.posicao,
       clube: getClubeName(atletaAtual.clubes),
@@ -916,6 +913,22 @@ export default function DashboardAtletasPage() {
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
     }
+  }
+
+  // Parecer rápido gerado por regras, sem IA e sem custo
+  const handleAnaliseGratis = () => {
+    const payload = montarPayloadIA()
+    if (!payload) return
+    setErroIA('')
+    setAnaliseIA(gerarAnaliseGratis(payload))
+  }
+
+  const handleAnaliseIA = async () => {
+    const payload = montarPayloadIA()
+    if (!payload) return
+    setLoadingIA(true)
+    setErroIA('')
+    setAnaliseIA('')
     try {
       const resp = await fetch('/api/analise-ia', {
         method: 'POST',
@@ -1173,9 +1186,18 @@ export default function DashboardAtletasPage() {
                   </div>
                 )}
 
-                {/* Ações: IA + dossiê */}
+                {/* Ações: parecer + IA + dossiê */}
                 {avaliacoes.length > 0 && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={handleAnaliseGratis}
+                      className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
+                      style={{ backgroundColor: '#334155', border: '1px solid #22c55e80', color: '#e2e8f0' }}
+                      title="Gerar parecer técnico automático (grátis, sem IA)"
+                    >
+                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+                      <span className="hidden sm:inline">Parecer rápido</span>
+                    </button>
                     <button
                       onClick={handleAnaliseIA}
                       disabled={loadingIA}
@@ -1210,8 +1232,8 @@ export default function DashboardAtletasPage() {
             <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #7c3aed55' }}>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-violet-400" />
-                <h3 className="text-base md:text-lg font-semibold text-slate-100">Análise por IA</h3>
-                <span className="text-[10px] text-slate-500">gerada a partir dos dados do atleta</span>
+                <h3 className="text-base md:text-lg font-semibold text-slate-100">Parecer do Atleta</h3>
+                <span className="text-[10px] text-slate-500">gerado a partir dos dados</span>
               </div>
               {loadingIA && <p className="text-sm text-slate-400">Gerando análise... isso pode levar alguns segundos.</p>}
               {erroIA && <p className="text-sm text-red-400">{erroIA}</p>}
