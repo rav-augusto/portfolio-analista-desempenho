@@ -24,6 +24,7 @@ import {
   type AvaliacaoFisica,
 } from '@/lib/stats/desenvolvimento'
 import { calcularIDA, calcularIDP, classificarIndice } from '@/lib/stats/indices'
+import { calcularEficiencia, explicarEficiencia, calcularContextoProducao } from '@/lib/stats/eventos'
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
@@ -135,6 +136,27 @@ type Avaliacao = {
   sentar_alcancar: number | null
   idade_biologica: number | null
   estagio_phv: string | null
+  // Eventos por jogo (007/010) + contexto (009)
+  finalizacoes_no_alvo: number | null
+  finalizacoes_fora: number | null
+  finalizacoes_bloqueadas: number | null
+  passes_certos: number | null
+  passes_errados: number | null
+  passes_decisivos: number | null
+  duelos_ganhos: number | null
+  duelos_perdidos: number | null
+  desarmes: number | null
+  interceptacoes: number | null
+  perdas_posse: number | null
+  dribles_tentados: number | null
+  dribles_certos: number | null
+  bolas_recuperadas: number | null
+  toques_area: number | null
+  nivel_adversario: string | null
+  importancia_jogo: string | null
+  situacao_jogo: string | null
+  gols_decisivos: number | null
+  assistencias_decisivas: number | null
 }
 
 // Dimensoes CBF
@@ -298,6 +320,9 @@ export default function PortalDashboardPage() {
   const insightsOfensivos = statsJogo.insights
   const mediasExplicadas = useMemo(() => explicarMedias(statsJogo), [statsJogo])
   const insightsExplicados = useMemo(() => explicarInsights(statsJogo), [statsJogo])
+  const eficiencia = useMemo(() => calcularEficiencia(avaliacoes), [avaliacoes])
+  const eficienciaExplicada = useMemo(() => explicarEficiencia(eficiencia), [eficiencia])
+  const contextoProd = useMemo(() => calcularContextoProducao(avaliacoes), [avaliacoes])
 
   // Projeção de temporada
   const projecao = useMemo(() => projetarTemporada(statsJogo, nJogosProjecao), [statsJogo, nJogosProjecao])
@@ -829,6 +854,8 @@ export default function PortalDashboardPage() {
       insights: { sequenciaAtual: statsJogo.insights.sequenciaAtual, melhorSequencia: statsJogo.insights.melhorSequencia, minutosPorGol: statsJogo.insights.minutosPorGol },
       perfil: perfilAtleta ? { percentOfe: perfilAtleta.percentOfe, percentDef: perfilAtleta.percentDef } : null,
       evolucaoTecnica: evolucaoTecnicaGeral,
+      eficiencia: eficiencia.temDados ? eficienciaExplicada.map(m => ({ titulo: m.titulo, valor: m.valor, descricao: m.descricao })) : null,
+      contexto: contextoProd.disponivel ? { participacoes: contextoProd.participacoes, participacoesAjustadas: contextoProd.participacoesAjustadas, fator: contextoProd.fator } : null,
     }
   }
 
@@ -1560,6 +1587,31 @@ export default function PortalDashboardPage() {
                       }}
                     />
                   </div>
+                </div>
+              )}
+
+              {/* Eficiencia (estilo scout - 007/010) */}
+              {eficiencia.temDados && (
+                <div className="mb-4">
+                  <p className="text-xs text-cyan-300 font-medium mb-2 flex items-center gap-1">🎯 Eficiencia (padrao de analise profissional)</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                    {eficienciaExplicada.map((m) => (
+                      <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg md:text-xl font-black text-cyan-400">{m.valor}</span>
+                          <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
+                        </div>
+                        <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {contextoProd.disponivel && (
+                    <div className="mt-2 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
+                      <p className="text-[11px] md:text-xs text-slate-300 leading-snug">
+                        <span className="text-base font-black text-amber-400">{contextoProd.participacoesAjustadas}</span> participacoes <span className="font-semibold text-amber-300">ajustadas ao contexto</span> (vs {contextoProd.participacoes} brutas) — fator medio {contextoProd.fator}x por dificuldade do adversario, importancia do jogo e situacao de placar.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
