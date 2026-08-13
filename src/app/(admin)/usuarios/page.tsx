@@ -1,65 +1,48 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { useRouter } from 'next/navigation'
 import {
-  Plus,
-  Pencil,
-  Trash2,
-  UserCog,
-  Search,
-  X,
-  Check,
-  Ban,
-  Shield,
-  User,
-  Users,
-  Eye,
-  EyeOff
+  Plus, Pencil, Trash2, UserCog, Search, Check, Ban, Shield, User, Users, Eye, EyeOff,
 } from 'lucide-react'
+import {
+  PageHeader, Button, Input, Select, StatCard, Card, Badge, EmptyState, Spinner, Modal,
+} from '@/components/app'
 
+type Role = 'master' | 'analista' | 'atleta'
 type Usuario = {
   id: string
   email: string
   nome: string
-  role: 'master' | 'analista' | 'atleta'
+  role: Role
   atleta_id: string | null
   ativo: boolean
   created_at: string
-  atleta?: {
-    id: string
-    nome: string
-  } | null
+  atleta?: { id: string; nome: string } | null
 }
-
-type Atleta = {
-  id: string
-  nome: string
-}
-
-type ModalData = {
-  mode: 'create' | 'edit'
-  usuario?: Usuario
-}
+type Atleta = { id: string; nome: string }
+type ModalData = { mode: 'create' | 'edit'; usuario?: Usuario }
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [atletas, setAtletas] = useState<Atleta[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const [filtroRole, setFiltroRole] = useState('')
+  const [filtroStatus, setFiltroStatus] = useState('')
+  const [aExcluir, setAExcluir] = useState<Usuario | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [modal, setModal] = useState<ModalData | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Form state
   const [formEmail, setFormEmail] = useState('')
   const [formNome, setFormNome] = useState('')
   const [formSenha, setFormSenha] = useState('')
   const [showSenha, setShowSenha] = useState(false)
-  const [formRole, setFormRole] = useState<'master' | 'analista' | 'atleta'>('analista')
+  const [formRole, setFormRole] = useState<Role>('analista')
   const [formAtletaId, setFormAtletaId] = useState<string>('')
   const [formAtivo, setFormAtivo] = useState(true)
 
@@ -67,485 +50,286 @@ export default function UsuariosPage() {
   const { isMaster, isLoading: userLoading } = useUser()
   const router = useRouter()
 
-  // Redirect non-master users
   useEffect(() => {
-    if (!userLoading && !isMaster) {
-      router.push('/dashboard')
-    }
+    if (!userLoading && !isMaster) router.push('/dashboard')
   }, [userLoading, isMaster, router])
 
   useEffect(() => {
-    if (isMaster) {
-      loadData()
-    }
+    if (isMaster) loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMaster])
 
   const loadData = async () => {
     const [usuariosRes, atletasRes] = await Promise.all([
-      supabase
-        .from('usuarios')
-        .select('*, atleta:atletas(id, nome)')
-        .order('nome'),
-      supabase
-        .from('atletas')
-        .select('id, nome')
-        .order('nome')
+      supabase.from('usuarios').select('*, atleta:atletas(id, nome)').order('nome'),
+      supabase.from('atletas').select('id, nome').order('nome'),
     ])
-
     if (usuariosRes.data) setUsuarios(usuariosRes.data)
     if (atletasRes.data) setAtletas(atletasRes.data)
     setLoading(false)
   }
 
   const handleOpenModal = (mode: 'create' | 'edit', usuario?: Usuario) => {
-    setError(null)
-    setFormSenha('')
-    setShowSenha(false)
+    setError(null); setFormSenha(''); setShowSenha(false)
     if (mode === 'create') {
-      setFormEmail('')
-      setFormNome('')
-      setFormRole('analista')
-      setFormAtletaId('')
-      setFormAtivo(true)
+      setFormEmail(''); setFormNome(''); setFormRole('analista'); setFormAtletaId(''); setFormAtivo(true)
     } else if (usuario) {
-      setFormEmail(usuario.email)
-      setFormNome(usuario.nome)
-      setFormRole(usuario.role)
-      setFormAtletaId(usuario.atleta_id || '')
-      setFormAtivo(usuario.ativo)
+      setFormEmail(usuario.email); setFormNome(usuario.nome); setFormRole(usuario.role)
+      setFormAtletaId(usuario.atleta_id || ''); setFormAtivo(usuario.ativo)
     }
     setModal({ mode, usuario })
   }
-
-  const handleCloseModal = () => {
-    setModal(null)
-    setError(null)
-  }
+  const handleCloseModal = () => { setModal(null); setError(null) }
 
   const handleSave = async () => {
-    if (!formEmail || !formNome) {
-      setError('Email e nome sao obrigatorios')
-      return
-    }
+    if (!formEmail || !formNome) { setError('Email e nome são obrigatórios'); return }
+    if (modal?.mode === 'create' && !formSenha) { setError('Senha é obrigatória para novo usuário'); return }
+    if (modal?.mode === 'create' && formSenha.length < 6) { setError('Senha deve ter no mínimo 6 caracteres'); return }
+    if (formRole === 'atleta' && !formAtletaId) { setError('Selecione um atleta para vincular'); return }
 
-    if (modal?.mode === 'create' && !formSenha) {
-      setError('Senha e obrigatoria para novo usuario')
-      return
-    }
-
-    if (modal?.mode === 'create' && formSenha.length < 6) {
-      setError('Senha deve ter no minimo 6 caracteres')
-      return
-    }
-
-    if (formRole === 'atleta' && !formAtletaId) {
-      setError('Selecione um atleta para vincular')
-      return
-    }
-
-    setSaving(true)
-    setError(null)
-
+    setSaving(true); setError(null)
     try {
       if (modal?.mode === 'create') {
-        // Create user via API (needs to create auth user first)
         const response = await fetch('/api/usuarios', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: formEmail,
-            nome: formNome,
-            senha: formSenha,
-            role: formRole,
-            atleta_id: formRole === 'atleta' ? formAtletaId : null
-          })
+            email: formEmail, nome: formNome, senha: formSenha, role: formRole,
+            atleta_id: formRole === 'atleta' ? formAtletaId : null,
+          }),
         })
-
         const result = await response.json()
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Erro ao criar usuario')
-        }
-
-        // Reload data
+        if (!response.ok) throw new Error(result.error || 'Erro ao criar usuário')
         await loadData()
       } else if (modal?.mode === 'edit' && modal.usuario) {
-        // Update existing user
         const { error: updateError } = await supabase
           .from('usuarios')
-          .update({
-            nome: formNome,
-            role: formRole,
-            atleta_id: formRole === 'atleta' ? formAtletaId : null,
-            ativo: formAtivo
-          })
+          .update({ nome: formNome, role: formRole, atleta_id: formRole === 'atleta' ? formAtletaId : null, ativo: formAtivo })
           .eq('id', modal.usuario.id)
-
         if (updateError) throw updateError
-
-        // Update local state
         setUsuarios(usuarios.map(u =>
           u.id === modal.usuario!.id
             ? { ...u, nome: formNome, role: formRole, atleta_id: formRole === 'atleta' ? formAtletaId : null, ativo: formAtivo }
             : u
         ))
       }
-
       handleCloseModal()
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar')
     } finally {
       setSaving(false)
     }
   }
 
   const handleToggleAtivo = async (usuario: Usuario) => {
-    const { error } = await supabase
-      .from('usuarios')
-      .update({ ativo: !usuario.ativo })
-      .eq('id', usuario.id)
-
-    if (!error) {
-      setUsuarios(usuarios.map(u =>
-        u.id === usuario.id ? { ...u, ativo: !u.ativo } : u
-      ))
-    }
+    const { error } = await supabase.from('usuarios').update({ ativo: !usuario.ativo }).eq('id', usuario.id)
+    if (!error) setUsuarios(usuarios.map(u => u.id === usuario.id ? { ...u, ativo: !u.ativo } : u))
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este usuario? Esta acao nao pode ser desfeita.')) return
-
-    setDeleting(id)
-    const { error } = await supabase.from('usuarios').delete().eq('id', id)
-
-    if (!error) {
-      setUsuarios(usuarios.filter(u => u.id !== id))
-    }
-    setDeleting(null)
+  const confirmarExclusao = async () => {
+    if (!aExcluir) return
+    setDeleting(true)
+    const { error } = await supabase.from('usuarios').delete().eq('id', aExcluir.id)
+    if (!error) setUsuarios(prev => prev.filter(u => u.id !== aExcluir.id))
+    setDeleting(false)
+    setAExcluir(null)
   }
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'master': return <Shield className="w-4 h-4 text-amber-500" />
-      case 'analista': return <UserCog className="w-4 h-4 text-blue-400" />
-      case 'atleta': return <User className="w-4 h-4 text-green-400" />
-      default: return <User className="w-4 h-4 text-slate-400" />
-    }
-  }
+  const roleIcon = (role: string) =>
+    role === 'master' ? <Shield className="w-3.5 h-3.5" />
+      : role === 'analista' ? <UserCog className="w-3.5 h-3.5" />
+      : <User className="w-3.5 h-3.5" />
+  const roleLabel = (role: string) => role === 'master' ? 'Master' : role === 'analista' ? 'Analista' : role === 'atleta' ? 'Atleta' : role
+  const roleBadge = (role: string): 'brand' | 'info' | 'neutral' => role === 'master' ? 'brand' : role === 'analista' ? 'info' : 'neutral'
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'master': return 'Master'
-      case 'analista': return 'Analista'
-      case 'atleta': return 'Atleta'
-      default: return role
-    }
-  }
+  const kpis = useMemo(() => ({
+    total: usuarios.length,
+    masters: usuarios.filter(u => u.role === 'master').length,
+    analistas: usuarios.filter(u => u.role === 'analista').length,
+    inativos: usuarios.filter(u => !u.ativo).length,
+  }), [usuarios])
 
-  const getRoleBadgeClass = (role: string) => {
-    switch (role) {
-      case 'master': return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-      case 'analista': return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-      case 'atleta': return 'bg-green-500/20 text-green-400 border-green-500/30'
-      default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30'
-    }
-  }
-
-  const filteredUsuarios = usuarios.filter(u =>
-    u.nome.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase()) ||
-    u.role.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredUsuarios = useMemo(() => {
+    const q = search.toLowerCase()
+    return usuarios.filter(u => {
+      const matchBusca = !q || u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+      const matchRole = !filtroRole || u.role === filtroRole
+      const matchStatus = !filtroStatus || (filtroStatus === 'ativo' ? u.ativo : !u.ativo)
+      return matchBusca && matchRole && matchStatus
+    })
+  }, [usuarios, search, filtroRole, filtroStatus])
 
   if (userLoading || !isMaster) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-400">Verificando permissoes...</p>
-        </div>
-      </div>
-    )
+    return <div className="min-h-[400px] flex items-center justify-center"><Spinner size="lg" label="Verificando permissões..." /></div>
   }
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Usuarios</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            {filteredUsuarios.length} usuario{filteredUsuarios.length !== 1 ? 's' : ''}
-          </p>
-        </div>
-        <button
-          onClick={() => handleOpenModal('create')}
-          className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500 text-slate-900 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-        >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Novo Usuario</span>
-          <span className="sm:hidden">Novo</span>
-        </button>
+      <PageHeader
+        eyebrow="Administração"
+        title="Usuários"
+        description={`${filteredUsuarios.length} de ${usuarios.length} usuário${usuarios.length !== 1 ? 's' : ''}`}
+        actions={<Button onClick={() => handleOpenModal('create')}><Plus className="w-4 h-4" /><span className="hidden sm:inline">Novo usuário</span><span className="sm:hidden">Novo</span></Button>}
+      />
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <StatCard label="Usuários" value={loading ? '—' : kpis.total} icon={Users} tone="brand" />
+        <StatCard label="Masters" value={loading ? '—' : kpis.masters} icon={Shield} tone="caution" />
+        <StatCard label="Analistas" value={loading ? '—' : kpis.analistas} icon={UserCog} tone="info" />
+        <StatCard label="Inativos" value={loading ? '—' : kpis.inativos} icon={Ban} tone={kpis.inativos > 0 ? 'negative' : 'positive'} />
       </div>
 
-      {/* Search */}
-      <div className="rounded-2xl p-4 sm:p-5 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm sm:text-base text-slate-100">Buscar Usuarios</p>
-              <p className="text-xs text-slate-400">{filteredUsuarios.length} usuario{filteredUsuarios.length !== 1 ? 's' : ''}</p>
-            </div>
-          </div>
+      {/* Toolbar */}
+      <Card padding="sm" className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Nome, email ou role..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-              style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
-            />
+            <Input placeholder="Buscar nome ou e-mail..." value={search} onChange={(e) => setSearch(e.target.value)} leftIcon={<Search className="w-4 h-4" />} />
+          </div>
+          <div className="grid grid-cols-2 sm:flex gap-2">
+            <Select value={filtroRole} onChange={(e) => setFiltroRole(e.target.value)} className="sm:w-40">
+              <option value="">Todos os papéis</option>
+              <option value="master">Master</option>
+              <option value="analista">Analista</option>
+              <option value="atleta">Atleta</option>
+            </Select>
+            <Select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} className="sm:w-36">
+              <option value="">Todos</option>
+              <option value="ativo">Ativos</option>
+              <option value="inativo">Inativos</option>
+            </Select>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Lista de Usuarios */}
+      {/* Tabela */}
       {loading ? (
-        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-          <p className="text-slate-400">Carregando usuarios...</p>
-        </div>
+        <div className="flex justify-center py-16"><Spinner size="lg" label="Carregando usuários..." /></div>
       ) : filteredUsuarios.length === 0 ? (
-        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <Users className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-300 font-medium mb-1">Nenhum usuario encontrado</p>
-          <p className="text-sm text-slate-500">Tente ajustar sua busca ou cadastre um novo usuario</p>
-        </div>
+        <EmptyState icon={Users} title="Nenhum usuário encontrado" description="Ajuste os filtros ou cadastre um novo usuário." />
       ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {filteredUsuarios.map((usuario) => (
-            <div
-              key={usuario.id}
-              className={`rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 transition-colors ${
-                !usuario.ativo ? 'opacity-60' : ''
-              }`}
-              style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#0f172a', border: '2px solid #475569' }}>
-                  <span className="text-base sm:text-lg font-bold text-amber-500">
-                    {usuario.nome.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold text-sm sm:text-base text-slate-100 truncate">{usuario.nome}</h3>
-                    {!usuario.ativo && (
-                      <span className="px-1.5 sm:px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-[10px] sm:text-xs font-medium">
-                        Inativo
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs sm:text-sm text-slate-400 truncate">{usuario.email}</p>
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
-                    <span className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium border ${getRoleBadgeClass(usuario.role)}`}>
-                      {getRoleIcon(usuario.role)}
-                      {getRoleLabel(usuario.role)}
-                    </span>
-                    {usuario.atleta && (
-                      <span className="text-[10px] sm:text-xs text-slate-500 truncate">
-                        Vinculado a: {usuario.atleta.nome}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-end gap-1.5 sm:gap-2">
-                <button
-                  onClick={() => handleToggleAtivo(usuario)}
-                  className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
-                    usuario.ativo
-                      ? 'text-green-400 hover:bg-green-500/10'
-                      : 'text-red-400 hover:bg-red-500/10'
-                  }`}
-                  title={usuario.ativo ? 'Desativar' : 'Ativar'}
-                >
-                  {usuario.ativo ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Ban className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                </button>
-                <button
-                  onClick={() => handleOpenModal('edit', usuario)}
-                  className="p-1.5 sm:p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
-                >
-                  <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
-                {usuario.role !== 'master' && (
-                  <button
-                    onClick={() => handleDelete(usuario.id)}
-                    disabled={deleting === usuario.id}
-                    className="p-1.5 sm:p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Modal */}
-      {modal && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/70 z-40"
-            onClick={handleCloseModal}
-          />
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-            <div
-              className="w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto"
-              style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #334155' }}>
-                <h2 className="text-xl font-bold text-slate-100">
-                  {modal.mode === 'create' ? 'Novo Usuario' : 'Editar Usuario'}
-                </h2>
-                <button
-                  onClick={handleCloseModal}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="px-6 py-5 space-y-5">
-                {error && (
-                  <div className="p-3 rounded-xl bg-red-500/10 text-red-400 text-sm" style={{ border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-                    {error}
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Nome</label>
-                  <input
-                    type="text"
-                    value={formNome}
-                    onChange={(e) => setFormNome(e.target.value)}
-                    placeholder="Nome completo"
-                    className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                    style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={formEmail}
-                    onChange={(e) => setFormEmail(e.target.value)}
-                    disabled={modal.mode === 'edit'}
-                    placeholder="email@exemplo.com"
-                    className="w-full px-4 py-3 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                  />
-                </div>
-
-                {modal.mode === 'create' && (
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Senha</label>
-                    <div className="relative">
-                      <input
-                        type={showSenha ? 'text' : 'password'}
-                        value={formSenha}
-                        onChange={(e) => setFormSenha(e.target.value)}
-                        placeholder="Minimo 6 caracteres"
-                        className="w-full px-4 py-3 pr-12 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                        style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowSenha(!showSenha)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                      >
-                        {showSenha ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de Usuario</label>
-                  <select
-                    value={formRole}
-                    onChange={(e) => setFormRole(e.target.value as 'master' | 'analista' | 'atleta')}
-                    className="w-full px-4 py-3 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
-                    style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                  >
-                    <option value="analista">Analista</option>
-                    <option value="atleta">Atleta</option>
-                    <option value="master">Master</option>
-                  </select>
-                </div>
-
-                {formRole === 'atleta' && (
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Vincular ao Atleta</label>
-                    <select
-                      value={formAtletaId}
-                      onChange={(e) => setFormAtletaId(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer"
-                      style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                    >
-                      <option value="">Selecione um atleta...</option>
-                      {atletas.map(a => (
-                        <option key={a.id} value={a.id}>{a.nome}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {modal.mode === 'edit' && (
-                  <div className="flex items-center justify-between p-4 rounded-xl" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-                    <span className="text-sm font-medium text-slate-300">Usuario ativo</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formAtivo}
-                        onChange={(e) => setFormAtivo(e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="flex gap-3 px-6 py-4" style={{ borderTop: '1px solid #334155' }}>
-                <button
-                  onClick={handleCloseModal}
-                  className="flex-1 px-4 py-3 rounded-xl text-slate-300 font-medium transition-colors hover:bg-slate-700"
-                  style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 px-4 py-3 bg-amber-500 text-slate-900 rounded-xl font-semibold hover:bg-amber-400 transition-colors disabled:opacity-50"
-                >
-                  {saving ? 'Salvando...' : 'Salvar'}
-                </button>
-              </div>
-            </div>
+        <Card padding="none" className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-line">
+                  <th className="text-left font-semibold uppercase tracking-wider text-[11px] text-faint px-4 py-3">Nome</th>
+                  <th className="text-left font-semibold uppercase tracking-wider text-[11px] text-faint px-3 py-3 hidden md:table-cell">E-mail</th>
+                  <th className="text-left font-semibold uppercase tracking-wider text-[11px] text-faint px-3 py-3">Papel</th>
+                  <th className="text-left font-semibold uppercase tracking-wider text-[11px] text-faint px-3 py-3 hidden lg:table-cell">Vínculo</th>
+                  <th className="text-center font-semibold uppercase tracking-wider text-[11px] text-faint px-3 py-3">Status</th>
+                  <th className="text-right font-semibold uppercase tracking-wider text-[11px] text-faint px-4 py-3">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsuarios.map((u) => (
+                  <tr key={u.id} className={`border-b border-line/50 last:border-0 hover:bg-surface-2/40 transition-colors ${!u.ativo ? 'opacity-60' : ''}`}>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-app border border-line flex items-center justify-center shrink-0">
+                          <span className="text-xs font-bold text-brand">{u.nome.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-strong truncate">{u.nome}</div>
+                          <div className="text-[11px] text-faint truncate md:hidden">{u.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-soft hidden md:table-cell truncate max-w-[200px]">{u.email}</td>
+                    <td className="px-3 py-3"><Badge variant={roleBadge(u.role)} size="sm">{roleIcon(u.role)}{roleLabel(u.role)}</Badge></td>
+                    <td className="px-3 py-3 text-soft hidden lg:table-cell truncate max-w-[160px]">{u.atleta?.nome || <span className="text-faint">—</span>}</td>
+                    <td className="px-3 py-3 text-center">
+                      {u.ativo ? <Badge variant="positive" size="sm">Ativo</Badge> : <Badge variant="negative" size="sm">Inativo</Badge>}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => handleToggleAtivo(u)} className={`p-1.5 rounded-lg transition-colors ${u.ativo ? 'text-positive hover:bg-positive/10' : 'text-negative hover:bg-negative/10'}`} title={u.ativo ? 'Desativar' : 'Ativar'}>
+                          {u.ativo ? <Check className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                        </button>
+                        <button onClick={() => handleOpenModal('edit', u)} className="p-1.5 text-faint hover:text-brand hover:bg-brand/10 rounded-lg transition-colors" title="Editar">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        {u.role !== 'master' && (
+                          <button onClick={() => setAExcluir(u)} className="p-1.5 text-faint hover:text-negative hover:bg-negative/10 rounded-lg transition-colors" title="Excluir">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </>
+        </Card>
       )}
+
+      {/* Modal criar/editar */}
+      <Modal
+        isOpen={!!modal}
+        onClose={handleCloseModal}
+        title={modal?.mode === 'create' ? 'Novo usuário' : 'Editar usuário'}
+        size="md"
+        footer={
+          <>
+            <Button variant="ghost" size="sm" onClick={handleCloseModal}>Cancelar</Button>
+            <Button size="sm" onClick={handleSave} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {error && <div className="p-3 rounded-lg bg-negative/10 text-negative text-sm border border-negative/30">{error}</div>}
+          <Input label="Nome" value={formNome} onChange={(e) => setFormNome(e.target.value)} placeholder="Nome completo" />
+          <Input label="E-mail" type="email" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} disabled={modal?.mode === 'edit'} placeholder="email@exemplo.com" hint={modal?.mode === 'edit' ? 'O e-mail não pode ser alterado' : undefined} />
+          {modal?.mode === 'create' && (
+            <Input
+              label="Senha" type={showSenha ? 'text' : 'password'} value={formSenha}
+              onChange={(e) => setFormSenha(e.target.value)} placeholder="Mínimo 6 caracteres"
+              rightIcon={
+                <button type="button" onClick={() => setShowSenha(!showSenha)} className="text-faint hover:text-strong transition-colors pointer-events-auto">
+                  {showSenha ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              }
+            />
+          )}
+          <Select label="Tipo de usuário" value={formRole} onChange={(e) => setFormRole(e.target.value as Role)}>
+            <option value="analista">Analista</option>
+            <option value="atleta">Atleta</option>
+            <option value="master">Master</option>
+          </Select>
+          {formRole === 'atleta' && (
+            <Select label="Vincular ao atleta" value={formAtletaId} onChange={(e) => setFormAtletaId(e.target.value)}>
+              <option value="">Selecione um atleta...</option>
+              {atletas.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
+            </Select>
+          )}
+          {modal?.mode === 'edit' && (
+            <div className="flex items-center justify-between p-3 rounded-lg bg-app border border-line">
+              <span className="text-sm font-medium text-soft">Usuário ativo</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" checked={formAtivo} onChange={(e) => setFormAtivo(e.target.checked)} className="sr-only peer" />
+                <div className="w-11 h-6 bg-line rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal exclusão */}
+      <Modal
+        isOpen={!!aExcluir}
+        onClose={() => setAExcluir(null)}
+        title="Excluir usuário"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" size="sm" onClick={() => setAExcluir(null)}>Cancelar</Button>
+            <Button variant="danger" size="sm" onClick={confirmarExclusao} disabled={deleting}>{deleting ? 'Excluindo...' : 'Excluir'}</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-soft">Excluir <b className="text-strong">{aExcluir?.nome}</b>? Esta ação não pode ser desfeita.</p>
+      </Modal>
     </div>
   )
 }
