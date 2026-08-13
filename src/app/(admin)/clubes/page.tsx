@@ -1,9 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, Shield, Search } from 'lucide-react'
+import { Plus, Pencil, Trash2, Shield, Search, Users, CalendarDays, MapPin } from 'lucide-react'
 import Link from 'next/link'
+import {
+  PageHeader,
+  Button,
+  Input,
+  Select,
+  StatCard,
+  Card,
+  EmptyState,
+  Spinner,
+  Modal,
+} from '@/components/app'
 
 type Clube = {
   id: string
@@ -16,139 +27,207 @@ type Clube = {
 
 export default function ClubesPage() {
   const [clubes, setClubes] = useState<Clube[]>([])
+  const [atletasPorClube, setAtletasPorClube] = useState<Record<string, number>>({})
+  const [jogosPorClube, setJogosPorClube] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const [estado, setEstado] = useState('')
+  const [aExcluir, setAExcluir] = useState<Clube | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
     loadClubes()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadClubes = async () => {
-    const { data, error } = await supabase
-      .from('clubes')
-      .select('*')
-      .order('nome')
+    const [clubesRes, atletasRes, jogosRes] = await Promise.all([
+      supabase.from('clubes').select('*').order('nome'),
+      supabase.from('atletas').select('clube_id'),
+      supabase.from('jogos').select('clube_id'),
+    ])
 
-    if (!error && data) {
-      setClubes(data)
+    if (clubesRes.data) setClubes(clubesRes.data)
+
+    const contar = (rows: { clube_id: string | null }[] | null) => {
+      const map: Record<string, number> = {}
+      for (const r of rows ?? []) {
+        if (r.clube_id) map[r.clube_id] = (map[r.clube_id] || 0) + 1
+      }
+      return map
     }
+    setAtletasPorClube(contar(atletasRes.data))
+    setJogosPorClube(contar(jogosRes.data))
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este clube?')) return
-
-    setDeleting(id)
-    const { error } = await supabase.from('clubes').delete().eq('id', id)
-
-    if (!error) {
-      setClubes(clubes.filter(c => c.id !== id))
-    }
-    setDeleting(null)
+  const confirmarExclusao = async () => {
+    if (!aExcluir) return
+    setDeleting(true)
+    const { error } = await supabase.from('clubes').delete().eq('id', aExcluir.id)
+    if (!error) setClubes(prev => prev.filter(c => c.id !== aExcluir.id))
+    setDeleting(false)
+    setAExcluir(null)
   }
 
-  const filteredClubes = clubes.filter(c =>
-    c.nome.toLowerCase().includes(search.toLowerCase()) ||
-    c.cidade.toLowerCase().includes(search.toLowerCase())
+  const estados = useMemo(
+    () => Array.from(new Set(clubes.map(c => c.estado).filter(Boolean))).sort(),
+    [clubes]
+  )
+
+  const filteredClubes = useMemo(
+    () =>
+      clubes.filter(c => {
+        const q = search.toLowerCase()
+        const matchBusca =
+          c.nome.toLowerCase().includes(q) || (c.cidade || '').toLowerCase().includes(q)
+        const matchEstado = !estado || c.estado === estado
+        return matchBusca && matchEstado
+      }),
+    [clubes, search, estado]
+  )
+
+  const totalAtletas = useMemo(
+    () => Object.values(atletasPorClube).reduce((a, b) => a + b, 0),
+    [atletasPorClube]
   )
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Clubes</h1>
-          <p className="text-sm text-slate-400 mt-1">Gerencie os clubes cadastrados</p>
-        </div>
-        <Link
-          href="/clubes/novo"
-          className="inline-flex items-center gap-1.5 sm:gap-2 bg-amber-500 text-slate-900 px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-        >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Novo Clube</span>
-          <span className="sm:hidden">Novo</span>
-        </Link>
+      <PageHeader
+        eyebrow="Clubes"
+        title="Clubes parceiros"
+        description="Clubes cadastrados, com atletas e jogos vinculados"
+        actions={
+          <Link href="/clubes/novo">
+            <Button>
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Novo clube</span>
+              <span className="sm:hidden">Novo</span>
+            </Button>
+          </Link>
+        }
+      />
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <StatCard label="Clubes" value={loading ? '—' : clubes.length} icon={Shield} tone="brand" />
+        <StatCard label="Atletas vinculados" value={loading ? '—' : totalAtletas} icon={Users} tone="info" />
+        <StatCard label="Estados" value={loading ? '—' : estados.length} icon={MapPin} tone="positive" />
+        <StatCard label="Jogos registrados" value={loading ? '—' : Object.values(jogosPorClube).reduce((a, b) => a + b, 0)} icon={CalendarDays} tone="violet" />
       </div>
 
-      {/* Search */}
-      <div className="rounded-2xl p-4 sm:p-5 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm sm:text-base text-slate-100">Buscar Clubes</p>
-              <p className="text-xs text-slate-400">{filteredClubes.length} clube{filteredClubes.length !== 1 ? 's' : ''}</p>
-            </div>
-          </div>
+      {/* Toolbar */}
+      <Card padding="sm" className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Nome do clube ou cidade..."
+            <Input
+              placeholder="Buscar clube ou cidade..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-              style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}
+              leftIcon={<Search className="w-4 h-4" />}
             />
           </div>
+          <div className="sm:w-52">
+            <Select value={estado} onChange={(e) => setEstado(e.target.value)}>
+              <option value="">Todos os estados</option>
+              {estados.map(uf => <option key={uf} value={uf}>{uf}</option>)}
+            </Select>
+          </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Lista de Clubes */}
+      {/* Grid */}
       {loading ? (
-        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-          <p className="text-slate-400">Carregando clubes...</p>
+        <div className="flex justify-center py-16">
+          <Spinner size="lg" label="Carregando clubes..." />
         </div>
       ) : filteredClubes.length === 0 ? (
-        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <Shield className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-300 font-medium mb-1">Nenhum clube encontrado</p>
-          <p className="text-sm text-slate-500">Tente ajustar sua busca ou cadastre um novo clube</p>
-        </div>
+        <EmptyState
+          icon={Shield}
+          title="Nenhum clube encontrado"
+          description="Ajuste a busca ou cadastre um novo clube parceiro."
+          action={
+            <Link href="/clubes/novo">
+              <Button size="sm"><Plus className="w-4 h-4" />Novo clube</Button>
+            </Link>
+          }
+        />
       ) : (
-        <div className="space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {filteredClubes.map((clube) => (
-            <div
-              key={clube.id}
-              className="rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 transition-colors hover:opacity-90"
-              style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+            <Card key={clube.id} padding="none" className="group overflow-hidden flex flex-col">
+              <div className="flex items-center gap-3 p-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden shrink-0 bg-app border border-line">
                   {clube.escudo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={clube.escudo_url} alt={clube.nome} className="w-full h-full object-cover" />
                   ) : (
-                    <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-slate-500" />
+                    <Shield className="w-6 h-6 text-faint" />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm sm:text-base text-slate-100 truncate">{clube.nome}</h3>
-                  <p className="text-xs sm:text-sm text-slate-400">{clube.cidade} - {clube.estado}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-strong truncate">{clube.nome}</h3>
+                  <p className="text-xs text-soft flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3" />
+                    {clube.cidade}{clube.estado ? ` · ${clube.estado}` : ''}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-1.5 sm:gap-2">
-                <Link
-                  href={`/clubes/${clube.id}`}
-                  className="p-1.5 sm:p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
-                >
-                  <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </Link>
-                <button
-                  onClick={() => handleDelete(clube.id)}
-                  disabled={deleting === clube.id}
-                  className="p-1.5 sm:p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
+
+              <div className="mt-auto flex items-center justify-between border-t border-line/70 px-4 py-2.5">
+                <div className="flex items-center gap-4 text-xs">
+                  <span className="flex items-center gap-1.5 text-soft">
+                    <Users className="w-3.5 h-3.5 text-info" />
+                    <b className="text-strong tabular-nums">{atletasPorClube[clube.id] || 0}</b> atletas
+                  </span>
+                  <span className="flex items-center gap-1.5 text-soft">
+                    <CalendarDays className="w-3.5 h-3.5 text-brand" />
+                    <b className="text-strong tabular-nums">{jogosPorClube[clube.id] || 0}</b> jogos
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                  <Link
+                    href={`/clubes/${clube.id}`}
+                    className="p-1.5 text-faint hover:text-brand hover:bg-brand/10 rounded-lg transition-colors"
+                    aria-label="Editar"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Link>
+                  <button
+                    onClick={() => setAExcluir(clube)}
+                    className="p-1.5 text-faint hover:text-negative hover:bg-negative/10 rounded-lg transition-colors"
+                    aria-label="Excluir"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
+
+      {/* Modal de exclusão */}
+      <Modal
+        isOpen={!!aExcluir}
+        onClose={() => setAExcluir(null)}
+        title="Excluir clube"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" size="sm" onClick={() => setAExcluir(null)}>Cancelar</Button>
+            <Button variant="danger" size="sm" onClick={confirmarExclusao} disabled={deleting}>
+              {deleting ? 'Excluindo...' : 'Excluir'}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-soft">
+          Tem certeza que deseja excluir <b className="text-strong">{aExcluir?.nome}</b>? Esta ação não pode ser desfeita.
+        </p>
+      </Modal>
     </div>
   )
 }
