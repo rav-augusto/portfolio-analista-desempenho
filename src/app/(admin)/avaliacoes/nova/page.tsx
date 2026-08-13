@@ -348,6 +348,11 @@ export default function NovaAvaliacaoPage() {
       desarmes: evNum('desarmes'),
       interceptacoes: evNum('interceptacoes'),
       perdas_posse: evNum('perdas_posse'),
+      // Eventos avançados (010)
+      dribles_tentados: evNum('dribles_tentados'),
+      dribles_certos: evNum('dribles_certos'),
+      bolas_recuperadas: evNum('bolas_recuperadas'),
+      toques_area: evNum('toques_area'),
       faltas_cometidas: evNum('faltas_cometidas'),
       faltas_sofridas: evNum('faltas_sofridas'),
       cartoes_amarelos: evNum('cartoes_amarelos'),
@@ -732,9 +737,10 @@ export default function NovaAvaliacaoPage() {
               <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
                 <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2"><span>📊</span> Estatísticas do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional)</span></h4>
                 {([
-                  { titulo: 'Finalizações', cor: '#22c55e', campos: [['finalizacoes_no_alvo', 'No alvo'], ['finalizacoes_fora', 'Para fora'], ['finalizacoes_bloqueadas', 'Bloqueadas']] },
+                  { titulo: 'Finalizações', cor: '#22c55e', campos: [['finalizacoes_no_alvo', 'No alvo'], ['finalizacoes_fora', 'Para fora'], ['finalizacoes_bloqueadas', 'Bloqueadas'], ['toques_area', 'Toques na área']] },
+                  { titulo: '1 contra 1 (dribles)', cor: '#ec4899', campos: [['dribles_tentados', 'Tentados'], ['dribles_certos', 'Certos']] },
                   { titulo: 'Passes', cor: '#3b82f6', campos: [['passes_certos', 'Certos'], ['passes_errados', 'Errados'], ['passes_decisivos', 'Decisivos']] },
-                  { titulo: 'Duelos e recuperação', cor: '#f59e0b', campos: [['duelos_ganhos', 'Duelos ganhos'], ['duelos_perdidos', 'Duelos perdidos'], ['desarmes', 'Desarmes'], ['interceptacoes', 'Interceptações']] },
+                  { titulo: 'Duelos e recuperação', cor: '#f59e0b', campos: [['duelos_ganhos', 'Duelos ganhos'], ['duelos_perdidos', 'Duelos perdidos'], ['desarmes', 'Desarmes'], ['interceptacoes', 'Interceptações'], ['bolas_recuperadas', 'Bolas recuperadas']] },
                   { titulo: 'Controle de bola', cor: '#a855f7', campos: [['perdas_posse', 'Perdas de posse']] },
                 ] as { titulo: string; cor: string; campos: [string, string][] }[]).map((grupo) => (
                   <div key={grupo.titulo} className="mb-3 last:mb-0">
