@@ -161,10 +161,15 @@ export default function NovaAvaliacaoPage() {
   const [golsFalta, setGolsFalta] = useState(0)
   const [golsContraAtaque, setGolsContraAtaque] = useState(0)
 
-  // Eventos por jogo (migração 007) — estado-objeto para reduzir boilerplate
+  // Eventos por jogo (migração 007/010) — estado-objeto para reduzir boilerplate
   const [eventos, setEventos] = useState<Record<string, string>>({})
   const setEv = (k: string, v: string) => setEventos(p => ({ ...p, [k]: v }))
   const evNum = (k: string) => (eventos[k] && eventos[k].trim() !== '' ? parseInt(eventos[k]) : null)
+
+  // Contexto do jogo (migração 009)
+  const [ctx, setCtx] = useState<Record<string, string>>({})
+  const setCtxV = (k: string, v: string) => setCtx(p => ({ ...p, [k]: v }))
+  const ctxNum = (k: string) => (ctx[k] && ctx[k].trim() !== '' ? parseInt(ctx[k]) : null)
 
   // Avaliação Física - Dados Antropométricos
   const [alturaAvaliacao, setAlturaAvaliacao] = useState('')
@@ -353,6 +358,14 @@ export default function NovaAvaliacaoPage() {
       dribles_certos: evNum('dribles_certos'),
       bolas_recuperadas: evNum('bolas_recuperadas'),
       toques_area: evNum('toques_area'),
+      // Contexto e impacto (009)
+      condicao_entrada: ctx.condicao_entrada || null,
+      situacao_jogo: ctx.situacao_jogo || null,
+      resultado_jogo: ctx.resultado_jogo || null,
+      nivel_adversario: ctx.nivel_adversario || null,
+      importancia_jogo: ctx.importancia_jogo || null,
+      gols_decisivos: ctxNum('gols_decisivos'),
+      assistencias_decisivas: ctxNum('assistencias_decisivas'),
       faltas_cometidas: evNum('faltas_cometidas'),
       faltas_sofridas: evNum('faltas_sofridas'),
       cartoes_amarelos: evNum('cartoes_amarelos'),
@@ -731,6 +744,40 @@ export default function NovaAvaliacaoPage() {
                 </>
               )}
             </div>
+
+            {/* Contexto do jogo (migração 009) */}
+            {tipo === 'jogo' && (
+              <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                <h4 className="text-sm font-semibold text-amber-400 mb-3 flex items-center gap-2"><span>🎯</span> Contexto do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional — pondera a produção)</span></h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                  {([
+                    { k: 'condicao_entrada', label: 'Entrada', opts: [['titular', 'Titular'], ['reserva', 'Reserva']] },
+                    { k: 'situacao_jogo', label: 'Situação', opts: [['ganhando', 'Ganhando'], ['empatando', 'Empatando'], ['perdendo', 'Perdendo']] },
+                    { k: 'resultado_jogo', label: 'Resultado', opts: [['vitoria', 'Vitória'], ['empate', 'Empate'], ['derrota', 'Derrota']] },
+                    { k: 'nivel_adversario', label: 'Adversário', opts: [['forte', 'Forte'], ['medio', 'Médio'], ['fraco', 'Fraco']] },
+                    { k: 'importancia_jogo', label: 'Importância', opts: [['amistoso', 'Amistoso'], ['campeonato', 'Campeonato'], ['decisao', 'Decisão']] },
+                  ] as { k: string; label: string; opts: [string, string][] }[]).map(({ k, label, opts }) => (
+                    <div key={k}>
+                      <label className="block text-[10px] text-slate-400 mb-1">{label}</label>
+                      <select value={ctx[k] ?? ''} onChange={(e) => setCtxV(k, e.target.value)} className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                        <option value="">—</option>
+                        {opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2">
+                  <div>
+                    <label className="block text-[10px] text-slate-400 mb-1">Gols decisivos</label>
+                    <input type="number" min="0" value={ctx.gols_decisivos ?? ''} onChange={(e) => setCtxV('gols_decisivos', e.target.value)} placeholder="0" className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-slate-400 mb-1">Assist. decisivas</label>
+                    <input type="number" min="0" value={ctx.assistencias_decisivas ?? ''} onChange={(e) => setCtxV('assistencias_decisivas', e.target.value)} placeholder="0" className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Estatísticas do jogo (eventos - migração 007) */}
             {tipo === 'jogo' && (
