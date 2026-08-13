@@ -548,11 +548,10 @@ export default function EditarAvaliacaoPage() {
     const fundoChip = (i: number) =>
       i <= floor ? cor : i === floor + 1 && temHalf ? `linear-gradient(90deg, ${cor} 50%, #1e293b 50%)` : '#1e293b'
     return (
-      <div key={dim.key} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-        <div className="flex items-center justify-between gap-2 mb-2.5">
-          <span className="text-sm font-medium text-slate-200 truncate">{dim.label}</span>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm font-black px-2 py-0.5 rounded-md tabular-nums" style={{ color: cor, backgroundColor: `${cor}22` }}>{value}</span>
+      <div key={dim.key} className="rounded-lg px-2.5 py-2" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+        <div className="flex items-center justify-between gap-1.5 mb-1.5">
+          <span className="text-xs font-medium text-slate-200 truncate">{dim.label}</span>
+          <div className="flex items-center gap-0.5 shrink-0">
             {showHelp && (
               <button
                 type="button"
@@ -574,26 +573,25 @@ export default function EditarAvaliacaoPage() {
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1 flex-1">
+          <div className="flex items-center gap-[2px] flex-1">
             {[1, 2, 3, 4, 5].map((i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setValue(dim.key, String(i))}
                 aria-label={`Nota ${i}`}
-                className="flex-1 h-7 rounded-md text-[11px] font-bold flex items-center justify-center transition-all hover:brightness-110"
-                style={{ background: fundoChip(i), color: i <= numValue ? '#0f172a' : '#64748b' }}
-              >
-                {i}
-              </button>
+                className="flex-1 h-3.5 rounded-[3px] transition-all hover:brightness-110"
+                style={{ background: fundoChip(i) }}
+              />
             ))}
           </div>
+          <span className="text-sm font-black tabular-nums w-5 text-center shrink-0" style={{ color: cor }}>{value}</span>
           <button
             type="button"
             onClick={() => setValue(dim.key, temHalf ? String(floor) : String(Math.min(5, numValue + 0.5)))}
             title="Meio ponto (ex.: 3,5)"
             aria-label="Meio ponto"
-            className="w-7 h-7 rounded-md text-xs font-bold shrink-0 transition-all"
+            className="w-6 h-6 rounded-md text-[11px] font-bold shrink-0 transition-all"
             style={temHalf ? { backgroundColor: cor, color: '#0f172a' } : { backgroundColor: '#1e293b', color: '#94a3b8', border: '1px solid #334155' }}
           >
             ½
@@ -947,43 +945,26 @@ export default function EditarAvaliacaoPage() {
 
           {/* Tabs */}
           <div className="rounded-2xl mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 border-b" style={{ borderColor: '#475569' }}>
-              <span className="text-xs sm:text-sm font-medium text-slate-400">Dimensões:</span>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
-                    style={
-                      activeTab === tab.id
-                        ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
-                        : { backgroundColor: '#334155', color: '#94a3b8' }
-                    }
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="p-3 sm:p-4">
-              {activeTab === 'cbf' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                  {dimensoesCBF.map((dim) => renderDimensionCard(dim, notas[dim.key], (key, val) => setNotas(prev => ({ ...prev, [key]: val })), obsCBF[dim.key] || '', 'cbf'))}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-2 px-1">Dimensões CBF</h3>
+                  <div className="space-y-1.5">
+                    {dimensoesCBF.map((dim) => renderDimensionCard(dim, notas[dim.key], (key, val) => setNotas(prev => ({ ...prev, [key]: val })), obsCBF[dim.key] || '', 'cbf'))}
+                  </div>
                 </div>
-              )}
-              {activeTab === 'ofensivos' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {principiosOfensivos.map((dim) => renderDimensionCard(dim, notasOfensivos[dim.key], (key, val) => setNotasOfensivos(prev => ({ ...prev, [key]: val })), obsOfensivos[dim.key] || '', 'ofensivo'))}
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-emerald-400 mb-2 px-1">Princípios Ofensivos</h3>
+                  <div className="space-y-1.5">
+                    {principiosOfensivos.map((dim) => renderDimensionCard(dim, notasOfensivos[dim.key], (key, val) => setNotasOfensivos(prev => ({ ...prev, [key]: val })), obsOfensivos[dim.key] || '', 'ofensivo'))}
+                  </div>
                 </div>
-              )}
-              {activeTab === 'defensivos' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {principiosDefensivos.map((dim) => renderDimensionCard(dim, notasDefensivos[dim.key], (key, val) => setNotasDefensivos(prev => ({ ...prev, [key]: val })), obsDefensivos[dim.key] || '', 'defensivo'))}
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-red-400 mb-2 px-1">Princípios Defensivos</h3>
+                  <div className="space-y-1.5">
+                    {principiosDefensivos.map((dim) => renderDimensionCard(dim, notasDefensivos[dim.key], (key, val) => setNotasDefensivos(prev => ({ ...prev, [key]: val })), obsDefensivos[dim.key] || '', 'defensivo'))}
+                  </div>
                 </div>
-              )}
               {activeTab === 'fisico' && (
                 <div className="space-y-4">
                   {/* Dados Antropométricos */}
@@ -1138,34 +1119,24 @@ export default function EditarAvaliacaoPage() {
                   </div>
                 </div>
               )}
-              {activeTab === 'conclusoes' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 mb-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Pontos Fortes
-                    </label>
-                    <textarea value={pontosFortes} onChange={(e) => setPontosFortes(e.target.value)} rows={4} placeholder="Principais qualidades..."
-                      className="w-full px-3 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none placeholder:text-slate-500"
-                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
-                  </div>
-                  <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-amber-400 mb-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />Pontos a Desenvolver
-                    </label>
-                    <textarea value={pontosDesenvolver} onChange={(e) => setPontosDesenvolver(e.target.value)} rows={4} placeholder="Aspectos a melhorar..."
-                      className="w-full px-3 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30 resize-none placeholder:text-slate-500"
-                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
-                  </div>
-                  <div className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Observações Gerais
-                    </label>
-                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={4} placeholder="Outras observações..."
-                      className="w-full px-3 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-500/30 resize-none placeholder:text-slate-500"
-                      style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300 mb-2 px-1">Conclusões</h3>
+                  <div className="space-y-2">
+                    <div className="rounded-lg p-2.5" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+                      <label className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 mb-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Pontos fortes</label>
+                      <textarea value={pontosFortes} onChange={(e) => setPontosFortes(e.target.value)} rows={3} placeholder="Principais qualidades..." className="w-full px-2.5 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none placeholder:text-slate-500" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                    </div>
+                    <div className="rounded-lg p-2.5" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+                      <label className="flex items-center gap-1.5 text-[11px] font-medium text-amber-400 mb-1.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" />Pontos a desenvolver</label>
+                      <textarea value={pontosDesenvolver} onChange={(e) => setPontosDesenvolver(e.target.value)} rows={3} placeholder="Aspectos a melhorar..." className="w-full px-2.5 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30 resize-none placeholder:text-slate-500" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                    </div>
+                    <div className="rounded-lg p-2.5" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+                      <label className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 mb-1.5"><span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Observações gerais</label>
+                      <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={3} placeholder="Outras observações..." className="w-full px-2.5 py-2 text-xs rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-500/30 resize-none placeholder:text-slate-500" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
