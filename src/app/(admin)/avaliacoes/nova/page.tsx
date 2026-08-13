@@ -734,8 +734,8 @@ export default function NovaAvaliacaoPage() {
                 {([
                   { titulo: 'Finalizações', cor: '#22c55e', campos: [['finalizacoes_no_alvo', 'No alvo'], ['finalizacoes_fora', 'Para fora'], ['finalizacoes_bloqueadas', 'Bloqueadas']] },
                   { titulo: 'Passes', cor: '#3b82f6', campos: [['passes_certos', 'Certos'], ['passes_errados', 'Errados'], ['passes_decisivos', 'Decisivos']] },
-                  { titulo: 'Duelos e defesa', cor: '#f59e0b', campos: [['duelos_ganhos', 'Duelos ganhos'], ['duelos_perdidos', 'Duelos perdidos'], ['desarmes', 'Desarmes'], ['interceptacoes', 'Interceptações']] },
-                  { titulo: 'Perdas e disciplina', cor: '#ef4444', campos: [['perdas_posse', 'Perdas de posse'], ['faltas_cometidas', 'Faltas cometidas'], ['faltas_sofridas', 'Faltas sofridas'], ['cartoes_amarelos', 'Amarelos'], ['cartoes_vermelhos', 'Vermelhos']] },
+                  { titulo: 'Duelos e recuperação', cor: '#f59e0b', campos: [['duelos_ganhos', 'Duelos ganhos'], ['duelos_perdidos', 'Duelos perdidos'], ['desarmes', 'Desarmes'], ['interceptacoes', 'Interceptações']] },
+                  { titulo: 'Controle de bola', cor: '#a855f7', campos: [['perdas_posse', 'Perdas de posse']] },
                 ] as { titulo: string; cor: string; campos: [string, string][] }[]).map((grupo) => (
                   <div key={grupo.titulo} className="mb-3 last:mb-0">
                     <p className="text-[10px] uppercase mb-1.5 font-medium" style={{ color: grupo.cor }}>{grupo.titulo}</p>
