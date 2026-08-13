@@ -2,102 +2,44 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, ChevronDown, Printer, BarChart3, Clock } from 'lucide-react'
+import { Users, Printer, BarChart3, User } from 'lucide-react'
 import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
+  Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, CategoryScale, LinearScale, BarElement,
 } from 'chart.js'
 import { Radar, Bar } from 'react-chartjs-2'
+import { PageHeader, Card, CardHeader, CardTitle, Badge, Button, Select, Spinner, EmptyState } from '@/components/app'
 
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-)
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
 
 type Atleta = {
-  id: string
-  nome: string
-  posicao: string
-  categoria: string
-  data_nascimento: string
-  altura: number
-  peso: number
-  foto_url: string | null
-  pe_dominante: string
+  id: string; nome: string; posicao: string; categoria: string; data_nascimento: string
+  altura: number; peso: number; foto_url: string | null; pe_dominante: string
   clubes: { nome: string; escudo_url: string | null } | null
 }
-
 type Avaliacao = {
-  id: string
-  data_avaliacao: string
-  minutos_jogados: number | null
-  gols: number | null
-  assistencias: number | null
-  forca: number
-  velocidade: number
-  tecnica: number
-  dinamica: number
-  inteligencia: number
-  um_contra_um: number
-  atitude: number
-  potencial: number
-  penetracao: number | null
-  cobertura_ofensiva: number | null
-  espaco_com_bola: number | null
-  espaco_sem_bola: number | null
-  mobilidade: number | null
-  unidade_ofensiva: number | null
-  contencao: number | null
-  cobertura_defensiva: number | null
-  equilibrio_recuperacao: number | null
-  equilibrio_defensivo: number | null
-  concentracao_def: number | null
-  unidade_defensiva: number | null
+  id: string; data_avaliacao: string; minutos_jogados: number | null; gols: number | null; assistencias: number | null
+  forca: number; velocidade: number; tecnica: number; dinamica: number; inteligencia: number; um_contra_um: number; atitude: number; potencial: number
+  penetracao: number | null; cobertura_ofensiva: number | null; espaco_com_bola: number | null; espaco_sem_bola: number | null; mobilidade: number | null; unidade_ofensiva: number | null
+  contencao: number | null; cobertura_defensiva: number | null; equilibrio_recuperacao: number | null; equilibrio_defensivo: number | null; concentracao_def: number | null; unidade_defensiva: number | null
 }
 
 const dimensoesCBF = [
-  { key: 'forca', label: 'FOR', fullLabel: 'Força', icon: '💪' },
-  { key: 'velocidade', label: 'VEL', fullLabel: 'Velocidade', icon: '⚡' },
-  { key: 'tecnica', label: 'TEC', fullLabel: 'Técnica', icon: '🎯' },
-  { key: 'dinamica', label: 'DIN', fullLabel: 'Dinâmica', icon: '🔄' },
-  { key: 'inteligencia', label: 'INT', fullLabel: 'Inteligência', icon: '🧠' },
-  { key: 'um_contra_um', label: '1v1', fullLabel: '1 contra 1', icon: '⚔️' },
-  { key: 'atitude', label: 'ATI', fullLabel: 'Atitude', icon: '🔥' },
-  { key: 'potencial', label: 'POT', fullLabel: 'Potencial', icon: '⭐' },
+  { key: 'forca', label: 'FOR', fullLabel: 'Força' }, { key: 'velocidade', label: 'VEL', fullLabel: 'Velocidade' },
+  { key: 'tecnica', label: 'TEC', fullLabel: 'Técnica' }, { key: 'dinamica', label: 'DIN', fullLabel: 'Dinâmica' },
+  { key: 'inteligencia', label: 'INT', fullLabel: 'Inteligência' }, { key: 'um_contra_um', label: '1v1', fullLabel: '1 contra 1' },
+  { key: 'atitude', label: 'ATI', fullLabel: 'Atitude' }, { key: 'potencial', label: 'POT', fullLabel: 'Potencial' },
 ]
-
 const principiosOfensivos = [
-  { key: 'penetracao', label: 'PEN', fullLabel: 'Penetração', icon: '↗️' },
-  { key: 'cobertura_ofensiva', label: 'COF', fullLabel: 'Cob. Ofensiva', icon: '🔗' },
-  { key: 'espaco_com_bola', label: 'ECB', fullLabel: 'Espaço c/ Bola', icon: '⚽' },
-  { key: 'espaco_sem_bola', label: 'ESB', fullLabel: 'Espaço s/ Bola', icon: '👟' },
-  { key: 'mobilidade', label: 'MOB', fullLabel: 'Mobilidade', icon: '🏃' },
-  { key: 'unidade_ofensiva', label: 'UOF', fullLabel: 'Unid. Ofensiva', icon: '🎯' },
+  { key: 'penetracao', label: 'PEN', fullLabel: 'Penetração' }, { key: 'cobertura_ofensiva', label: 'COF', fullLabel: 'Cob. Ofensiva' },
+  { key: 'espaco_com_bola', label: 'ECB', fullLabel: 'Espaço c/ Bola' }, { key: 'espaco_sem_bola', label: 'ESB', fullLabel: 'Espaço s/ Bola' },
+  { key: 'mobilidade', label: 'MOB', fullLabel: 'Mobilidade' }, { key: 'unidade_ofensiva', label: 'UOF', fullLabel: 'Unid. Ofensiva' },
 ]
-
 const principiosDefensivos = [
-  { key: 'contencao', label: 'CON', fullLabel: 'Contenção', icon: '🛡️' },
-  { key: 'cobertura_defensiva', label: 'CDF', fullLabel: 'Cob. Defensiva', icon: '🔒' },
-  { key: 'equilibrio_recuperacao', label: 'ERE', fullLabel: 'Equil. Recup.', icon: '⚖️' },
-  { key: 'equilibrio_defensivo', label: 'EDF', fullLabel: 'Equil. Defensivo', icon: '🧱' },
-  { key: 'concentracao_def', label: 'CNC', fullLabel: 'Concentração', icon: '🎯' },
-  { key: 'unidade_defensiva', label: 'UDF', fullLabel: 'Unid. Defensiva', icon: '🏰' },
+  { key: 'contencao', label: 'CON', fullLabel: 'Contenção' }, { key: 'cobertura_defensiva', label: 'CDF', fullLabel: 'Cob. Defensiva' },
+  { key: 'equilibrio_recuperacao', label: 'ERE', fullLabel: 'Equil. Recup.' }, { key: 'equilibrio_defensivo', label: 'EDF', fullLabel: 'Equil. Defensivo' },
+  { key: 'concentracao_def', label: 'CNC', fullLabel: 'Concentração' }, { key: 'unidade_defensiva', label: 'UDF', fullLabel: 'Unid. Defensiva' },
 ]
+const C1 = '#f59e0b', C2 = '#38bdf8'
 
 export default function CompararAtletasPage() {
   const [atletas, setAtletas] = useState<Atleta[]>([])
@@ -105,508 +47,271 @@ export default function CompararAtletasPage() {
   const [atleta2, setAtleta2] = useState<Atleta | null>(null)
   const [avaliacao1, setAvaliacao1] = useState<Avaliacao | null>(null)
   const [avaliacao2, setAvaliacao2] = useState<Avaliacao | null>(null)
-  const [minutos1, setMinutos1] = useState<{ total: number; jogos: number }>({ total: 0, jogos: 0 })
-  const [minutos2, setMinutos2] = useState<{ total: number; jogos: number }>({ total: 0, jogos: 0 })
-  const [stats1, setStats1] = useState<{ gols: number; assistencias: number }>({ gols: 0, assistencias: 0 })
-  const [stats2, setStats2] = useState<{ gols: number; assistencias: number }>({ gols: 0, assistencias: 0 })
+  const [minutos1, setMinutos1] = useState({ total: 0, jogos: 0 })
+  const [minutos2, setMinutos2] = useState({ total: 0, jogos: 0 })
+  const [stats1, setStats1] = useState({ gols: 0, assistencias: 0 })
+  const [stats2, setStats2] = useState({ gols: 0, assistencias: 0 })
   const [activeView, setActiveView] = useState<'cbf' | 'ofensivo' | 'defensivo' | 'todos'>('cbf')
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
-  useEffect(() => {
-    loadAtletas()
-  }, [])
+  useEffect(() => { loadAtletas() }, [])
 
   const loadAtletas = async () => {
-    const { data } = await supabase
-      .from('atletas')
-      .select('*, clubes(nome, escudo_url)')
-      .order('nome')
+    const { data } = await supabase.from('atletas').select('*, clubes(nome, escudo_url)').order('nome')
     if (data) setAtletas(data)
     setLoading(false)
   }
-
   const loadAvaliacao = async (atletaId: string, setter: (a: Avaliacao | null) => void) => {
-    const { data } = await supabase
-      .from('avaliacoes_atleta')
-      .select('*')
-      .eq('atleta_id', atletaId)
-      .order('data_avaliacao', { ascending: false })
-      .limit(1)
-      .single()
+    const { data } = await supabase.from('avaliacoes_atleta').select('*').eq('atleta_id', atletaId).order('data_avaliacao', { ascending: false }).limit(1).single()
     setter(data)
   }
-
   const loadMinutos = async (atletaId: string, setter: (m: { total: number; jogos: number }) => void) => {
-    const { data } = await supabase
-      .from('avaliacoes_atleta')
-      .select('minutos_jogados')
-      .eq('atleta_id', atletaId)
-      .not('minutos_jogados', 'is', null)
-
-    if (data) {
-      const total = data.reduce((acc, av) => acc + (av.minutos_jogados || 0), 0)
-      setter({ total, jogos: data.length })
-    } else {
-      setter({ total: 0, jogos: 0 })
-    }
+    const { data } = await supabase.from('avaliacoes_atleta').select('minutos_jogados').eq('atleta_id', atletaId).not('minutos_jogados', 'is', null)
+    setter(data ? { total: data.reduce((a, av) => a + (av.minutos_jogados || 0), 0), jogos: data.length } : { total: 0, jogos: 0 })
   }
-
   const loadStats = async (atletaId: string, setter: (s: { gols: number; assistencias: number }) => void) => {
-    const { data } = await supabase
-      .from('avaliacoes_atleta')
-      .select('gols, assistencias')
-      .eq('atleta_id', atletaId)
-
-    if (data) {
-      const gols = data.reduce((acc, av) => acc + (av.gols || 0), 0)
-      const assistencias = data.reduce((acc, av) => acc + (av.assistencias || 0), 0)
-      setter({ gols, assistencias })
-    } else {
-      setter({ gols: 0, assistencias: 0 })
-    }
+    const { data } = await supabase.from('avaliacoes_atleta').select('gols, assistencias').eq('atleta_id', atletaId)
+    setter(data ? { gols: data.reduce((a, av) => a + (av.gols || 0), 0), assistencias: data.reduce((a, av) => a + (av.assistencias || 0), 0) } : { gols: 0, assistencias: 0 })
   }
 
-  const handleSelectAtleta1 = (id: string) => {
-    const atleta = atletas.find(a => a.id === id)
-    setAtleta1(atleta || null)
-    if (atleta) {
-      loadAvaliacao(atleta.id, setAvaliacao1)
-      loadMinutos(atleta.id, setMinutos1)
-      loadStats(atleta.id, setStats1)
-    } else {
-      setAvaliacao1(null)
-      setMinutos1({ total: 0, jogos: 0 })
-      setStats1({ gols: 0, assistencias: 0 })
-    }
-  }
-
-  const handleSelectAtleta2 = (id: string) => {
-    const atleta = atletas.find(a => a.id === id)
-    setAtleta2(atleta || null)
-    if (atleta) {
-      loadAvaliacao(atleta.id, setAvaliacao2)
-      loadMinutos(atleta.id, setMinutos2)
-      loadStats(atleta.id, setStats2)
-    } else {
-      setAvaliacao2(null)
-      setMinutos2({ total: 0, jogos: 0 })
-      setStats2({ gols: 0, assistencias: 0 })
-    }
+  const selecionar = (id: string, n: 1 | 2) => {
+    const atleta = atletas.find(a => a.id === id) || null
+    const setA = n === 1 ? setAtleta1 : setAtleta2
+    const setAv = n === 1 ? setAvaliacao1 : setAvaliacao2
+    const setMin = n === 1 ? setMinutos1 : setMinutos2
+    const setSt = n === 1 ? setStats1 : setStats2
+    setA(atleta)
+    if (atleta) { loadAvaliacao(atleta.id, setAv); loadMinutos(atleta.id, setMin); loadStats(atleta.id, setSt) }
+    else { setAv(null); setMin({ total: 0, jogos: 0 }); setSt({ gols: 0, assistencias: 0 }) }
   }
 
   const calcularIdade = (dataNasc: string) => {
-    const hoje = new Date()
-    const nasc = new Date(dataNasc)
+    const hoje = new Date(); const nasc = new Date(dataNasc)
     let idade = hoje.getFullYear() - nasc.getFullYear()
     const m = hoje.getMonth() - nasc.getMonth()
     if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
     return idade
   }
-
   const getMediaGeral = (av: Avaliacao | null) => {
     if (!av) return 0
-    const cbfValues = [av.forca, av.velocidade, av.tecnica, av.dinamica, av.inteligencia, av.um_contra_um, av.atitude, av.potencial]
-    return (cbfValues.reduce((a, b) => a + b, 0) / cbfValues.length).toFixed(1)
+    const cbf = [av.forca, av.velocidade, av.tecnica, av.dinamica, av.inteligencia, av.um_contra_um, av.atitude, av.potencial]
+    return cbf.reduce((a, b) => a + b, 0) / cbf.length
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const val = (av: Avaliacao | null, k: string) => (av ? (av as any)[k] || 0 : 0)
 
-  const getRadarData = () => {
-    let labels: string[] = []
-    let data1: number[] = []
-    let data2: number[] = []
+  const dimsAtivas = activeView === 'todos' ? [...dimensoesCBF, ...principiosOfensivos, ...principiosDefensivos]
+    : activeView === 'ofensivo' ? principiosOfensivos : activeView === 'defensivo' ? principiosDefensivos : dimensoesCBF
 
-    if (activeView === 'cbf' || activeView === 'todos') {
-      labels = [...labels, ...dimensoesCBF.map(d => d.label)]
-      data1 = [...data1, ...dimensoesCBF.map(d => avaliacao1 ? (avaliacao1 as any)[d.key] || 0 : 0)]
-      data2 = [...data2, ...dimensoesCBF.map(d => avaliacao2 ? (avaliacao2 as any)[d.key] || 0 : 0)]
-    }
-    if (activeView === 'ofensivo' || activeView === 'todos') {
-      labels = [...labels, ...principiosOfensivos.map(d => d.label)]
-      data1 = [...data1, ...principiosOfensivos.map(d => avaliacao1 ? (avaliacao1 as any)[d.key] || 0 : 0)]
-      data2 = [...data2, ...principiosOfensivos.map(d => avaliacao2 ? (avaliacao2 as any)[d.key] || 0 : 0)]
-    }
-    if (activeView === 'defensivo' || activeView === 'todos') {
-      labels = [...labels, ...principiosDefensivos.map(d => d.label)]
-      data1 = [...data1, ...principiosDefensivos.map(d => avaliacao1 ? (avaliacao1 as any)[d.key] || 0 : 0)]
-      data2 = [...data2, ...principiosDefensivos.map(d => avaliacao2 ? (avaliacao2 as any)[d.key] || 0 : 0)]
-    }
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: atleta1?.nome || 'Atleta 1',
-          data: data1,
-          backgroundColor: 'rgba(59, 130, 246, 0.3)',
-          borderColor: 'rgba(59, 130, 246, 1)',
-          borderWidth: 2,
-          pointBackgroundColor: 'rgba(59, 130, 246, 1)',
-        },
-        {
-          label: atleta2?.nome || 'Atleta 2',
-          data: data2,
-          backgroundColor: 'rgba(239, 68, 68, 0.3)',
-          borderColor: 'rgba(239, 68, 68, 1)',
-          borderWidth: 2,
-          pointBackgroundColor: 'rgba(239, 68, 68, 1)',
-        },
-      ],
-    }
+  const radarData = {
+    labels: dimsAtivas.map(d => d.label),
+    datasets: [
+      { label: atleta1?.nome || 'Atleta 1', data: dimsAtivas.map(d => val(avaliacao1, d.key)), backgroundColor: 'rgba(245,158,11,.28)', borderColor: C1, borderWidth: 2, pointBackgroundColor: C1 },
+      { label: atleta2?.nome || 'Atleta 2', data: dimsAtivas.map(d => val(avaliacao2, d.key)), backgroundColor: 'rgba(56,189,248,.22)', borderColor: C2, borderWidth: 2, pointBackgroundColor: C2 },
+    ],
   }
-
-  const getBarData = () => {
-    const allDimensions = activeView === 'todos'
-      ? [...dimensoesCBF, ...principiosOfensivos, ...principiosDefensivos]
-      : activeView === 'cbf'
-        ? dimensoesCBF
-        : activeView === 'ofensivo'
-          ? principiosOfensivos
-          : principiosDefensivos
-
-    return {
-      labels: allDimensions.map(d => d.fullLabel),
-      datasets: [
-        {
-          label: atleta1?.nome || 'Atleta 1',
-          data: allDimensions.map(d => avaliacao1 ? (avaliacao1 as any)[d.key] || 0 : 0),
-          backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        },
-        {
-          label: atleta2?.nome || 'Atleta 2',
-          data: allDimensions.map(d => avaliacao2 ? (avaliacao2 as any)[d.key] || 0 : 0),
-          backgroundColor: 'rgba(239, 68, 68, 0.8)',
-        },
-      ],
-    }
+  const barData = {
+    labels: dimsAtivas.map(d => d.fullLabel),
+    datasets: [
+      { label: atleta1?.nome || 'Atleta 1', data: dimsAtivas.map(d => val(avaliacao1, d.key)), backgroundColor: C1 },
+      { label: atleta2?.nome || 'Atleta 2', data: dimsAtivas.map(d => val(avaliacao2, d.key)), backgroundColor: C2 },
+    ],
   }
-
   const radarOptions = {
-    scales: {
-      r: {
-        beginAtZero: true,
-        max: 5,
-        min: 0,
-        ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8' },
-        pointLabels: { font: { size: 11, weight: 'bold' as const }, color: '#e2e8f0' },
-        grid: { color: 'rgba(148, 163, 184, 0.3)' },
-        angleLines: { color: 'rgba(148, 163, 184, 0.3)' },
-      },
-    },
-    plugins: {
-      legend: { position: 'bottom' as const, labels: { color: '#e2e8f0' } },
-    },
-    maintainAspectRatio: true,
+    scales: { r: { beginAtZero: true, max: 5, min: 0, ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8', backdropColor: 'transparent' }, pointLabels: { font: { size: 11, weight: 'bold' as const }, color: '#e2e8f0' }, grid: { color: 'rgba(148,163,184,.3)' }, angleLines: { color: 'rgba(148,163,184,.3)' } } },
+    plugins: { legend: { position: 'bottom' as const, labels: { color: '#e2e8f0' } } }, maintainAspectRatio: true,
   }
-
   const barOptions = {
-    indexAxis: 'y' as const,
-    scales: {
-      x: { beginAtZero: true, max: 5, ticks: { color: '#94a3b8' }, grid: { display: false } },
-      y: { ticks: { color: '#e2e8f0' }, grid: { display: false } },
-    },
-    plugins: {
-      legend: { position: 'bottom' as const, labels: { color: '#e2e8f0' } },
-    },
-    maintainAspectRatio: false,
+    indexAxis: 'y' as const, maintainAspectRatio: false,
+    scales: { x: { beginAtZero: true, max: 5, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }, y: { ticks: { color: '#e2e8f0' }, grid: { display: false } } },
+    plugins: { legend: { position: 'bottom' as const, labels: { color: '#e2e8f0' } } },
   }
 
-  const renderAtletaCard = (atleta: Atleta | null, avaliacao: Avaliacao | null, minutos: { total: number; jogos: number }, stats: { gols: number; assistencias: number }, color: string) => (
-    <div
-      className="rounded-2xl shadow-sm overflow-hidden"
-      style={{
-        backgroundColor: '#1e293b',
-        border: color === 'blue' ? '2px solid #2563eb' : '2px solid #dc2626'
-      }}
-    >
+  const views: { id: 'cbf' | 'ofensivo' | 'defensivo' | 'todos'; label: string }[] = [
+    { id: 'cbf', label: 'Dimensões CBF' }, { id: 'ofensivo', label: 'Ofensivos' }, { id: 'defensivo', label: 'Defensivos' }, { id: 'todos', label: 'Todos' },
+  ]
+
+  const H2H = ({ label, a, b, decimals = 0 }: { label: string; a: number; b: number; decimals?: number }) => {
+    const tot = a + b, pa = tot ? (a / tot) * 100 : 50
+    const aWins = a > b, tie = a === b
+    const fmt = (n: number) => decimals ? n.toFixed(decimals).replace('.', ',') : String(n)
+    return (
+      <div>
+        <div className="flex items-center justify-between text-[11px] mb-1">
+          <span className={aWins && !tie ? 'font-semibold' : 'text-faint'} style={aWins && !tie ? { color: C1 } : undefined}>{fmt(a)}{aWins && !tie ? ' ◀' : ''}</span>
+          <span className="text-faint uppercase tracking-wider text-[10px]">{label}</span>
+          <span className={!aWins && !tie ? 'font-semibold' : 'text-faint'} style={!aWins && !tie ? { color: C2 } : undefined}>{!aWins && !tie ? '▶ ' : ''}{fmt(b)}</span>
+        </div>
+        <div className="h-2 rounded-full bg-app overflow-hidden flex">
+          <div style={{ width: `${pa}%`, background: C1 }} /><div style={{ width: `${100 - pa}%`, background: C2 }} />
+        </div>
+      </div>
+    )
+  }
+
+  const PlayerCard = ({ atleta, avaliacao, minutos, stats, cor }: { atleta: Atleta | null; avaliacao: Avaliacao | null; minutos: { total: number; jogos: number }; stats: { gols: number; assistencias: number }; cor: string }) => (
+    <Card padding="none" className="overflow-hidden" style={{ borderColor: atleta ? `${cor}66` : undefined }}>
       {atleta ? (
         <>
-          <div className={`${color === 'blue' ? 'bg-blue-600' : 'bg-red-600'} px-3 sm:px-4 py-2`}>
-            <p className="text-white font-semibold text-xs sm:text-sm truncate">{atleta.nome}</p>
+          <div className="px-4 py-2" style={{ background: `${cor}22` }}>
+            <p className="font-semibold text-sm truncate" style={{ color: cor }}>{atleta.nome}</p>
           </div>
-          <div className="p-3 sm:p-4">
-            <div className="flex gap-3 sm:gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-slate-700 overflow-hidden flex-shrink-0">
+          <div className="p-4">
+            <div className="flex gap-3">
+              <div className="w-16 h-16 rounded-lg bg-app overflow-hidden grid place-items-center shrink-0">
                 {atleta.foto_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-500">
-                    <Users className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </div>
-                )}
+                ) : <Users className="w-7 h-7 text-faint" />}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   {atleta.clubes?.escudo_url && (
-                    <img src={atleta.clubes.escudo_url} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={atleta.clubes.escudo_url} alt="" className="w-4 h-4 object-contain" />
                   )}
-                  <span className="text-[10px] sm:text-xs text-slate-400 truncate">{atleta.clubes?.nome}</span>
+                  <span className="text-xs text-soft truncate">{atleta.clubes?.nome}</span>
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-slate-100">{atleta.posicao}</p>
-                <p className="text-[10px] sm:text-xs text-slate-400">{atleta.categoria}</p>
+                <p className="text-sm font-medium text-strong">{atleta.posicao}</p>
+                <p className="text-xs text-soft">{atleta.categoria}</p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mt-3 sm:mt-4 text-center">
-              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
-                <p className="text-sm sm:text-lg font-bold text-slate-100">{calcularIdade(atleta.data_nascimento)}</p>
-                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Idade</p>
-              </div>
-              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
-                <p className="text-sm sm:text-lg font-bold text-slate-100">{atleta.altura || '-'}</p>
-                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Altura</p>
-              </div>
-              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
-                <p className="text-sm sm:text-lg font-bold text-slate-100">{atleta.peso || '-'}</p>
-                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Peso</p>
-              </div>
-              <div className="bg-slate-700 rounded-lg p-1.5 sm:p-2">
-                <p className="text-sm sm:text-lg font-bold text-slate-100">{atleta.pe_dominante?.charAt(0) || '-'}</p>
-                <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase">Pé</p>
-              </div>
-            </div>
-
-            {avaliacao && (
-              <div className={`mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg ${color === 'blue' ? 'bg-blue-900/30' : 'bg-red-900/30'}`}>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] sm:text-xs text-slate-400">Média Geral (CBF)</span>
-                  <span className={`text-xl sm:text-2xl font-bold ${color === 'blue' ? 'text-blue-400' : 'text-red-400'}`}>
-                    {getMediaGeral(avaliacao)}
-                  </span>
+              {avaliacao && (
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] text-faint uppercase">Média</p>
+                  <p className="text-2xl font-bold tabular-nums" style={{ color: cor }}>{getMediaGeral(avaliacao).toFixed(1).replace('.', ',')}</p>
                 </div>
-              </div>
-            )}
-
-            {/* Estatísticas de Jogo */}
+              )}
+            </div>
+            <div className="grid grid-cols-4 gap-2 mt-4 text-center">
+              {[['Idade', calcularIdade(atleta.data_nascimento)], ['Altura', atleta.altura || '—'], ['Peso', atleta.peso || '—'], ['Pé', atleta.pe_dominante?.charAt(0).toUpperCase() || '—']].map(([lab, v]) => (
+                <div key={lab} className="bg-app rounded-lg py-2">
+                  <p className="text-base font-bold text-strong tabular-nums">{v}</p>
+                  <p className="text-[9px] text-faint uppercase tracking-wide">{lab}</p>
+                </div>
+              ))}
+            </div>
             {(minutos.total > 0 || stats.gols > 0 || stats.assistencias > 0) && (
-              <div className="mt-2 sm:mt-3 grid grid-cols-3 gap-1.5 sm:gap-2">
-                {minutos.total > 0 && (
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-900/20 border border-amber-500/30 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-500" />
-                      <span className="text-sm sm:text-lg font-bold text-amber-500">{minutos.total}&apos;</span>
-                    </div>
-                    <span className="text-[8px] sm:text-[9px] text-slate-500">{minutos.jogos} jogos</span>
-                  </div>
-                )}
-                {stats.gols > 0 && (
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-green-900/20 border border-green-500/30 text-center">
-                    <span className="text-sm sm:text-lg font-bold text-green-500">{stats.gols}</span>
-                    <p className="text-[8px] sm:text-[9px] text-slate-500">Gols</p>
-                  </div>
-                )}
-                {stats.assistencias > 0 && (
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-blue-900/20 border border-blue-500/30 text-center">
-                    <span className="text-sm sm:text-lg font-bold text-blue-500">{stats.assistencias}</span>
-                    <p className="text-[8px] sm:text-[9px] text-slate-500">Assists</p>
-                  </div>
-                )}
+              <div className="grid grid-cols-3 gap-2 mt-3 text-center">
+                <div className="bg-app rounded-lg py-2"><p className="text-base font-bold text-strong tabular-nums">{minutos.total}′</p><p className="text-[9px] text-faint">{minutos.jogos} jogos</p></div>
+                <div className="bg-app rounded-lg py-2"><p className="text-base font-bold text-positive tabular-nums">{stats.gols}</p><p className="text-[9px] text-faint">Gols</p></div>
+                <div className="bg-app rounded-lg py-2"><p className="text-base font-bold text-info tabular-nums">{stats.assistencias}</p><p className="text-[9px] text-faint">Assist.</p></div>
               </div>
             )}
           </div>
         </>
       ) : (
-        <div className="p-8 text-center text-slate-500">
-          <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">Selecione um atleta</p>
-        </div>
+        <div className="p-8 text-center text-faint"><User className="w-10 h-10 mx-auto mb-2 opacity-50" /><p className="text-sm">Selecione um atleta</p></div>
       )}
-    </div>
+    </Card>
   )
 
-  const renderStatsTable = () => {
-    if (!avaliacao1 && !avaliacao2) return null
-
-    const allDimensions = activeView === 'todos'
-      ? [...dimensoesCBF, ...principiosOfensivos, ...principiosDefensivos]
-      : activeView === 'cbf'
-        ? dimensoesCBF
-        : activeView === 'ofensivo'
-          ? principiosOfensivos
-          : principiosDefensivos
-
-    return (
-      <div className="rounded-xl border border-slate-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-700">
-                <th className="px-3 py-2 text-left font-medium text-slate-400">Dimensão</th>
-                <th className="px-3 py-2 text-center font-medium text-blue-400">{atleta1?.nome || 'Atleta 1'}</th>
-                <th className="px-3 py-2 text-center font-medium text-slate-500">vs</th>
-                <th className="px-3 py-2 text-center font-medium text-red-400">{atleta2?.nome || 'Atleta 2'}</th>
-                <th className="px-3 py-2 text-center font-medium text-slate-400">Diff</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allDimensions.map((dim, i) => {
-                const val1 = avaliacao1 ? (avaliacao1 as any)[dim.key] || 0 : 0
-                const val2 = avaliacao2 ? (avaliacao2 as any)[dim.key] || 0 : 0
-                const diff = val1 - val2
-                return (
-                  <tr key={dim.key} className={i % 2 === 0 ? 'bg-slate-800' : 'bg-slate-700/50'}>
-                    <td className="px-3 py-2 font-medium text-slate-300">
-                      <span className="mr-2">{dim.icon}</span>
-                      {dim.fullLabel}
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      <span className={`font-bold ${val1 > val2 ? 'text-blue-400' : 'text-slate-400'}`}>{val1.toFixed(1)}</span>
-                    </td>
-                    <td className="px-3 py-2 text-center text-slate-600">-</td>
-                    <td className="px-3 py-2 text-center">
-                      <span className={`font-bold ${val2 > val1 ? 'text-red-400' : 'text-slate-400'}`}>{val2.toFixed(1)}</span>
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                        diff > 0 ? 'bg-blue-900/50 text-blue-300' : diff < 0 ? 'bg-red-900/50 text-red-300' : 'bg-slate-700 text-slate-400'
-                      }`}>
-                        {diff > 0 ? '+' : ''}{diff.toFixed(1)}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    )
-  }
+  if (loading) return <div className="flex justify-center py-16"><Spinner size="lg" label="Carregando..." /></div>
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <PageHeader
+        eyebrow="Comparar"
+        title="Comparar atletas"
+        description="Dois atletas lado a lado, com vantagem em cada métrica"
+        actions={<Button variant="secondary" onClick={() => window.print()}><Printer className="w-4 h-4" /><span className="hidden sm:inline">Imprimir</span></Button>}
+      />
+
+      {/* Seletores */}
+      <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-100">Comparar Atletas</h1>
-          <p className="text-sm text-slate-400 mt-1">Compare dois atletas lado a lado</p>
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: C1 }}>Atleta 1</label>
+          <Select value={atleta1?.id || ''} onChange={(e) => selecionar(e.target.value, 1)}>
+            <option value="">Selecione um atleta</option>
+            {atletas.map(a => <option key={a.id} value={a.id} disabled={a.id === atleta2?.id}>{a.nome} · {a.posicao} ({a.clubes?.nome})</option>)}
+          </Select>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 px-3 sm:px-4 py-2 text-slate-400 hover:bg-slate-700 rounded-lg transition-colors text-sm"
-        >
-          <Printer className="w-4 h-4" />
-          <span className="hidden sm:inline">Imprimir</span>
-        </button>
-      </div>
-
-      {/* Selectors */}
-      <div className="rounded-2xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          <div>
-            <label className="block text-sm font-medium text-blue-400 mb-2">Atleta 1</label>
-            <select
-              onChange={(e) => handleSelectAtleta1(e.target.value)}
-              className="w-full px-4 py-2 border border-blue-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-700 text-slate-200"
-            >
-              <option value="">Selecione um atleta</option>
-              {atletas.map((a) => (
-                <option key={a.id} value={a.id} disabled={a.id === atleta2?.id}>
-                  {a.nome} - {a.posicao} ({a.clubes?.nome})
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-red-400 mb-2">Atleta 2</label>
-            <select
-              onChange={(e) => handleSelectAtleta2(e.target.value)}
-              className="w-full px-4 py-2 border border-red-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 bg-slate-700 text-slate-200"
-            >
-              <option value="">Selecione um atleta</option>
-              {atletas.map((a) => (
-                <option key={a.id} value={a.id} disabled={a.id === atleta1?.id}>
-                  {a.nome} - {a.posicao} ({a.clubes?.nome})
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: C2 }}>Atleta 2</label>
+          <Select value={atleta2?.id || ''} onChange={(e) => selecionar(e.target.value, 2)}>
+            <option value="">Selecione um atleta</option>
+            {atletas.map(a => <option key={a.id} value={a.id} disabled={a.id === atleta1?.id}>{a.nome} · {a.posicao} ({a.clubes?.nome})</option>)}
+          </Select>
         </div>
       </div>
 
-      {/* Player Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-        {renderAtletaCard(atleta1, avaliacao1, minutos1, stats1, 'blue')}
-        {renderAtletaCard(atleta2, avaliacao2, minutos2, stats2, 'red')}
+      {/* Cards */}
+      <div className="grid md:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <PlayerCard atleta={atleta1} avaliacao={avaliacao1} minutos={minutos1} stats={stats1} cor={C1} />
+        <PlayerCard atleta={atleta2} avaliacao={avaliacao2} minutos={minutos2} stats={stats2} cor={C2} />
       </div>
 
-      {/* View Tabs */}
-      {(atleta1 || atleta2) && (
-        <div className="rounded-2xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
-            <span className="text-xs sm:text-sm font-medium text-slate-400">Visualizar:</span>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {[
-                { id: 'cbf', label: 'CBF', fullLabel: 'Dimensões CBF' },
-                { id: 'ofensivo', label: 'Ofensivo', fullLabel: 'Princípios Ofensivos' },
-                { id: 'defensivo', label: 'Defensivo', fullLabel: 'Princípios Defensivos' },
-                { id: 'todos', label: 'Todos', fullLabel: 'Todos' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveView(tab.id as any)}
-                  className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
-                  style={
-                    activeView === tab.id
-                      ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
-                      : { backgroundColor: '#334155', color: '#94a3b8' }
-                  }
-                >
-                  <span className="sm:hidden">{tab.label}</span>
-                  <span className="hidden sm:inline">{tab.fullLabel}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Charts & Stats */}
       {(avaliacao1 || avaliacao2) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          {/* Radar Chart */}
-          <div className="rounded-2xl p-4 sm:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4">Comparação Radar</h3>
-            <div className="aspect-square max-w-[280px] sm:max-w-md mx-auto">
-              <Radar data={getRadarData()} options={radarOptions} />
+        <>
+          {/* Head-to-head */}
+          <Card padding="md" className="mb-4 sm:mb-6">
+            <CardHeader>
+              <CardTitle>Comparativo direto</CardTitle>
+              <div className="flex items-center gap-3 text-[11px]">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: C1 }} />{atleta1?.nome.split(' ')[0] || 'A1'}</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: C2 }} />{atleta2?.nome.split(' ')[0] || 'A2'}</span>
+              </div>
+            </CardHeader>
+            <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+              <H2H label="Média geral" a={getMediaGeral(avaliacao1)} b={getMediaGeral(avaliacao2)} decimals={1} />
+              <H2H label="Minutos" a={minutos1.total} b={minutos2.total} />
+              <H2H label="Gols" a={stats1.gols} b={stats2.gols} />
+              <H2H label="Assistências" a={stats1.assistencias} b={stats2.assistencias} />
             </div>
+          </Card>
+
+          {/* View chips */}
+          <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+            {views.map(v => (
+              <button key={v.id} onClick={() => setActiveView(v.id)}
+                className={`px-3.5 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors ${activeView === v.id ? 'bg-brand text-app' : 'bg-surface-2 text-soft hover:text-strong border border-line'}`}>
+                {v.label}
+              </button>
+            ))}
           </div>
 
-          {/* Bar Chart */}
-          <div className="rounded-2xl p-4 sm:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
-              Comparação por Dimensão
-            </h3>
-            <div style={{ height: activeView === 'todos' ? '400px' : '250px' }} className="sm:h-auto" >
-              <Bar data={getBarData()} options={barOptions} />
-            </div>
+          {/* Charts */}
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <Card padding="lg"><CardTitle className="mb-4">Comparação radar</CardTitle><div className="aspect-square max-w-md mx-auto"><Radar data={radarData} options={radarOptions} /></div></Card>
+            <Card padding="lg"><CardTitle className="mb-4 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-brand" />Comparação por dimensão</CardTitle><div style={{ height: activeView === 'todos' ? 460 : 300 }}><Bar data={barData} options={barOptions} /></div></Card>
           </div>
-        </div>
+
+          {/* Tabela */}
+          <Card padding="none" className="overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-line"><CardTitle>Tabela comparativa</CardTitle></div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-line">
+                    <th className="text-left font-semibold uppercase tracking-wider text-[11px] text-faint px-4 py-3">Dimensão</th>
+                    <th className="text-center font-semibold uppercase tracking-wider text-[11px] px-3 py-3" style={{ color: C1 }}>{atleta1?.nome.split(' ')[0] || 'A1'}</th>
+                    <th className="text-center font-semibold uppercase tracking-wider text-[11px] px-3 py-3" style={{ color: C2 }}>{atleta2?.nome.split(' ')[0] || 'A2'}</th>
+                    <th className="text-center font-semibold uppercase tracking-wider text-[11px] text-faint px-4 py-3">Dif.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dimsAtivas.map((dim) => {
+                    const v1 = val(avaliacao1, dim.key), v2 = val(avaliacao2, dim.key), diff = v1 - v2
+                    return (
+                      <tr key={dim.key} className="border-b border-line/50 last:border-0">
+                        <td className="px-4 py-2.5 text-soft">{dim.fullLabel}</td>
+                        <td className="px-3 py-2.5 text-center font-bold tabular-nums" style={{ color: v1 >= v2 ? C1 : undefined }}>{v1.toFixed(1).replace('.', ',')}</td>
+                        <td className="px-3 py-2.5 text-center font-bold tabular-nums" style={{ color: v2 > v1 ? C2 : undefined }}>{v2.toFixed(1).replace('.', ',')}</td>
+                        <td className="px-4 py-2.5 text-center">
+                          <Badge variant={diff > 0 ? 'caution' : diff < 0 ? 'info' : 'neutral'} size="sm">{diff > 0 ? '+' : ''}{diff.toFixed(1).replace('.', ',')}</Badge>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
       )}
 
-      {/* Stats Table */}
-      {(avaliacao1 || avaliacao2) && (
-        <div className="rounded-2xl p-4 sm:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <h3 className="text-base sm:text-lg font-semibold text-slate-100 mb-3 sm:mb-4">Tabela Comparativa</h3>
-          {renderStatsTable()}
-        </div>
-      )}
-
-      {/* Empty State */}
       {!atleta1 && !atleta2 && (
-        <div className="rounded-2xl p-8 sm:p-12 shadow-sm text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <Users className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500 mx-auto mb-3 sm:mb-4" />
-          <h3 className="text-lg sm:text-xl font-semibold text-slate-100 mb-2">Selecione dois atletas</h3>
-          <p className="text-sm text-slate-400">Use os seletores acima para escolher</p>
-        </div>
+        <EmptyState icon={Users} title="Selecione dois atletas" description="Use os seletores acima para escolher os atletas e comparar lado a lado." />
       )}
     </div>
   )
