@@ -1055,6 +1055,28 @@ export default function DashboardAvaliacoesPage() {
         </Link>
       </div>
 
+      {/* KPIs globais */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 sm:mb-6">
+        {(() => {
+          const media = atletasComAvaliacao.length
+            ? atletasComAvaliacao.reduce((s, a) => s + calcularMediaGeral(a.avaliacao), 0) / atletasComAvaliacao.length
+            : 0
+          const cards: { label: string; value: string | number; cor: string }[] = [
+            { label: 'Atletas avaliados', value: atletasComAvaliacao.length, cor: '#f59e0b' },
+            { label: 'Avaliações', value: avaliacoesFiltradas.length, cor: '#38bdf8' },
+            { label: 'Clubes', value: clubes.length, cor: '#a78bfa' },
+            { label: 'Média do elenco', value: media > 0 ? media.toFixed(1).replace('.', ',') : '—', cor: '#22c55e' },
+          ]
+          return cards.map((c) => (
+            <div key={c.label} className="rounded-xl p-4 bg-slate-800 border border-slate-700 relative overflow-hidden">
+              <span className="absolute left-0 top-0 bottom-0 w-1" style={{ background: c.cor }} />
+              <p className="text-[11px] uppercase tracking-wider text-slate-500">{c.label}</p>
+              <p className="text-2xl font-bold text-slate-100 tabular-nums mt-1">{c.value}</p>
+            </div>
+          ))
+        })()}
+      </div>
+
       {/* Legenda Explicativa */}
       <div className="mb-4">
         <button
