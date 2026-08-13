@@ -1663,47 +1663,6 @@ export default function DashboardAtletasPage() {
                     </div>
                   </div>
 
-                  {/* Índice de Desempenho (IDP) */}
-                  <div className="mb-4">
-                    <IndiceCard titulo="Índice de Desempenho (IDP)" subtitulo="Produção em campo vs a posição + regularidade" indice={idp} cor="#f59e0b" />
-                  </div>
-
-                  {/* Médias explicadas (cada número vira uma frase) */}
-                  {minutosData.total > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
-                      {mediasExplicadas.map((m) => {
-                        const cor: Record<string, string> = { min_jogo: '#f59e0b', ga_jogo: '#a855f7', gols_partida: '#22c55e', ga_partida: '#a855f7' }
-                        return (
-                          <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-lg md:text-xl font-black" style={{ color: cor[m.chave] }}>{m.valor}</span>
-                              <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
-                            </div>
-                            <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Insights explicados (regularidade, sequências, ritmo) */}
-                  {insightsOfensivos.totalJogos > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
-                      {insightsExplicados.map((m) => {
-                        const cor: Record<string, string> = { decisivo: '#22d3ee', seq_atual: '#fb923c', melhor_seq: '#fbbf24', ritmo_gol: '#4ade80' }
-                        return (
-                          <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-lg md:text-xl font-black" style={{ color: cor[m.chave] }}>{m.valor}</span>
-                              <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
-                            </div>
-                            <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
                   {/* Gráficos lado a lado */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Gráfico de Minutagem */}
@@ -1864,6 +1823,47 @@ export default function DashboardAtletasPage() {
                           }}
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {/* Índice de Desempenho (IDP) */}
+                  <div className="mb-4">
+                    <IndiceCard titulo="Índice de Desempenho (IDP)" subtitulo="Produção em campo vs a posição + regularidade" indice={idp} cor="#f59e0b" />
+                  </div>
+
+                  {/* Médias explicadas (cada número vira uma frase) */}
+                  {minutosData.total > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
+                      {mediasExplicadas.map((m) => {
+                        const cor: Record<string, string> = { min_jogo: '#f59e0b', ga_jogo: '#a855f7', gols_partida: '#22c55e', ga_partida: '#a855f7' }
+                        return (
+                          <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-lg md:text-xl font-black" style={{ color: cor[m.chave] }}>{m.valor}</span>
+                              <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
+                            </div>
+                            <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Insights explicados (regularidade, sequências, ritmo) */}
+                  {insightsOfensivos.totalJogos > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-4">
+                      {insightsExplicados.map((m) => {
+                        const cor: Record<string, string> = { decisivo: '#22d3ee', seq_atual: '#fb923c', melhor_seq: '#fbbf24', ritmo_gol: '#4ade80' }
+                        return (
+                          <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-lg md:text-xl font-black" style={{ color: cor[m.chave] }}>{m.valor}</span>
+                              <span className="text-xs md:text-sm font-medium text-slate-200">{m.titulo}</span>
+                            </div>
+                            <p className="text-[11px] md:text-xs text-slate-400 mt-1 leading-snug">{m.descricao}</p>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
 

@@ -946,7 +946,7 @@ export default function EditarAvaliacaoPage() {
           {/* Tabs */}
           <div className="rounded-2xl mb-4" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
             <div className="p-3 sm:p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
+              <div className="grid gap-3 items-start" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-2 px-1">Dimensões CBF</h3>
                   <div className="space-y-1.5">
