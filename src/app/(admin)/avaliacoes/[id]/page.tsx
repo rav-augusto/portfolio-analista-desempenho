@@ -166,6 +166,16 @@ export default function EditarAvaliacaoPage() {
   const [assistLancamento, setAssistLancamento] = useState(0)
   const [assistBolaPparada, setAssistBolaPparada] = useState(0)
 
+  // Estatísticas do jogo (eventos - migração 007/010)
+  const [eventos, setEventos] = useState<Record<string, string>>({})
+  const setEv = (k: string, v: string) => setEventos(p => ({ ...p, [k]: v }))
+  const evNum = (k: string) => (eventos[k] && eventos[k].trim() !== '' ? parseInt(eventos[k]) : null)
+
+  // Contexto do jogo (migração 009)
+  const [ctx, setCtx] = useState<Record<string, string>>({})
+  const setCtxV = (k: string, v: string) => setCtx(p => ({ ...p, [k]: v }))
+  const ctxNum = (k: string) => (ctx[k] && ctx[k].trim() !== '' ? parseInt(ctx[k]) : null)
+
   // Avaliação Física - Dados Antropométricos
   const [alturaAvaliacao, setAlturaAvaliacao] = useState('')
   const [pesoAvaliacao, setPesoAvaliacao] = useState('')
@@ -301,6 +311,18 @@ export default function EditarAvaliacaoPage() {
         setAssistCruzamento(av.assist_cruzamento || 0)
         setAssistLancamento(av.assist_lancamento || 0)
         setAssistBolaPparada(av.assist_bola_parada || 0)
+
+        // Estatísticas do jogo (eventos 007/010)
+        const evKeys = ['finalizacoes_no_alvo', 'finalizacoes_fora', 'finalizacoes_bloqueadas', 'toques_area', 'dribles_tentados', 'dribles_certos', 'passes_certos', 'passes_errados', 'passes_decisivos', 'duelos_ganhos', 'duelos_perdidos', 'desarmes', 'interceptacoes', 'bolas_recuperadas', 'perdas_posse']
+        const evLoaded: Record<string, string> = {}
+        evKeys.forEach(k => { if (av[k] != null) evLoaded[k] = String(av[k]) })
+        setEventos(evLoaded)
+
+        // Contexto do jogo (009)
+        const ctxLoaded: Record<string, string> = {}
+        ;['condicao_entrada', 'situacao_jogo', 'resultado_jogo', 'nivel_adversario', 'importancia_jogo'].forEach(k => { if (av[k]) ctxLoaded[k] = String(av[k]) })
+        ;['gols_decisivos', 'assistencias_decisivas'].forEach(k => { if (av[k] != null) ctxLoaded[k] = String(av[k]) })
+        setCtx(ctxLoaded)
 
         // Avaliação Física
         setAlturaAvaliacao(av.altura_avaliacao != null ? String(av.altura_avaliacao) : '')
@@ -443,6 +465,31 @@ export default function EditarAvaliacaoPage() {
       assist_cruzamento: assistCruzamento,
       assist_lancamento: assistLancamento,
       assist_bola_parada: assistBolaPparada,
+      // Estatísticas do jogo (eventos 007)
+      finalizacoes_no_alvo: evNum('finalizacoes_no_alvo'),
+      finalizacoes_fora: evNum('finalizacoes_fora'),
+      finalizacoes_bloqueadas: evNum('finalizacoes_bloqueadas'),
+      passes_certos: evNum('passes_certos'),
+      passes_errados: evNum('passes_errados'),
+      passes_decisivos: evNum('passes_decisivos'),
+      duelos_ganhos: evNum('duelos_ganhos'),
+      duelos_perdidos: evNum('duelos_perdidos'),
+      desarmes: evNum('desarmes'),
+      interceptacoes: evNum('interceptacoes'),
+      perdas_posse: evNum('perdas_posse'),
+      // Eventos avançados (010)
+      dribles_tentados: evNum('dribles_tentados'),
+      dribles_certos: evNum('dribles_certos'),
+      bolas_recuperadas: evNum('bolas_recuperadas'),
+      toques_area: evNum('toques_area'),
+      // Contexto e impacto (009)
+      condicao_entrada: ctx.condicao_entrada || null,
+      situacao_jogo: ctx.situacao_jogo || null,
+      resultado_jogo: ctx.resultado_jogo || null,
+      nivel_adversario: ctx.nivel_adversario || null,
+      importancia_jogo: ctx.importancia_jogo || null,
+      gols_decisivos: ctxNum('gols_decisivos'),
+      assistencias_decisivas: ctxNum('assistencias_decisivas'),
       forca: parseFloat(notas.forca),
       velocidade: parseFloat(notas.velocidade),
       tecnica: parseFloat(notas.tecnica),
@@ -927,6 +974,70 @@ export default function EditarAvaliacaoPage() {
                       style={{ backgroundColor: '#1e293b', border: '1px solid #475569', color: '#e2e8f0' }} />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Contexto do jogo (migração 009) */}
+            {tipo === 'jogo' && (
+              <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                <h4 className="text-sm font-semibold text-amber-400 mb-3 flex items-center gap-2"><span>🎯</span> Contexto do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional — pondera a produção)</span></h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                  {([
+                    { k: 'condicao_entrada', label: 'Entrada', opts: [['titular', 'Titular'], ['reserva', 'Reserva']] },
+                    { k: 'situacao_jogo', label: 'Situação', opts: [['ganhando', 'Ganhando'], ['empatando', 'Empatando'], ['perdendo', 'Perdendo']] },
+                    { k: 'resultado_jogo', label: 'Resultado', opts: [['vitoria', 'Vitória'], ['empate', 'Empate'], ['derrota', 'Derrota']] },
+                    { k: 'nivel_adversario', label: 'Adversário', opts: [['forte', 'Forte'], ['medio', 'Médio'], ['fraco', 'Fraco']] },
+                    { k: 'importancia_jogo', label: 'Importância', opts: [['amistoso', 'Amistoso'], ['campeonato', 'Campeonato'], ['decisao', 'Decisão']] },
+                  ] as { k: string; label: string; opts: [string, string][] }[]).map(({ k, label, opts }) => (
+                    <div key={k}>
+                      <label className="block text-[10px] text-slate-400 mb-1">{label}</label>
+                      <select value={ctx[k] ?? ''} onChange={(e) => setCtxV(k, e.target.value)} className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                        <option value="">—</option>
+                        {opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2">
+                  <div>
+                    <label className="block text-[10px] text-slate-400 mb-1">Gols decisivos</label>
+                    <input type="number" min="0" value={ctx.gols_decisivos ?? ''} onChange={(e) => setCtxV('gols_decisivos', e.target.value)} placeholder="0" className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-slate-400 mb-1">Assist. decisivas</label>
+                    <input type="number" min="0" value={ctx.assistencias_decisivas ?? ''} onChange={(e) => setCtxV('assistencias_decisivas', e.target.value)} placeholder="0" className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/30" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Estatísticas do jogo (eventos - migração 007/010) */}
+            {tipo === 'jogo' && (
+              <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2"><span>📊</span> Estatísticas do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional)</span></h4>
+                {([
+                  { titulo: 'Finalizações', cor: '#22c55e', campos: [['finalizacoes_no_alvo', 'No alvo'], ['finalizacoes_fora', 'Para fora'], ['finalizacoes_bloqueadas', 'Bloqueadas'], ['toques_area', 'Toques na área']] },
+                  { titulo: '1 contra 1 (dribles)', cor: '#ec4899', campos: [['dribles_tentados', 'Tentados'], ['dribles_certos', 'Certos']] },
+                  { titulo: 'Passes', cor: '#3b82f6', campos: [['passes_certos', 'Certos'], ['passes_errados', 'Errados'], ['passes_decisivos', 'Decisivos']] },
+                  { titulo: 'Duelos e recuperação', cor: '#f59e0b', campos: [['duelos_ganhos', 'Duelos ganhos'], ['duelos_perdidos', 'Duelos perdidos'], ['desarmes', 'Desarmes'], ['interceptacoes', 'Interceptações'], ['bolas_recuperadas', 'Bolas recuperadas']] },
+                  { titulo: 'Controle de bola', cor: '#a855f7', campos: [['perdas_posse', 'Perdas de posse']] },
+                ] as { titulo: string; cor: string; campos: [string, string][] }[]).map((grupo) => (
+                  <div key={grupo.titulo} className="mb-3 last:mb-0">
+                    <p className="text-[10px] uppercase mb-1.5 font-medium" style={{ color: grupo.cor }}>{grupo.titulo}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                      {grupo.campos.map(([k, label]) => (
+                        <div key={k}>
+                          <label className="block text-[10px] text-slate-400 mb-1 truncate">{label}</label>
+                          <input
+                            type="number" min="0" value={eventos[k] ?? ''} onChange={(e) => setEv(k, e.target.value)} placeholder="0"
+                            className="w-full px-2 py-1.5 text-sm rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                            style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 

@@ -911,6 +911,8 @@ export default function DashboardAtletasPage() {
       idp,
       maturacao: perfilMaturacao,
       fisico: resumoFisicoData,
+      eficiencia: eficiencia.temDados ? eficienciaExplicada : undefined,
+      contexto: contextoProd.disponivel ? contextoProd : null,
       imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,

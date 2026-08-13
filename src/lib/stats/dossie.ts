@@ -4,6 +4,7 @@
 import { explicarMedias, explicarInsights, type EstatisticasJogo, type ComparativoPosicao } from './desempenho'
 import type { PerfilMaturacao, ResumoMetrica } from './desenvolvimento'
 import { classificarIndice, type Indice } from './indices'
+import type { MetricaEficiencia, ContextoProducao } from './eventos'
 
 export type DossieAtleta = {
   nome: string
@@ -31,6 +32,8 @@ export type DossieParams = {
   idp?: Indice | null
   maturacao?: PerfilMaturacao | null
   fisico?: ResumoMetrica[]
+  eficiencia?: MetricaEficiencia[]
+  contexto?: ContextoProducao | null
   imc?: number | null
   pontosFortes: string | null
   pontosDesenvolver: string | null
@@ -180,6 +183,33 @@ export function gerarDossieHTML(p: DossieParams): string {
          </div>`
       : ''
 
+  const efic = p.eficiencia ?? []
+  const blocoEficiencia =
+    efic.length > 0
+      ? `<section>
+          <h2>Eficiência Técnica <span class="sub">(padrão de plataformas profissionais)</span></h2>
+          <ul class="lista-exp">
+            ${efic
+              .map(m => `<li><b>${esc(m.valor)}</b> &nbsp;${esc(m.titulo)}<br/><span class="desc">${esc(m.descricao)}</span></li>`)
+              .join('')}
+          </ul>
+        </section>`
+      : ''
+
+  const ctx = p.contexto
+  const blocoContexto =
+    ctx && ctx.disponivel && ctx.jogosComContexto > 0
+      ? `<section>
+          <h2>Produção Ajustada ao Contexto</h2>
+          <div class="linha-medias">
+            <span>Participações reais: <b>${fmtN(ctx.participacoes)}</b></span>
+            <span>Ajustadas ao contexto: <b>${fmtN(ctx.participacoesAjustadas)}</b></span>
+            <span>Fator médio: <b>${fmt(ctx.fator, 2)}×</b></span>
+            <span class="desc" style="width:100%">Pondera gols e assistências pelo nível do adversário, importância do jogo e situação do placar em ${ctx.jogosComContexto} jogo(s) com contexto registrado. Fator acima de 1,00 indica produção em cenários mais difíceis.</span>
+          </div>
+        </section>`
+      : ''
+
   const blocoTextos =
     p.pontosFortes || p.pontosDesenvolver || p.observacoes
       ? `<section>
@@ -290,6 +320,8 @@ export function gerarDossieHTML(p: DossieParams): string {
     </ul>
   </section>
 
+  ${blocoEficiencia}
+  ${blocoContexto}
   ${blocoIndices}
   ${blocoMedias}
   ${blocoDesenvolvimento}
