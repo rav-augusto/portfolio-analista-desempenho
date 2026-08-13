@@ -40,6 +40,8 @@ export type DadosAnaliseIA = {
   insights?: { sequenciaAtual: number; melhorSequencia: number; minutosPorGol: number } | null
   perfil?: { percentOfe: number; percentDef: number } | null
   evolucaoTecnica?: number | null
+  eficiencia?: { titulo: string; valor: string; descricao: string }[] | null
+  contexto?: { participacoes: number; participacoesAjustadas: number; fator: number } | null
 }
 
 const n = (v: number, casas = 2) => v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
@@ -157,6 +159,19 @@ export function gerarAnaliseGratis(d: DadosAnaliseIA): string {
     if (f.foraArea > 0) fin.push(`${perc(f.foraArea)}% de fora da área (finalizador de média/longa distância)`)
     if (f.penalti > 0) fin.push(`${f.penalti} de pênalti (descontar da produção de bola rolando)`)
     s.push(`Perfil de finalização: ${fin.join('; ')}.`)
+  }
+
+  // ===== EFICIÊNCIA TÉCNICA (padrão profissional) =====
+  if (d.eficiencia && d.eficiencia.length) {
+    s.push('## Eficiência técnica')
+    s.push(d.eficiencia.map(m => `- **${m.titulo}: ${m.valor}** — ${m.descricao}`).join('\n'))
+    if (d.contexto) {
+      const c = d.contexto
+      s.push(
+        `Produção ajustada ao contexto: ${c.participacoesAjustadas} participações ponderadas (vs ${c.participacoes} brutas; fator médio ${c.fator}× por dificuldade do adversário, importância do jogo e situação de placar). ` +
+          (c.fator >= 1.1 ? 'Produziu majoritariamente em contextos difíceis — mérito adicional, dado que rendeu quando o jogo exigiu mais.' : c.fator <= 0.9 ? 'Produção concentrada em contextos favoráveis — ponderar antes de superestimar o output bruto.' : 'Contexto médio equilibrado — sem distorção relevante para cima ou para baixo.')
+      )
+    }
   }
 
   // ===== 3. PERFIL FÍSICO E ATLÉTICO =====
