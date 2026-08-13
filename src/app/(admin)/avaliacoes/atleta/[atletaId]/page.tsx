@@ -1,100 +1,67 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Pencil, Trash2, Star, Calendar, ArrowLeft, User, TrendingUp, Clock, Ruler, Scale, Activity, ArrowUp, ArrowDown, Minus } from 'lucide-react'
+import { Plus, Pencil, Trash2, Star, Calendar, ArrowLeft, User, TrendingUp, Clock, Ruler, Scale, Activity, ArrowUp, ArrowDown, Minus, Gauge, Target } from 'lucide-react'
 import Link from 'next/link'
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-} from 'chart.js'
-import { Radar } from 'react-chartjs-2'
+import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js'
+import { Radar, Line } from 'react-chartjs-2'
+import { PageHeader, StatCard, Card, CardHeader, CardTitle, Badge, Button, Spinner, EmptyState, Modal } from '@/components/app'
 
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-)
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, CategoryScale, LinearScale)
 
-type Atleta = {
-  id: string
-  nome: string
-  posicao: string | null
-  foto_url: string | null
-  clubes: { nome: string } | { nome: string }[] | null
-}
-
-const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string => {
-  if (!clubes) return ''
-  if (Array.isArray(clubes)) return clubes[0]?.nome || ''
-  return clubes.nome || ''
-}
+type Atleta = { id: string; nome: string; posicao: string | null; foto_url: string | null; clubes: { nome: string } | { nome: string }[] | null }
+const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string =>
+  !clubes ? '' : Array.isArray(clubes) ? clubes[0]?.nome || '' : clubes.nome || ''
 
 type Avaliacao = {
-  id: string
-  data_avaliacao: string
-  tipo: string
-  contexto_treino: string | null
-  minutos_jogados: number | null
-  gols: number | null
-  assistencias: number | null
-  forca: number
-  velocidade: number
-  tecnica: number
-  dinamica: number
-  inteligencia: number
-  um_contra_um: number
-  atitude: number
-  potencial: number
-  // Princípios Ofensivos
-  penetracao: number
-  cobertura_ofensiva: number
-  espaco_com_bola: number
-  espaco_sem_bola: number
-  mobilidade: number
-  unidade_ofensiva: number
-  // Princípios Defensivos
-  contencao: number
-  cobertura_defensiva: number
-  equilibrio_recuperacao: number
-  equilibrio_defensivo: number
-  concentracao_def: number
-  unidade_defensiva: number
-  // Avaliação Física
-  altura_avaliacao: number | null
-  peso_avaliacao: number | null
-  envergadura: number | null
-  velocidade_10m: number | null
-  velocidade_30m: number | null
-  salto_vertical: number | null
-  agilidade_teste: number | null
-  yoyo_nivel: string | null
-  yoyo_distancia: number | null
-  idade_biologica: number | null
-  estagio_phv: string | null
-  sentar_alcancar: number | null
-  jogos: {
-    adversario: string
-    data_jogo: string
-  } | {
-    adversario: string
-    data_jogo: string
-  }[] | null
+  id: string; data_avaliacao: string; tipo: string; contexto_treino: string | null; minutos_jogados: number | null; gols: number | null; assistencias: number | null
+  forca: number; velocidade: number; tecnica: number; dinamica: number; inteligencia: number; um_contra_um: number; atitude: number; potencial: number
+  penetracao: number; cobertura_ofensiva: number; espaco_com_bola: number; espaco_sem_bola: number; mobilidade: number; unidade_ofensiva: number
+  contencao: number; cobertura_defensiva: number; equilibrio_recuperacao: number; equilibrio_defensivo: number; concentracao_def: number; unidade_defensiva: number
+  altura_avaliacao: number | null; peso_avaliacao: number | null; envergadura: number | null
+  velocidade_10m: number | null; velocidade_30m: number | null; salto_vertical: number | null; agilidade_teste: number | null
+  yoyo_nivel: string | null; yoyo_distancia: number | null; idade_biologica: number | null; estagio_phv: string | null; sentar_alcancar: number | null
+  jogos: { adversario: string; data_jogo: string } | { adversario: string; data_jogo: string }[] | null
+}
+const getJogo = (jogos: Avaliacao['jogos']) => !jogos ? null : Array.isArray(jogos) ? jogos[0] || null : jogos
+
+const CBF8 = ['forca', 'velocidade', 'tecnica', 'dinamica', 'inteligencia', 'um_contra_um', 'atitude', 'potencial'] as const
+const dimensoesLabels = ['FOR', 'VEL', 'TEC', 'DIN', 'INT', '1v1', 'ATI', 'POT', 'PEN', 'COF', 'ECB', 'ESB', 'MOB', 'UOF', 'CON', 'CDF', 'ERE', 'EDF', 'CNC', 'UDF']
+const dimensoesKeys: (keyof Avaliacao)[] = ['forca', 'velocidade', 'tecnica', 'dinamica', 'inteligencia', 'um_contra_um', 'atitude', 'potencial', 'penetracao', 'cobertura_ofensiva', 'espaco_com_bola', 'espaco_sem_bola', 'mobilidade', 'unidade_ofensiva', 'contencao', 'cobertura_defensiva', 'equilibrio_recuperacao', 'equilibrio_defensivo', 'concentracao_def', 'unidade_defensiva']
+
+const mediaCBF = (av: Avaliacao) => CBF8.reduce((s, k) => s + (av[k] || 0), 0) / CBF8.length
+const ringColor = (m: number) => m >= 4 ? '#22c55e' : m >= 3.5 ? '#84cc16' : m >= 2.5 ? '#f59e0b' : '#ef4444'
+
+function MediaRing({ valor, size = 36 }: { valor: number; size?: number }) {
+  const pct = Math.max(0, Math.min(100, (valor / 5) * 100))
+  const inner = size - 10
+  return (
+    <div className="rounded-full grid place-items-center shrink-0" style={{ width: size, height: size, background: `conic-gradient(${ringColor(valor)} ${pct}%, #334155 0)` }}>
+      <div className="rounded-full bg-surface grid place-items-center font-bold text-strong tabular-nums" style={{ width: inner, height: inner, fontSize: size > 40 ? 13 : 11 }}>{valor.toFixed(1).replace('.', ',')}</div>
+    </div>
+  )
 }
 
-const getJogo = (jogos: { adversario: string; data_jogo: string } | { adversario: string; data_jogo: string }[] | null | undefined) => {
-  if (!jogos) return null
-  if (Array.isArray(jogos)) return jogos[0] || null
-  return jogos
+function FisRow({ label, nums, fmt, deltaFmt, better = 'up', sub }: { label: string; nums: (number | null)[]; fmt: (v: number) => string; deltaFmt: (d: number) => string; better?: 'up' | 'down' | 'neutral'; sub?: string }) {
+  const vals = nums.filter((v): v is number => v != null)
+  if (!vals.length) return null
+  const last = vals[vals.length - 1], d = vals.length > 1 ? last - vals[0] : 0
+  const good = better === 'neutral' || d === 0 ? null : better === 'down' ? d < 0 : d > 0
+  const cls = good === null ? 'text-faint' : good ? 'text-positive' : 'text-negative'
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-soft">{label}</span>
+      <div className="flex items-center gap-2">
+        {sub && <span className="text-[11px] text-purple-400">{sub}</span>}
+        <span className="text-base font-bold text-strong tabular-nums">{fmt(last)}</span>
+        {vals.length > 1 && d !== 0 && (
+          <span className={`text-xs flex items-center gap-0.5 ${cls}`}>{(better === 'down' ? d < 0 : d > 0) ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}{deltaFmt(d)}</span>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function AvaliacoesAtletaPage() {
@@ -103,601 +70,211 @@ export default function AvaliacoesAtletaPage() {
   const [atleta, setAtleta] = useState<Atleta | null>(null)
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([])
   const [loading, setLoading] = useState(true)
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const [aExcluir, setAExcluir] = useState<Avaliacao | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const supabase = createClient()
 
-  useEffect(() => {
-    loadData()
-  }, [atletaId])
+  useEffect(() => { loadData() }, [atletaId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
-    // Carregar atleta
-    const { data: atletaData } = await supabase
-      .from('atletas')
-      .select('id, nome, posicao, foto_url, clubes(nome)')
-      .eq('id', atletaId)
-      .single()
-
-    if (atletaData) {
-      setAtleta(atletaData)
-    }
-
-    // Carregar avaliações do atleta
+    const { data: atletaData } = await supabase.from('atletas').select('id, nome, posicao, foto_url, clubes(nome)').eq('id', atletaId).single()
+    if (atletaData) setAtleta(atletaData)
     const { data: avaliacoesData } = await supabase
       .from('avaliacoes_atleta')
-      .select(`
-        id, data_avaliacao, tipo, contexto_treino, minutos_jogados, gols, assistencias,
-        forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial,
-        penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva,
-        contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva,
-        altura_avaliacao, peso_avaliacao, envergadura, velocidade_10m, velocidade_30m,
-        salto_vertical, agilidade_teste, yoyo_nivel, yoyo_distancia, idade_biologica, estagio_phv, sentar_alcancar,
-        jogos(adversario, data_jogo)
-      `)
+      .select(`id, data_avaliacao, tipo, contexto_treino, minutos_jogados, gols, assistencias, forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial, penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva, contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva, altura_avaliacao, peso_avaliacao, envergadura, velocidade_10m, velocidade_30m, salto_vertical, agilidade_teste, yoyo_nivel, yoyo_distancia, idade_biologica, estagio_phv, sentar_alcancar, jogos(adversario, data_jogo)`)
       .eq('atleta_id', atletaId)
       .order('data_avaliacao', { ascending: false })
-
-    if (avaliacoesData) {
-      setAvaliacoes(avaliacoesData)
-    }
-
+    if (avaliacoesData) setAvaliacoes(avaliacoesData)
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta avaliação?')) return
+  const confirmarExclusao = async () => {
+    if (!aExcluir) return
+    setDeleting(true)
+    const { error } = await supabase.from('avaliacoes_atleta').delete().eq('id', aExcluir.id)
+    if (!error) setAvaliacoes(prev => prev.filter(a => a.id !== aExcluir.id))
+    setDeleting(false)
+    setAExcluir(null)
+  }
 
-    setDeleting(id)
-    const { error } = await supabase.from('avaliacoes_atleta').delete().eq('id', id)
+  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('pt-BR')
+  const tipoLabel = (t: string) => ({ jogo: 'Jogo', treino: 'Treino', geral: 'Geral' } as Record<string, string>)[t] || t
 
-    if (!error) {
-      setAvaliacoes(avaliacoes.filter(a => a.id !== id))
+  const cron = useMemo(() => [...avaliacoes].reverse(), [avaliacoes])
+  const serie = (key: keyof Avaliacao) => cron.map(av => av[key] as number | null)
+
+  const resumo = useMemo(() => {
+    if (!avaliacoes.length) return null
+    const medias = avaliacoes.map(mediaCBF)
+    const geral = medias.reduce((a, b) => a + b, 0) / medias.length
+    const cronMedias = cron.map(mediaCBF)
+    const trend = cronMedias.length > 1 ? cronMedias[cronMedias.length - 1] - cronMedias[0] : 0
+    return {
+      geral, trend,
+      minutos: avaliacoes.reduce((s, av) => s + (av.minutos_jogados || 0), 0),
+      jogosComMin: avaliacoes.filter(av => av.minutos_jogados && av.minutos_jogados > 0).length,
+      gols: avaliacoes.reduce((s, av) => s + (av.gols || 0), 0),
+      assist: avaliacoes.reduce((s, av) => s + (av.assistencias || 0), 0),
     }
-    setDeleting(null)
-  }
+  }, [avaliacoes, cron])
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR')
-  }
+  const mediaDimensao = (campo: keyof Avaliacao) => avaliacoes.length ? avaliacoes.reduce((s, av) => s + (Number(av[campo]) || 0), 0) / avaliacoes.length : 0
 
-  const getTipoLabel = (tipo: string) => {
-    const tipos: Record<string, string> = {
-      'jogo': 'Jogo',
-      'treino': 'Treino',
-      'geral': 'Geral'
-    }
-    return tipos[tipo] || tipo
-  }
-
-  const getTipoColor = (tipo: string) => {
-    const cores: Record<string, string> = {
-      'jogo': 'bg-blue-500/20 text-blue-400',
-      'treino': 'bg-green-500/20 text-green-400',
-      'geral': 'bg-purple-500/20 text-purple-400'
-    }
-    return cores[tipo] || 'bg-slate-500/20 text-slate-400'
-  }
-
-  const calcularMedia = (av: Avaliacao) => {
-    const valores = [av.forca, av.velocidade, av.tecnica, av.dinamica, av.inteligencia, av.um_contra_um, av.atitude, av.potencial]
-    return (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(1)
-  }
-
-  const getMediaColor = (media: number) => {
-    if (media < 2) return 'text-red-400'
-    if (media < 3) return 'text-orange-400'
-    if (media < 4) return 'text-amber-400'
-    return 'text-green-400'
-  }
-
-  // Calcular média geral do atleta (média de todas as avaliações)
-  const calcularMediaGeralAtleta = () => {
-    if (avaliacoes.length === 0) return '0.0'
-    const somaMedias = avaliacoes.reduce((acc, av) => {
-      return acc + parseFloat(calcularMedia(av))
-    }, 0)
-    return (somaMedias / avaliacoes.length).toFixed(1)
-  }
-
-  const mediaGeralAtleta = parseFloat(calcularMediaGeralAtleta())
-
-  // Calcular total de minutos jogados, gols e assistencias
-  const totalMinutosJogados = avaliacoes.reduce((acc, av) => acc + (av.minutos_jogados || 0), 0)
-  const jogosComMinutos = avaliacoes.filter(av => av.minutos_jogados && av.minutos_jogados > 0).length
-  const totalGols = avaliacoes.reduce((acc, av) => acc + (av.gols || 0), 0)
-  const totalAssistencias = avaliacoes.reduce((acc, av) => acc + (av.assistencias || 0), 0)
-
-  // Calcular média de cada dimensão de todas as avaliações
-  const calcularMediaDimensao = (campo: keyof Avaliacao) => {
-    if (avaliacoes.length === 0) return 0
-    const soma = avaliacoes.reduce((acc, av) => acc + (Number(av[campo]) || 0), 0)
-    return soma / avaliacoes.length
-  }
-
-  // Labels curtos para o gráfico
-  const dimensoesLabels = ['FOR', 'VEL', 'TEC', 'DIN', 'INT', '1v1', 'ATI', 'POT', 'PEN', 'COF', 'ECB', 'ESB', 'MOB', 'UOF', 'CON', 'CDF', 'ERE', 'EDF', 'CNC', 'UDF']
-
-  // Dados do gráfico radar completo
-  const getRadarDataCompleto = () => ({
+  const radarData = {
     labels: dimensoesLabels,
-    datasets: [{
-      data: [
-        calcularMediaDimensao('forca'),
-        calcularMediaDimensao('velocidade'),
-        calcularMediaDimensao('tecnica'),
-        calcularMediaDimensao('dinamica'),
-        calcularMediaDimensao('inteligencia'),
-        calcularMediaDimensao('um_contra_um'),
-        calcularMediaDimensao('atitude'),
-        calcularMediaDimensao('potencial'),
-        calcularMediaDimensao('penetracao'),
-        calcularMediaDimensao('cobertura_ofensiva'),
-        calcularMediaDimensao('espaco_com_bola'),
-        calcularMediaDimensao('espaco_sem_bola'),
-        calcularMediaDimensao('mobilidade'),
-        calcularMediaDimensao('unidade_ofensiva'),
-        calcularMediaDimensao('contencao'),
-        calcularMediaDimensao('cobertura_defensiva'),
-        calcularMediaDimensao('equilibrio_recuperacao'),
-        calcularMediaDimensao('equilibrio_defensivo'),
-        calcularMediaDimensao('concentracao_def'),
-        calcularMediaDimensao('unidade_defensiva'),
-      ],
-      backgroundColor: 'rgba(59, 130, 246, 0.3)',
-      borderColor: '#3b82f6',
-      borderWidth: 2,
-      pointBackgroundColor: '#3b82f6',
-      pointBorderColor: '#fff',
-      pointRadius: 2,
-    }],
-  })
-
-  const radarOptions = {
-    scales: {
-      r: {
-        beginAtZero: true,
-        max: 5,
-        min: 0,
-        ticks: { display: false },
-        pointLabels: {
-          display: true,
-          font: { size: 7, weight: 'bold' as const },
-          color: '#94a3b8'
-        },
-        grid: { color: 'rgba(148, 163, 184, 0.2)' },
-        angleLines: { color: 'rgba(148, 163, 184, 0.2)' },
-      },
-    },
-    plugins: {
-      legend: { display: false },
-    },
-    maintainAspectRatio: true,
+    datasets: [{ data: dimensoesKeys.map(k => mediaDimensao(k)), backgroundColor: 'rgba(245,158,11,.25)', borderColor: '#f59e0b', borderWidth: 2, pointBackgroundColor: '#f59e0b', pointBorderColor: '#fff', pointRadius: 2.5 }],
   }
+  const radarOptions = {
+    scales: { r: { beginAtZero: true, max: 5, min: 0, ticks: { display: false }, pointLabels: { font: { size: 9, weight: 'bold' as const }, color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,.2)' }, angleLines: { color: 'rgba(148,163,184,.2)' } } },
+    plugins: { legend: { display: false } }, maintainAspectRatio: true,
+  }
+  const lineData = {
+    labels: cron.map(av => new Date(av.data_avaliacao).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })),
+    datasets: [{ label: 'Média', data: cron.map(mediaCBF), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,.12)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f59e0b' }],
+  }
+  const lineOptions = {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { min: 0, max: 5, ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: '#334155' } }, x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } } },
+    plugins: { legend: { display: false } },
+  }
+
+  const temFisico = avaliacoes.some(av => av.altura_avaliacao || av.peso_avaliacao || av.velocidade_10m || av.salto_vertical || av.yoyo_distancia || av.sentar_alcancar)
+
+  if (loading) return <div className="flex justify-center py-16"><Spinner size="lg" label="Carregando avaliações..." /></div>
 
   return (
     <div>
-      {/* Header com info do atleta */}
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href="/avaliacoes"
-          className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-amber-500 hover:bg-slate-700 rounded-xl transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-
-        {atleta && (
-          <div className="flex items-center gap-4 flex-1">
-            {atleta.foto_url ? (
-              <img
-                src={atleta.foto_url}
-                alt={atleta.nome}
-                className="w-16 h-16 rounded-full object-cover border-2 border-amber-500/50"
-              />
-            ) : (
-              <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center border-2 border-slate-600">
-                <User className="w-8 h-8 text-slate-500" />
-              </div>
-            )}
-            <div>
-              <h1 className="text-2xl font-bold text-slate-100">{atleta.nome}</h1>
-              <div className="flex items-center gap-3 text-sm text-slate-400">
-                {atleta.posicao && <span>{atleta.posicao}</span>}
-                {getClubeName(atleta.clubes) && (
-                  <span className="text-amber-500">{getClubeName(atleta.clubes)}</span>
-                )}
-                <span className="text-slate-500">|</span>
-                <span>{avaliacoes.length} avaliação{avaliacoes.length !== 1 ? 'ões' : ''}</span>
+      {/* Header responsivo */}
+      <div className="flex items-start gap-3 mb-5">
+        <Link href="/avaliacoes" className="w-9 h-9 grid place-items-center text-faint hover:text-brand hover:bg-surface-2 rounded-lg transition-colors shrink-0"><ArrowLeft className="w-5 h-5" /></Link>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {atleta?.foto_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={atleta.foto_url} alt={atleta.nome} className="w-14 h-14 rounded-full object-cover border-2 border-brand/50 shrink-0" />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-surface-2 border-2 border-line grid place-items-center shrink-0"><User className="w-7 h-7 text-faint" /></div>
+              )}
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-strong truncate">{atleta?.nome}</h1>
+                <div className="flex items-center gap-2 text-sm text-soft flex-wrap">
+                  {atleta?.posicao && <span>{atleta.posicao}</span>}
+                  {getClubeName(atleta?.clubes) && <span className="text-brand">{getClubeName(atleta?.clubes)}</span>}
+                  <span className="text-faint">· {avaliacoes.length} avaliaç{avaliacoes.length !== 1 ? 'ões' : 'ão'}</span>
+                </div>
               </div>
             </div>
+            <Link href={`/avaliacoes/nova?atleta=${atletaId}`} className="shrink-0"><Button><Plus className="w-4 h-4" /><span className="hidden sm:inline">Nova avaliação</span><span className="sm:hidden">Nova</span></Button></Link>
           </div>
-        )}
-
-        {/* Média Geral do Atleta com Gráfico */}
-        {avaliacoes.length > 0 && (
-          <div className="flex items-center gap-3 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2">
-            <div style={{ width: '100px', height: '100px' }}>
-              <Radar data={getRadarDataCompleto()} options={radarOptions} />
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <span className={`text-3xl font-black ${getMediaColor(mediaGeralAtleta)}`}>
-                {mediaGeralAtleta.toFixed(1)}
-              </span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-wide">Média Geral</span>
-            </div>
-          </div>
-        )}
-
-        {/* Estatísticas de Jogo */}
-        <div className="flex items-center gap-2">
-          {/* Total de Minutos Jogados */}
-          {totalMinutosJogados > 0 && (
-            <div className="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl px-4 py-2">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-amber-500" />
-                <span className="text-2xl font-black text-amber-500">{totalMinutosJogados}&apos;</span>
-              </div>
-              <span className="text-[9px] text-slate-400 uppercase tracking-wide">{jogosComMinutos} jogo{jogosComMinutos !== 1 ? 's' : ''}</span>
-            </div>
-          )}
-
-          {/* Total de Gols */}
-          {totalGols > 0 && (
-            <div className="flex flex-col items-center justify-center bg-slate-800 border border-green-700/50 rounded-xl px-4 py-2">
-              <span className="text-2xl font-black text-green-500">{totalGols}</span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-wide">Gols</span>
-            </div>
-          )}
-
-          {/* Total de Assistências */}
-          {totalAssistencias > 0 && (
-            <div className="flex flex-col items-center justify-center bg-slate-800 border border-blue-700/50 rounded-xl px-4 py-2">
-              <span className="text-2xl font-black text-blue-500">{totalAssistencias}</span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-wide">Assists</span>
-            </div>
-          )}
         </div>
-
-        <Link
-          href={`/avaliacoes/nova?atleta=${atletaId}`}
-          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 px-4 py-2 rounded-xl font-semibold hover:bg-amber-400 transition-colors shadow-lg"
-        >
-          <Plus className="w-5 h-5" />
-          Nova Avaliação
-        </Link>
       </div>
 
-      {/* Evolução Física */}
-      {!loading && avaliacoes.some(av => av.altura_avaliacao || av.peso_avaliacao || av.velocidade_10m || av.salto_vertical) && (() => {
-        // Ordenar por data para evolução (mais antiga primeiro)
-        const avaliacoesOrdenadas = [...avaliacoes].reverse()
-        const temDadosFisicos = avaliacoesOrdenadas.some(av => av.altura_avaliacao || av.peso_avaliacao || av.envergadura)
-        const temTestesFisicos = avaliacoesOrdenadas.some(av => av.velocidade_10m || av.velocidade_30m || av.salto_vertical || av.agilidade_teste)
-        const temResistencia = avaliacoesOrdenadas.some(av => av.yoyo_distancia || av.sentar_alcancar)
-
-        const getVariacao = (valores: (number | null)[], menorMelhor = false) => {
-          const validos = valores.filter((v): v is number => v !== null)
-          if (validos.length < 2) return null
-          const primeira = validos[0]
-          const ultima = validos[validos.length - 1]
-          const diff = ultima - primeira
-          const positivo = menorMelhor ? diff < 0 : diff > 0
-          return { primeira, ultima, diff, positivo }
-        }
-
-        return (
-          <div className="rounded-2xl p-5 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-            <h3 className="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-emerald-500" />
-              Evolucao Fisica
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Dados Antropométricos */}
-              {temDadosFisicos && (
-                <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                  <h4 className="text-xs font-semibold text-blue-400 mb-3 uppercase flex items-center gap-2">
-                    <Ruler className="w-4 h-4" /> Antropometria
-                  </h4>
-                  <div className="space-y-2">
-                    {(() => {
-                      const alturas = avaliacoesOrdenadas.map(av => av.altura_avaliacao).filter((v): v is number => v !== null)
-                      if (alturas.length === 0) return null
-                      const ultima = alturas[alturas.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.altura_avaliacao))
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Altura</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}m</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-slate-400'}`}>
-                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                                {v.diff > 0 ? '+' : ''}{(v.diff * 100).toFixed(0)}cm
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                    {(() => {
-                      const pesos = avaliacoesOrdenadas.map(av => av.peso_avaliacao).filter((v): v is number => v !== null)
-                      if (pesos.length === 0) return null
-                      const ultima = pesos[pesos.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.peso_avaliacao))
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Peso</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(1)}kg</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.diff > 0 ? 'text-green-400' : 'text-amber-400'}`}>
-                                {v.diff > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                                {v.diff > 0 ? '+' : ''}{v.diff.toFixed(1)}kg
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                    {(() => {
-                      const envs = avaliacoesOrdenadas.map(av => av.envergadura).filter((v): v is number => v !== null)
-                      if (envs.length === 0) return null
-                      const ultima = envs[envs.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.envergadura))
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Envergadura</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}m</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-slate-400'}`}>
-                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                                {v.diff > 0 ? '+' : ''}{(v.diff * 100).toFixed(0)}cm
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                  </div>
-                </div>
-              )}
-
-              {/* Testes Físicos */}
-              {temTestesFisicos && (
-                <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                  <h4 className="text-xs font-semibold text-amber-400 mb-3 uppercase flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" /> Testes Fisicos
-                  </h4>
-                  <div className="space-y-2">
-                    {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_10m).filter((v): v is number => v !== null)
-                      if (vals.length === 0) return null
-                      const ultima = vals[vals.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.velocidade_10m), true)
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">10m</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}s</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
-                                {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
-                                {v.diff.toFixed(2)}s
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                    {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.velocidade_30m).filter((v): v is number => v !== null)
-                      if (vals.length === 0) return null
-                      const ultima = vals[vals.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.velocidade_30m), true)
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">30m</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}s</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
-                                {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
-                                {v.diff.toFixed(2)}s
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                    {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.salto_vertical).filter((v): v is number => v !== null)
-                      if (vals.length === 0) return null
-                      const ultima = vals[vals.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.salto_vertical))
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Salto</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(0)}cm</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
-                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                                {v.diff > 0 ? '+' : ''}{v.diff.toFixed(0)}cm
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                    {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.agilidade_teste).filter((v): v is number => v !== null)
-                      if (vals.length === 0) return null
-                      const ultima = vals[vals.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.agilidade_teste), true)
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Agilidade</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(2)}s</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
-                                {v.positivo ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
-                                {v.diff.toFixed(2)}s
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                  </div>
-                </div>
-              )}
-
-              {/* Resistência e Flexibilidade */}
-              {temResistencia && (
-                <div className="rounded-xl p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                  <h4 className="text-xs font-semibold text-purple-400 mb-3 uppercase flex items-center gap-2">
-                    <Scale className="w-4 h-4" /> Resist. e Flex.
-                  </h4>
-                  <div className="space-y-2">
-                    {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.yoyo_distancia).filter((v): v is number => v !== null)
-                      if (vals.length === 0) return null
-                      const ultima = vals[vals.length - 1]
-                      const ultimoNivel = avaliacoesOrdenadas.filter(av => av.yoyo_nivel).pop()?.yoyo_nivel
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.yoyo_distancia))
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Yo-Yo</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima}m</span>
-                            {ultimoNivel && <span className="text-xs text-purple-400">Nv {ultimoNivel}</span>}
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
-                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                                {v.diff > 0 ? '+' : ''}{v.diff}m
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                    {(() => {
-                      const vals = avaliacoesOrdenadas.map(av => av.sentar_alcancar).filter((v): v is number => v !== null)
-                      if (vals.length === 0) return null
-                      const ultima = vals[vals.length - 1]
-                      const v = getVariacao(avaliacoesOrdenadas.map(av => av.sentar_alcancar))
-                      return (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Flexibilidade</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-slate-100">{ultima.toFixed(0)}cm</span>
-                            {v && v.diff !== 0 && (
-                              <span className={`text-xs flex items-center gap-0.5 ${v.positivo ? 'text-green-400' : 'text-red-400'}`}>
-                                {v.positivo ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                                {v.diff > 0 ? '+' : ''}{v.diff.toFixed(0)}cm
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })()}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      })()}
-
-      {/* Lista de Avaliações */}
-      {loading ? (
-        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <div className="animate-spin w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-          <p className="text-slate-400">Carregando avaliações...</p>
-        </div>
-      ) : avaliacoes.length === 0 ? (
-        <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-          <Star className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-300 font-medium mb-1">Nenhuma avaliação encontrada para este atleta</p>
-          <p className="text-sm text-slate-500">Crie uma nova avaliação para começar</p>
-          <Link href={`/avaliacoes/nova?atleta=${atletaId}`} className="text-amber-500 hover:text-amber-400 mt-3 inline-block">
-            Criar primeira avaliação
-          </Link>
-        </div>
+      {avaliacoes.length === 0 ? (
+        <EmptyState icon={Star} title="Nenhuma avaliação para este atleta" description="Crie a primeira avaliação para começar a acompanhar a evolução."
+          action={<Link href={`/avaliacoes/nova?atleta=${atletaId}`}><Button size="sm"><Plus className="w-4 h-4" />Nova avaliação</Button></Link>} />
       ) : (
-        <div className="space-y-4">
-          {avaliacoes.map((avaliacao) => {
-            const media = parseFloat(calcularMedia(avaliacao))
-            return (
-              <div
-                key={avaliacao.id}
-                className="rounded-xl p-4 flex items-center justify-between transition-colors hover:opacity-90"
-                style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Média */}
-                  <div className="w-14 h-14 rounded-xl flex flex-col items-center justify-center" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                    <span className={`text-xl font-bold ${getMediaColor(media)}`}>{media}</span>
-                    <span className="text-[8px] text-slate-500 uppercase">média</span>
-                  </div>
+        <>
+          {/* KPIs */}
+          {resumo && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <StatCard label="Média geral" value={resumo.geral.toFixed(1).replace('.', ',')} icon={Gauge} tone="brand"
+                meta={resumo.trend !== 0 ? <span className={resumo.trend > 0 ? 'text-positive font-semibold' : 'text-negative font-semibold'}>{resumo.trend > 0 ? '+' : ''}{resumo.trend.toFixed(1).replace('.', ',')} no total</span> : undefined} />
+              <StatCard label="Minutos" value={resumo.minutos} icon={Clock} tone="info" meta={`${resumo.jogosComMin} jogo${resumo.jogosComMin !== 1 ? 's' : ''}`} />
+              <StatCard label="Gols" value={resumo.gols} icon={Star} tone="positive" />
+              <StatCard label="Assistências" value={resumo.assist} icon={Target} tone="violet" />
+            </div>
+          )}
 
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTipoColor(avaliacao.tipo)}`}>
-                        {getTipoLabel(avaliacao.tipo)}
-                      </span>
-                      {getJogo(avaliacao.jogos) && (
-                        <span className="text-slate-300 text-sm">vs {getJogo(avaliacao.jogos)?.adversario}</span>
-                      )}
-                      {avaliacao.contexto_treino && (
-                        <span className="text-slate-400 text-sm">• {avaliacao.contexto_treino}</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(avaliacao.data_avaliacao)}</span>
-                      </div>
-                      {avaliacao.minutos_jogados && (
-                        <div className="flex items-center gap-1 text-amber-500">
-                          <Clock className="w-3 h-3" />
-                          <span>{avaliacao.minutos_jogados}&apos;</span>
-                        </div>
-                      )}
-                      {avaliacao.gols && avaliacao.gols > 0 && (
-                        <span className="text-green-500 font-medium">{avaliacao.gols} gol{avaliacao.gols > 1 ? 's' : ''}</span>
-                      )}
-                      {avaliacao.assistencias && avaliacao.assistencias > 0 && (
-                        <span className="text-blue-500 font-medium">{avaliacao.assistencias} assist{avaliacao.assistencias > 1 ? 's' : ''}</span>
-                      )}
+          {/* Radar médio + tendência */}
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <Card padding="lg">
+              <CardTitle className="mb-3">Perfil médio (20 dimensões)</CardTitle>
+              <div className="max-w-[320px] mx-auto"><Radar data={radarData} options={radarOptions} /></div>
+            </Card>
+            <Card padding="lg">
+              <CardHeader><CardTitle>Tendência da média</CardTitle><span className="flex items-center gap-1 text-xs text-soft"><TrendingUp className="w-3.5 h-3.5" />{cron.length} avaliações</span></CardHeader>
+              {cron.length > 1 ? <div className="h-[280px]"><Line data={lineData} options={lineOptions} /></div> : <p className="text-sm text-soft text-center py-16">Ainda não há avaliações suficientes para traçar a tendência.</p>}
+            </Card>
+          </div>
+
+          {/* Evolução física */}
+          {temFisico && (
+            <Card padding="lg" className="mb-4 sm:mb-6">
+              <CardTitle className="mb-4 flex items-center gap-2"><Activity className="w-5 h-5 text-positive" />Evolução física</CardTitle>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {cron.some(a => a.altura_avaliacao || a.peso_avaliacao || a.envergadura) && (
+                  <div className="rounded-xl p-4 bg-app border border-line">
+                    <h4 className="text-xs font-semibold text-info mb-3 uppercase tracking-wider flex items-center gap-2"><Ruler className="w-4 h-4" />Antropometria</h4>
+                    <div className="space-y-2">
+                      <FisRow label="Altura" nums={serie('altura_avaliacao')} fmt={(v) => `${v.toFixed(2)}m`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${(d * 100).toFixed(0)}cm`} better="up" />
+                      <FisRow label="Peso" nums={serie('peso_avaliacao')} fmt={(v) => `${v.toFixed(1)}kg`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d.toFixed(1)}kg`} better="neutral" />
+                      <FisRow label="Envergadura" nums={serie('envergadura')} fmt={(v) => `${v.toFixed(2)}m`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${(d * 100).toFixed(0)}cm`} better="up" />
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/avaliacoes/${avaliacao.id}`}
-                    className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors"
-                    title="Editar"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(avaliacao.id)}
-                    disabled={deleting === avaliacao.id}
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                    title="Excluir"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                )}
+                {cron.some(a => a.velocidade_10m || a.velocidade_30m || a.salto_vertical || a.agilidade_teste) && (
+                  <div className="rounded-xl p-4 bg-app border border-line">
+                    <h4 className="text-xs font-semibold text-brand mb-3 uppercase tracking-wider flex items-center gap-2"><TrendingUp className="w-4 h-4" />Testes físicos</h4>
+                    <div className="space-y-2">
+                      <FisRow label="10m" nums={serie('velocidade_10m')} fmt={(v) => `${v.toFixed(2)}s`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d.toFixed(2)}s`} better="down" />
+                      <FisRow label="30m" nums={serie('velocidade_30m')} fmt={(v) => `${v.toFixed(2)}s`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d.toFixed(2)}s`} better="down" />
+                      <FisRow label="Salto" nums={serie('salto_vertical')} fmt={(v) => `${v.toFixed(0)}cm`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d.toFixed(0)}cm`} better="up" />
+                      <FisRow label="Agilidade" nums={serie('agilidade_teste')} fmt={(v) => `${v.toFixed(2)}s`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d.toFixed(2)}s`} better="down" />
+                    </div>
+                  </div>
+                )}
+                {cron.some(a => a.yoyo_distancia || a.sentar_alcancar) && (
+                  <div className="rounded-xl p-4 bg-app border border-line">
+                    <h4 className="text-xs font-semibold text-purple-400 mb-3 uppercase tracking-wider flex items-center gap-2"><Scale className="w-4 h-4" />Resist. e flex.</h4>
+                    <div className="space-y-2">
+                      <FisRow label="Yo-Yo" nums={serie('yoyo_distancia')} fmt={(v) => `${v}m`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d}m`} better="up" sub={[...cron].reverse().find(a => a.yoyo_nivel)?.yoyo_nivel ? `Nv ${[...cron].reverse().find(a => a.yoyo_nivel)!.yoyo_nivel}` : undefined} />
+                      <FisRow label="Flexibilidade" nums={serie('sentar_alcancar')} fmt={(v) => `${v.toFixed(0)}cm`} deltaFmt={(d) => `${d > 0 ? '+' : ''}${d.toFixed(0)}cm`} better="up" />
+                    </div>
+                  </div>
+                )}
               </div>
-            )
-          })}
-        </div>
+            </Card>
+          )}
+
+          {/* Lista de avaliações */}
+          <div className="space-y-2.5">
+            {avaliacoes.map((av) => {
+              const media = mediaCBF(av)
+              const jogo = getJogo(av.jogos)
+              return (
+                <Card key={av.id} padding="none" className="p-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <MediaRing valor={media} size={48} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant={av.tipo === 'jogo' ? 'info' : av.tipo === 'treino' ? 'positive' : 'neutral'} size="sm">{tipoLabel(av.tipo)}</Badge>
+                        {jogo && <span className="text-sm text-strong truncate">vs {jogo.adversario}</span>}
+                        {av.contexto_treino && <span className="text-sm text-soft truncate">· {av.contexto_treino}</span>}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-soft flex-wrap">
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(av.data_avaliacao)}</span>
+                        {av.minutos_jogados ? <span className="flex items-center gap-1 text-brand"><Clock className="w-3 h-3" />{av.minutos_jogados}′</span> : null}
+                        {av.gols ? <span className="text-positive font-medium">{av.gols} gol{av.gols > 1 ? 's' : ''}</span> : null}
+                        {av.assistencias ? <span className="text-info font-medium">{av.assistencias} assist.</span> : null}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Link href={`/avaliacoes/${av.id}`} className="p-2 text-faint hover:text-brand hover:bg-brand/10 rounded-lg transition-colors" title="Editar"><Pencil className="w-4 h-4" /></Link>
+                    <button onClick={() => setAExcluir(av)} className="p-2 text-faint hover:text-negative hover:bg-negative/10 rounded-lg transition-colors" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        </>
       )}
+
+      <Modal isOpen={!!aExcluir} onClose={() => setAExcluir(null)} title="Excluir avaliação" size="sm"
+        footer={<><Button variant="ghost" size="sm" onClick={() => setAExcluir(null)}>Cancelar</Button><Button variant="danger" size="sm" onClick={confirmarExclusao} disabled={deleting}>{deleting ? 'Excluindo...' : 'Excluir'}</Button></>}>
+        <p className="text-sm text-soft">Excluir a avaliação de <b className="text-strong">{aExcluir ? formatDate(aExcluir.data_avaliacao) : ''}</b>? Esta ação não pode ser desfeita.</p>
+      </Modal>
     </div>
   )
 }
