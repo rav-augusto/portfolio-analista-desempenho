@@ -56,18 +56,17 @@ export default function GuiaAvaliacaoPage() {
 
       {/* Tabs */}
       <div className="rounded-2xl shadow-sm mb-4 sm:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
-        <div className="p-2 sm:p-3" style={{ borderBottom: '1px solid #475569' }}>
+        <div className="p-2 sm:p-3 sticky top-0 z-20 rounded-t-2xl backdrop-blur" style={{ backgroundColor: 'rgba(30,41,59,.92)', borderBottom: '1px solid #475569' }}>
           <div className="flex flex-wrap gap-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all"
-                style={
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                   activeTab === tab.id
-                    ? { backgroundColor: '#e2e8f0', color: '#1e293b' }
-                    : { backgroundColor: '#334155', color: '#94a3b8' }
-                }
+                    ? 'bg-brand text-app'
+                    : 'bg-surface-2 text-soft hover:text-strong border border-line'
+                }`}
               >
                 <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">{tab.label}</span>
@@ -82,8 +81,8 @@ export default function GuiaAvaliacaoPage() {
           {activeTab === 'carreira' && (
             <div className="space-y-8">
               {/* Intro */}
-              <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl p-6 border border-amber-500/30">
-                <h3 className="text-xl font-bold text-amber-400 mb-2">O que é um Analista de Desempenho?</h3>
+              <div className="bg-brand/10 rounded-xl p-6 border-l-4 border-brand">
+                <h3 className="text-xl font-bold text-brand mb-2">O que é um Analista de Desempenho?</h3>
                 <p className="text-slate-300">
                   O analista de desempenho é o profissional responsável por <strong>transformar dados em decisões</strong>.
                   Ele observa, registra, analisa e comunica informações que ajudam treinadores e jogadores a evoluírem.
@@ -1527,7 +1526,7 @@ export default function GuiaAvaliacaoPage() {
           {activeTab === 'categorias' && (
             <div className="space-y-4">
               {/* Intro */}
-              <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl p-4 border border-amber-500/30 mb-6">
+              <div className="bg-brand/10 rounded-xl p-4 border-l-4 border-brand mb-6">
                 <p className="text-sm text-slate-300">
                   <strong>Como usar:</strong> Abra a categoria que vai avaliar e use como checklist durante a observação.
                   Cada idade tem <strong>prioridades diferentes</strong> - o que importa no Sub-9 não é o mesmo que no Sub-17.
@@ -5071,7 +5070,7 @@ export default function GuiaAvaliacaoPage() {
               </div>
 
               {/* Frase final */}
-              <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-xl p-6 border border-amber-700">
+              <div className="bg-brand/10 rounded-xl p-6 border-l-4 border-brand">
                 <p className="text-lg text-amber-300 text-center">
                   <strong>"Na dúvida entre dois, escolha o que aprende mais rápido.<br/>
                   O futebol muda constantemente, e quem aprende se adapta."</strong>
