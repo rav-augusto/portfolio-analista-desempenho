@@ -34,6 +34,9 @@ export type DossieParams = {
   fisico?: ResumoMetrica[]
   eficiencia?: MetricaEficiencia[]
   contexto?: ContextoProducao | null
+  parecer?: string | null
+  radar?: { label: string; valor: number }[]
+  dimensoes?: { grupo: 'CBF' | 'OFE' | 'DEF'; label: string; valor: number }[]
   imc?: number | null
   pontosFortes: string | null
   pontosDesenvolver: string | null
@@ -49,6 +52,48 @@ const esc = (s: string | null | undefined): string =>
     .replace(/"/g, '&quot;')
 
 const fmt = (n: number, casas = 2) => n.toFixed(casas)
+
+// Converte o parecer (markdown simples: ## título, - item, **negrito**) em HTML.
+const inlineMd = (t: string) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+function parecerHTML(md: string): string {
+  const lines = md.split('\n')
+  let html = ''
+  let inList = false
+  const closeList = () => { if (inList) { html += '</ul>'; inList = false } }
+  for (const raw of lines) {
+    const line = raw.trim()
+    if (!line) { closeList(); continue }
+    if (line.startsWith('## ')) { closeList(); html += `<h3>${inlineMd(line.slice(3))}</h3>`; continue }
+    if (line.startsWith('- ')) { if (!inList) { html += '<ul>'; inList = true } html += `<li>${inlineMd(line.slice(2))}</li>`; continue }
+    closeList(); html += `<p>${inlineMd(line)}</p>`
+  }
+  closeList()
+  return html
+}
+
+// Radar imprimível (SVG puro, tema claro) — escala 0–5.
+function radarSVG(pts: { label: string; valor: number }[]): string {
+  const n = pts.length
+  if (!n) return ''
+  const cx = 160, cy = 150, R = 100, max = 5
+  const ang = (i: number) => (-90 + i * (360 / n)) * Math.PI / 180
+  const pt = (i: number, r: number): [number, number] => [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))]
+  const poly = (r: number) => pts.map((_, i) => pt(i, r).map(v => v.toFixed(1)).join(',')).join(' ')
+  let rings = ''
+  for (let lvl = 1; lvl <= max; lvl++) rings += `<polygon points="${poly(R * lvl / max)}" fill="none" stroke="#e2e8f0" stroke-width="1" />`
+  let axes = '', labels = ''
+  pts.forEach((p, i) => {
+    const [x, y] = pt(i, R)
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`
+    const [lx, ly] = pt(i, R + 15)
+    const anchor = Math.abs(lx - cx) < 8 ? 'middle' : lx > cx ? 'start' : 'end'
+    labels += `<text x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" font-size="9" font-weight="600" fill="#64748b" text-anchor="${anchor}">${esc(p.label)}</text>`
+  })
+  const dataPoly = pts.map((p, i) => pt(i, R * Math.min(max, Math.max(0, p.valor)) / max).map(v => v.toFixed(1)).join(',')).join(' ')
+  let dots = ''
+  pts.forEach((p, i) => { const [x, y] = pt(i, R * Math.min(max, Math.max(0, p.valor)) / max); dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#d97706"/>` })
+  return `<svg viewBox="0 0 320 300" width="300" xmlns="http://www.w3.org/2000/svg">${rings}${axes}<polygon points="${dataPoly}" fill="rgba(245,158,11,0.25)" stroke="#d97706" stroke-width="2"/>${dots}${labels}</svg>`
+}
 
 const statCard = (valor: string, rotulo: string, cor: string) => `
   <div class="stat">
@@ -210,6 +255,24 @@ export function gerarDossieHTML(p: DossieParams): string {
         </section>`
       : ''
 
+  const blocoParecer = p.parecer
+    ? `<section class="parecer"><h2>Parecer do analista</h2>${parecerHTML(p.parecer)}</section>`
+    : ''
+
+  const blocoRadar = p.radar && p.radar.length
+    ? `<section class="avoid"><h2>Perfil técnico — dimensões CBF (0–5)</h2><div class="radar-wrap">${radarSVG(p.radar)}</div></section>`
+    : ''
+
+  const dimGrupo = (nome: string, cor: string, arr: { label: string; valor: number }[]) =>
+    arr.length
+      ? `<div class="dim-grupo"><h4 style="color:${cor}">${esc(nome)}</h4>${arr
+          .map(d => `<div class="dim-row"><span class="dim-label">${esc(d.label)}</span><div class="dim-track"><div class="dim-fill" style="width:${Math.min(100, (d.valor / 5) * 100).toFixed(0)}%;background:${cor}"></div></div><span class="dim-val">${fmt(d.valor, 1)}</span></div>`)
+          .join('')}</div>`
+      : ''
+  const blocoDimensoes = p.dimensoes && p.dimensoes.length
+    ? `<section class="avoid"><h2>Avaliação por dimensão</h2><div class="dim-grid">${dimGrupo('Dimensões CBF', '#d97706', p.dimensoes.filter(d => d.grupo === 'CBF'))}${dimGrupo('Ofensivos', '#16a34a', p.dimensoes.filter(d => d.grupo === 'OFE'))}${dimGrupo('Defensivos', '#dc2626', p.dimensoes.filter(d => d.grupo === 'DEF'))}</div></section>`
+    : ''
+
   const blocoTextos =
     p.pontosFortes || p.pontosDesenvolver || p.observacoes
       ? `<section>
@@ -274,7 +337,21 @@ export function gerarDossieHTML(p: DossieParams): string {
   .texto-bloco h3 { font-size: 12px; text-transform: uppercase; margin-bottom: 4px; }
   .texto-bloco p { font-size: 13px; color: #334155; line-height: 1.5; }
   .rodape { margin-top: 28px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center; }
-  @media print { body { padding: 0; } @page { margin: 16mm; } }
+  .avoid { page-break-inside: avoid; }
+  .radar-wrap { text-align: center; padding: 4px 0; }
+  .parecer h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: #0f172a; margin: 12px 0 4px; }
+  .parecer p { font-size: 12.5px; color: #334155; line-height: 1.55; margin-bottom: 6px; }
+  .parecer ul { margin: 4px 0 8px 18px; }
+  .parecer li { font-size: 12.5px; color: #334155; line-height: 1.5; margin-bottom: 2px; }
+  .parecer strong { color: #0f172a; }
+  .dim-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .dim-grupo h4 { font-size: 11px; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 6px; }
+  .dim-row { display: grid; grid-template-columns: 1fr 56px 26px; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .dim-label { font-size: 10.5px; color: #475569; }
+  .dim-track { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+  .dim-fill { height: 100%; border-radius: 3px; }
+  .dim-val { font-size: 11px; font-weight: 700; color: #0f172a; text-align: right; font-variant-numeric: tabular-nums; }
+  @media print { body { padding: 0; } @page { margin: 16mm; } .dim-grid { grid-template-columns: 1fr 1fr 1fr; } }
 </style>
 </head>
 <body>
@@ -320,10 +397,13 @@ export function gerarDossieHTML(p: DossieParams): string {
     </ul>
   </section>
 
+  ${blocoParecer}
   ${blocoEficiencia}
   ${blocoContexto}
   ${blocoIndices}
   ${blocoMedias}
+  ${blocoRadar}
+  ${blocoDimensoes}
   ${blocoDesenvolvimento}
   ${blocoComparativo}
   ${blocoTextos}

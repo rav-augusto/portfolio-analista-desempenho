@@ -894,6 +894,15 @@ export default function DashboardAtletasPage() {
   // Exportar dossiê do atleta (PDF via impressão do navegador)
   const handleExportarDossie = () => {
     if (!atletaAtual) return
+    const payloadParecer = montarPayloadIA()
+    const parecer = payloadParecer ? gerarAnaliseGratis(payloadParecer) : null
+    const dimVal = (key: string) => Number(avaliacaoSelecionada?.[key as keyof Avaliacao]) || 0
+    const radar = avaliacaoSelecionada ? dimensoesCBF.map(d => ({ label: d.shortLabel, valor: dimVal(d.key) })) : undefined
+    const dimensoes = avaliacaoSelecionada ? [
+      ...dimensoesCBF.map(d => ({ grupo: 'CBF' as const, label: d.label, valor: dimVal(d.key) })),
+      ...dimensoesOFE.map(d => ({ grupo: 'OFE' as const, label: d.label, valor: dimVal(d.key) })),
+      ...dimensoesDEF.map(d => ({ grupo: 'DEF' as const, label: d.label, valor: dimVal(d.key) })),
+    ] : undefined
     const ok = abrirDossieParaImpressao({
       atleta: {
         nome: atletaAtual.nome,
@@ -913,6 +922,9 @@ export default function DashboardAtletasPage() {
       fisico: resumoFisicoData,
       eficiencia: eficiencia.temDados ? eficienciaExplicada : undefined,
       contexto: contextoProd.disponivel ? contextoProd : null,
+      parecer,
+      radar,
+      dimensoes,
       imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
