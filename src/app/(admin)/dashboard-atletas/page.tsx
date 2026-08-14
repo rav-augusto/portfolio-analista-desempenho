@@ -26,6 +26,7 @@ import {
 import { calcularIDA, calcularIDP, classificarIndice } from '@/lib/stats/indices'
 import { calcularEficiencia, explicarEficiencia, calcularContextoProducao } from '@/lib/stats/eventos'
 import { IndiceCard } from '@/components/app/IndiceCard'
+import { InfoTip } from '@/components/app/InfoTip'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, type MetricaPercentil } from '@/lib/stats/percentis'
@@ -1933,7 +1934,7 @@ export default function DashboardAtletasPage() {
 
                   {/* Índice de Desempenho (IDP) */}
                   <div className="mb-4">
-                    <IndiceCard titulo="Índice de Desempenho (IDP)" subtitulo="Produção em campo vs a posição + regularidade" indice={idp} cor="#f59e0b" />
+                    <IndiceCard titulo="Índice de Desempenho (IDP)" subtitulo="Produção em campo vs a posição + regularidade" indice={idp} cor="#f59e0b" info="Índice de Desempenho (0–100): resume o que o atleta entrega em jogo — gols, assistências e participações por partida, além da regularidade — comparado ao esperado para a posição. Quanto maior, mais decisivo em campo." />
                   </div>
 
                   {/* Médias explicadas (cada número vira uma frase) */}
@@ -1975,7 +1976,7 @@ export default function DashboardAtletasPage() {
                   {/* Eficiência (estilo scout — 007/010) */}
                   {eficiencia.temDados && (
                     <div className="mb-4">
-                      <p className="text-xs text-cyan-300 font-medium mb-2 flex items-center gap-1">🎯 Eficiência (padrão de análise profissional)</p>
+                      <p className="text-xs text-cyan-300 font-medium mb-2 flex items-center gap-1">🎯 Eficiência (padrão de análise profissional)<InfoTip text="Eficiência mede a qualidade das ações, não o volume: precisão de passe, finalização no alvo, aproveitamento no 1v1 e duelos ganhos (em %), além de criação e recuperação por partida de 60'. É o que separa quem faz muito de quem faz bem." /></p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                         {eficienciaExplicada.map((m) => (
                           <div key={m.chave} className="rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
@@ -1990,7 +1991,7 @@ export default function DashboardAtletasPage() {
                       {contextoProd.disponivel && (
                         <div className="mt-2 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
                           <p className="text-[11px] md:text-xs text-slate-300 leading-snug">
-                            <span className="text-base font-black text-amber-400">{contextoProd.participacoesAjustadas}</span> participações <span className="font-semibold text-amber-300">ajustadas ao contexto</span> (vs {contextoProd.participacoes} brutas) — fator médio {contextoProd.fator}× por dificuldade do adversário, importância do jogo e situação de placar.
+                            <span className="text-base font-black text-amber-400">{contextoProd.participacoesAjustadas}</span> participações <span className="font-semibold text-amber-300">ajustadas ao contexto</span><InfoTip text="Pondera gols e assistências pela dificuldade real: vale mais marcar contra adversário forte, em jogo decisivo ou com o time perdendo. Fator acima de 1,00 indica produção em cenários mais difíceis — não é 'história', é peso objetivo." className="mx-1" /> (vs {contextoProd.participacoes} brutas) — fator médio {contextoProd.fator}× por dificuldade do adversário, importância do jogo e situação de placar.
                           </p>
                         </div>
                       )}
@@ -2102,7 +2103,7 @@ export default function DashboardAtletasPage() {
 
                   {/* Índice de Desenvolvimento (IDA) */}
                   <div className="mb-4">
-                    <IndiceCard titulo="Índice de Desenvolvimento (IDA)" subtitulo="Nível técnico + trajetória + evolução física" indice={ida} cor="#06b6d4" />
+                    <IndiceCard titulo="Índice de Desenvolvimento (IDA)" subtitulo="Nível técnico + trajetória + evolução física" indice={ida} cor="#06b6d4" info="Índice de Desenvolvimento (0–100): mede o potencial de evolução — nível técnico nas 20 dimensões, trajetória das avaliações e evolução física/maturação. Olha para onde o atleta pode chegar, não só o rendimento de hoje." />
                   </div>
 
                   {/* Card de Maturação */}
@@ -2131,13 +2132,13 @@ export default function DashboardAtletasPage() {
                           </div>
                           <div className="text-center">
                             <p className="text-base md:text-lg font-black text-cyan-400">{perfilMaturacao.idadeBiologica?.toFixed(1) ?? '—'}</p>
-                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase">Idade biológica</p>
+                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase inline-flex items-center gap-1">Idade biológica<InfoTip text="Idade do corpo pela maturação (não a do documento). Estimada pelo método de Mirwald a partir de altura, altura sentado e peso. Dois atletas de 14 anos podem ter idades biológicas bem diferentes — por isso comparar só pela idade real engana." /></p>
                           </div>
                           <div className="text-center">
                             <p className={`text-base md:text-lg font-black ${(perfilMaturacao.diferenca ?? 0) >= 1 ? 'text-amber-400' : (perfilMaturacao.diferenca ?? 0) <= -1 ? 'text-cyan-400' : 'text-green-400'}`}>
                               {perfilMaturacao.diferenca != null ? `${perfilMaturacao.diferenca > 0 ? '+' : ''}${perfilMaturacao.diferenca.toFixed(1)}` : '—'}
                             </p>
-                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase">Diferença</p>
+                            <p className="text-[9px] md:text-[10px] text-slate-500 uppercase inline-flex items-center gap-1">Diferença<InfoTip text="Idade biológica menos a idade real. Positivo = maturação precoce (mais desenvolvido que a idade); negativo = tardio (o corpo ainda vai crescer). Ajuda a não confundir vantagem física passageira com talento — e a não descartar quem só está 'atrasado' na maturação." /></p>
                           </div>
                         </div>
                       </div>

@@ -1406,7 +1406,7 @@ export default function PortalDashboardPage() {
 
               {/* Indice de Desempenho (IDP) */}
               <div className="mb-4">
-                <IndiceCard titulo="Indice de Desempenho (IDP)" subtitulo="Producao em campo vs a posicao + regularidade" indice={idp} cor="#f59e0b" />
+                <IndiceCard titulo="Indice de Desempenho (IDP)" subtitulo="Producao em campo vs a posicao + regularidade" indice={idp} cor="#f59e0b" info="Indice de Desempenho (0-100): resume o que voce entrega em jogo - gols, assistencias e participacoes por partida, alem da regularidade - comparado ao esperado para a posicao. Quanto maior, mais decisivo em campo." />
               </div>
 
               {/* Medias explicadas (cada numero vira uma frase) */}
@@ -1712,7 +1712,7 @@ export default function PortalDashboardPage() {
 
               {/* Indice de Desenvolvimento (IDA) */}
               <div className="mb-4">
-                <IndiceCard titulo="Indice de Desenvolvimento (IDA)" subtitulo="Nivel tecnico + trajetoria + evolucao fisica" indice={ida} cor="#06b6d4" />
+                <IndiceCard titulo="Indice de Desenvolvimento (IDA)" subtitulo="Nivel tecnico + trajetoria + evolucao fisica" indice={ida} cor="#06b6d4" info="Indice de Desenvolvimento (0-100): mede o potencial de evolucao - nivel tecnico nas 20 dimensoes, trajetoria das avaliacoes e evolucao fisica/maturacao. Olha para onde voce pode chegar, nao so o rendimento de hoje." />
               </div>
 
               {/* Card de Maturacao */}

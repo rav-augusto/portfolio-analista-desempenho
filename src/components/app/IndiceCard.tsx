@@ -1,16 +1,18 @@
 import type { Indice } from '@/lib/stats/indices'
 import { classificarIndice } from '@/lib/stats/indices'
+import { InfoTip } from './InfoTip'
 
 type Props = {
   titulo: string
   subtitulo?: string
   indice: Indice
   cor: string // cor principal (hex)
+  info?: string // explicação opcional (tooltip ao lado do título)
 }
 
 // Card de índice composto (0-100) com anel + quebra por componente.
 // Transparente: sempre mostra as partes e os pesos renormalizados.
-export function IndiceCard({ titulo, subtitulo, indice, cor }: Props) {
+export function IndiceCard({ titulo, subtitulo, indice, cor, info }: Props) {
   const raio = 34
   const circ = 2 * Math.PI * raio
   const dash = indice.disponivel ? (indice.valor / 100) * circ : 0
@@ -49,7 +51,7 @@ export function IndiceCard({ titulo, subtitulo, indice, cor }: Props) {
         {/* Título + classificação + componentes */}
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <h4 className="text-sm md:text-base font-semibold text-slate-100">{titulo}</h4>
+            <h4 className="text-sm md:text-base font-semibold text-slate-100 inline-flex items-center gap-1">{titulo}{info && <InfoTip text={info} />}</h4>
             {indice.disponivel && (
               <span className="text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: `${cor}22`, color: cor }}>
                 {classificarIndice(indice.valor)}
