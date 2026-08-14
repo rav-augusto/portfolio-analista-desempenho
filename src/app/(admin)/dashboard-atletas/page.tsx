@@ -1735,6 +1735,39 @@ export default function DashboardAtletasPage() {
                 </div>
               </div>
 
+              {/* Aderência ao perfil da posição (nota ponderada) — mostra com qualquer avaliação técnica */}
+              {aderenciaPosicao?.disponivel && aderenciaPosicao.grupo !== 'GERAL' && (
+                <div className="mb-4 md:mb-6 rounded-2xl p-4 md:p-5" style={{ backgroundColor: '#1e293b', border: '1px solid #f59e0b55' }}>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <h3 className="text-base md:text-lg font-semibold text-slate-100 inline-flex items-center gap-1">
+                      🎯 Aderência ao perfil de {aderenciaPosicao.grupoLabel}
+                      <InfoTip text="Cada posição valoriza dimensões diferentes. Esta nota (0–5) pondera as 20 dimensões pelo peso que a função exige — no atacante, finalização e 1v1 pesam mais; no zagueiro, contenção e duelo. Mede 'jogador para a posição' melhor que a média simples." />
+                    </h3>
+                    <div className="text-right shrink-0">
+                      <span className="text-2xl md:text-3xl font-black text-amber-400">{aderenciaPosicao.nota.toFixed(1).replace('.', ',')}</span>
+                      <span className="text-[10px] md:text-xs text-slate-500"> /5 · {aderenciaPosicao.classificacao}</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mb-3">
+                    Nota ponderada pelo que a posição exige (média simples: {aderenciaPosicao.notaFlat.toFixed(1).replace('.', ',')}). Abaixo, as maiores exigências da função e a nota do atleta em cada uma.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
+                    {aderenciaPosicao.requisitos.map((r) => {
+                      const cor = r.valor >= 4 ? '#4ade80' : r.valor >= 3 ? '#fbbf24' : r.valor >= 2 ? '#fb923c' : '#f87171'
+                      return (
+                        <div key={r.chave} className="flex items-center gap-2">
+                          <span className="text-[10px] md:text-[11px] text-slate-400 w-28 md:w-32 flex-shrink-0 truncate">{r.label}</span>
+                          <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#0f172a' }}>
+                            <div className="h-full rounded-full" style={{ width: `${Math.min(100, (r.valor / 5) * 100)}%`, backgroundColor: cor }} />
+                          </div>
+                          <span className="text-[10px] md:text-[11px] font-bold w-6 text-right tabular-nums" style={{ color: cor }}>{r.valor.toFixed(1).replace('.', ',')}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Estatísticas de Jogo - Minutagem, Gols e Assistências */}
               {(minutosData.total > 0 || golsAssistencias.gols > 0 || golsAssistencias.assistencias > 0) && (
                 <div className="rounded-2xl p-4 md:p-6 shadow-sm mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
@@ -2010,39 +2043,6 @@ export default function DashboardAtletasPage() {
                           </p>
                         </div>
                       )}
-                    </div>
-                  )}
-
-                  {/* Aderência ao perfil da posição (nota ponderada) */}
-                  {aderenciaPosicao?.disponivel && aderenciaPosicao.grupo !== 'GERAL' && (
-                    <div className="mb-4 rounded-xl p-3 md:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <p className="text-xs md:text-sm font-medium text-slate-200 inline-flex items-center gap-1">
-                          🎯 Aderência ao perfil de {aderenciaPosicao.grupoLabel}
-                          <InfoTip text="Cada posição valoriza dimensões diferentes. Esta nota (0–5) pondera as 20 dimensões pelo peso que a função exige — no atacante, finalização e 1v1 pesam mais; no zagueiro, contenção e duelo. Mede 'jogador para a posição' melhor que a média simples." />
-                        </p>
-                        <div className="text-right shrink-0">
-                          <span className="text-2xl md:text-3xl font-black text-amber-400">{aderenciaPosicao.nota.toFixed(1).replace('.', ',')}</span>
-                          <span className="text-[10px] md:text-xs text-slate-500"> /5 · {aderenciaPosicao.classificacao}</span>
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mb-3">
-                        Nota ponderada pelo que a posição exige (média simples: {aderenciaPosicao.notaFlat.toFixed(1).replace('.', ',')}). Abaixo, as maiores exigências da função e a nota do atleta em cada uma.
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
-                        {aderenciaPosicao.requisitos.map((r) => {
-                          const cor = r.valor >= 4 ? '#4ade80' : r.valor >= 3 ? '#fbbf24' : r.valor >= 2 ? '#fb923c' : '#f87171'
-                          return (
-                            <div key={r.chave} className="flex items-center gap-2">
-                              <span className="text-[10px] md:text-[11px] text-slate-400 w-28 md:w-32 flex-shrink-0 truncate">{r.label}</span>
-                              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
-                                <div className="h-full rounded-full" style={{ width: `${Math.min(100, (r.valor / 5) * 100)}%`, backgroundColor: cor }} />
-                              </div>
-                              <span className="text-[10px] md:text-[11px] font-bold w-6 text-right tabular-nums" style={{ color: cor }}>{r.valor.toFixed(1).replace('.', ',')}</span>
-                            </div>
-                          )
-                        })}
-                      </div>
                     </div>
                   )}
 
