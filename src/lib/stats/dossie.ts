@@ -5,6 +5,7 @@ import { explicarMedias, explicarInsights, type EstatisticasJogo, type Comparati
 import type { PerfilMaturacao, ResumoMetrica } from './desenvolvimento'
 import { classificarIndice, type Indice } from './indices'
 import type { MetricaEficiencia, ContextoProducao } from './eventos'
+import { classificarPercentil, corPercentil, type MetricaPercentil } from './percentis'
 
 export type DossieAtleta = {
   nome: string
@@ -37,6 +38,7 @@ export type DossieParams = {
   parecer?: string | null
   radar?: { label: string; valor: number }[]
   dimensoes?: { grupo: 'CBF' | 'OFE' | 'DEF'; label: string; valor: number }[]
+  percentis?: MetricaPercentil[]
   imc?: number | null
   pontosFortes: string | null
   pontosDesenvolver: string | null
@@ -273,6 +275,20 @@ export function gerarDossieHTML(p: DossieParams): string {
     ? `<section class="avoid"><h2>Avaliação por dimensão</h2><div class="dim-grid">${dimGrupo('Dimensões CBF', '#d97706', p.dimensoes.filter(d => d.grupo === 'CBF'))}${dimGrupo('Ofensivos', '#16a34a', p.dimensoes.filter(d => d.grupo === 'OFE'))}${dimGrupo('Defensivos', '#dc2626', p.dimensoes.filter(d => d.grupo === 'DEF'))}</div></section>`
     : ''
 
+  const blocoPercentis = p.percentis && p.percentis.length
+    ? `<section class="avoid"><h2>Ranking percentil <span class="sub">vs atletas de mesma posição (${Math.max(...p.percentis.map(m => m.n))} atletas)</span></h2>
+        <p class="pct-nota">Percentil = posição relativa entre os pares. <b>P75</b> significa melhor que 75% dos atletas da mesma posição. Ordenado do mais forte ao mais fraco.</p>
+        <div class="pct-grid">
+          ${p.percentis.map(m => `<div class="pct-row">
+            <span class="pct-label">${esc(m.label)}</span>
+            <div class="pct-track"><div class="pct-fill" style="width:${m.percentil}%;background:${corPercentil(m.percentil)}"></div></div>
+            <span class="pct-val" style="color:${corPercentil(m.percentil)}">P${m.percentil}</span>
+            <span class="pct-classe">${esc(classificarPercentil(m.percentil))}</span>
+          </div>`).join('')}
+        </div>
+      </section>`
+    : ''
+
   const blocoTextos =
     p.pontosFortes || p.pontosDesenvolver || p.observacoes
       ? `<section>
@@ -351,6 +367,15 @@ export function gerarDossieHTML(p: DossieParams): string {
   .dim-track { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
   .dim-fill { height: 100%; border-radius: 3px; }
   .dim-val { font-size: 11px; font-weight: 700; color: #0f172a; text-align: right; font-variant-numeric: tabular-nums; }
+  .pct-nota { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+  .pct-nota b { color: #0f172a; }
+  .pct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+  .pct-row { display: grid; grid-template-columns: 90px 1fr 34px 74px; align-items: center; gap: 8px; }
+  .pct-label { font-size: 10.5px; color: #475569; }
+  .pct-track { height: 7px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+  .pct-fill { height: 100%; border-radius: 4px; }
+  .pct-val { font-size: 11px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+  .pct-classe { font-size: 9.5px; color: #64748b; }
   @media print { body { padding: 0; } @page { margin: 16mm; } .dim-grid { grid-template-columns: 1fr 1fr 1fr; } }
 </style>
 </head>
@@ -404,6 +429,7 @@ export function gerarDossieHTML(p: DossieParams): string {
   ${blocoMedias}
   ${blocoRadar}
   ${blocoDimensoes}
+  ${blocoPercentis}
   ${blocoDesenvolvimento}
   ${blocoComparativo}
   ${blocoTextos}

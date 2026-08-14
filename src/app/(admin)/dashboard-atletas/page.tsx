@@ -28,6 +28,7 @@ import { calcularEficiencia, explicarEficiencia, calcularContextoProducao } from
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
+import { percentilDe, type MetricaPercentil } from '@/lib/stats/percentis'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -206,6 +207,7 @@ export default function DashboardAtletasPage() {
   const [modeloComparativo, setModeloComparativo] = useState<1 | 2 | 3 | 4>(1)
   const [dimensoesVisiveis, setDimensoesVisiveis] = useState<string[]>(dimensoesCBF.map(d => d.key)) // Começa com CBF
   const [avaliacoesPosicao, setAvaliacoesPosicao] = useState<AvaliacaoComPosicao[]>([]) // agregado p/ comparativo por posição
+  const [perfisRaw, setPerfisRaw] = useState<{ atleta_id: string; posicao: string | null; vals: Record<string, number> }[]>([]) // perfis (20 dims) p/ percentis
   const [avaliacoesFisicas, setAvaliacoesFisicas] = useState<AvaliacaoFisica[]>([]) // avaliacoes fisicas separadas
   const [analiseIA, setAnaliseIA] = useState<string>('')
   const [loadingIA, setLoadingIA] = useState(false)
@@ -232,23 +234,43 @@ export default function DashboardAtletasPage() {
   // Carregar agregado (todas avaliações + posição) para comparativo por posição
   useEffect(() => {
     const loadAgregado = async () => {
+      const dimCols = todasDimensoes.map((d) => d.key).join(', ')
       const { data } = await supabase
         .from('avaliacoes_atleta')
-        .select('atleta_id, minutos_jogados, gols, assistencias, atletas(posicao)')
+        .select(`atleta_id, minutos_jogados, gols, assistencias, ${dimCols}, atletas(posicao)`)
 
-      if (data) {
-        const linhas: AvaliacaoComPosicao[] = data.map((row) => {
+      const rows = data as unknown as Array<{
+        atleta_id: string
+        minutos_jogados: number | null
+        gols: number | null
+        assistencias: number | null
+        atletas: { posicao: string | null } | { posicao: string | null }[] | null
+        [k: string]: unknown
+      }> | null
+
+      if (rows) {
+        const linhas: AvaliacaoComPosicao[] = []
+        const perfis: { atleta_id: string; posicao: string | null; vals: Record<string, number> }[] = []
+        rows.forEach((row) => {
           const atletasRel = row.atletas as { posicao: string | null } | { posicao: string | null }[] | null
           const posicao = Array.isArray(atletasRel) ? atletasRel[0]?.posicao ?? null : atletasRel?.posicao ?? null
-          return {
+          linhas.push({
             atleta_id: row.atleta_id,
             minutos_jogados: row.minutos_jogados,
             gols: row.gols,
             assistencias: row.assistencias,
             posicao,
-          }
+          })
+          const vals: Record<string, number> = {}
+          todasDimensoes.forEach((d) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const v = Number((row as any)[d.key])
+            if (!Number.isNaN(v) && v > 0) vals[d.key] = v
+          })
+          perfis.push({ atleta_id: row.atleta_id, posicao, vals })
         })
         setAvaliacoesPosicao(linhas)
+        setPerfisRaw(perfis)
       }
     }
     loadAgregado()
@@ -361,6 +383,47 @@ export default function DashboardAtletasPage() {
     () => calcularComparativoPosicao(statsJogo, atletaAtual?.posicao ?? null, mediasPorPosicao),
     [statsJogo, atletaAtual, mediasPorPosicao]
   )
+
+  // ---- Percentis por dimensão vs pares de MESMA posição ----
+  // População: media de cada dimensão por atleta, agrupada por posição.
+  const populacaoPorPosicao = useMemo(() => {
+    const porAtleta = new Map<string, { posicao: string | null; sums: Record<string, { s: number; c: number }> }>()
+    for (const row of perfisRaw) {
+      let e = porAtleta.get(row.atleta_id)
+      if (!e) { e = { posicao: row.posicao, sums: {} }; porAtleta.set(row.atleta_id, e) }
+      for (const k in row.vals) {
+        const cur = e.sums[k] || { s: 0, c: 0 }
+        cur.s += row.vals[k]; cur.c++
+        e.sums[k] = cur
+      }
+    }
+    const pop: Record<string, Record<string, number[]>> = {}
+    for (const [, e] of porAtleta) {
+      const pos = e.posicao || 'Sem posição'
+      pop[pos] = pop[pos] || {}
+      for (const k in e.sums) {
+        (pop[pos][k] = pop[pos][k] || []).push(e.sums[k].s / e.sums[k].c)
+      }
+    }
+    return pop
+  }, [perfisRaw])
+
+  const percentis = useMemo<MetricaPercentil[]>(() => {
+    if (!atletaAtual || avaliacoes.length === 0) return []
+    const pos = atletaAtual.posicao || 'Sem posição'
+    const popPos = populacaoPorPosicao[pos] || {}
+    const out: MetricaPercentil[] = []
+    for (const d of todasDimensoes) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const subjVals = avaliacoes.map((a) => Number((a as any)[d.key])).filter((v) => !Number.isNaN(v) && v > 0)
+      if (!subjVals.length) continue
+      const subjAvg = subjVals.reduce((a, b) => a + b, 0) / subjVals.length
+      const popAll = popPos[d.key] || []
+      if (popAll.length < 3) continue // população pequena demais pra ser confiável
+      out.push({ chave: d.key, label: d.label, valor: subjAvg, percentil: percentilDe(subjAvg, popAll), n: popAll.length })
+    }
+    return out.sort((a, b) => b.percentil - a.percentil)
+  }, [atletaAtual, avaliacoes, populacaoPorPosicao])
 
   // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
   const perfilMaturacao = useMemo(() => {
@@ -925,6 +988,7 @@ export default function DashboardAtletasPage() {
       parecer,
       radar,
       dimensoes,
+      percentis: percentis.length ? percentis : undefined,
       imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
