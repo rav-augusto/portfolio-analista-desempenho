@@ -1425,8 +1425,9 @@ export default function DashboardAtletasPage() {
                 <div className="rounded-2xl p-4 md:p-6 shadow-sm" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
                   <div className="flex items-center gap-2 mb-3 md:mb-4">
                     <Trophy className="w-4 h-4 md:w-5 md:h-5" style={{ color: activeTab === 'geral' ? '#8b5cf6' : activeTab === 'cbf' ? '#f59e0b' : activeTab === 'ofe' ? '#22c55e' : '#ef4444' }} />
-                    <h3 className="text-base md:text-lg font-semibold text-slate-100">
+                    <h3 className="text-base md:text-lg font-semibold text-slate-100 inline-flex items-center gap-1">
                       Radar {activeTab === 'geral' ? 'Geral' : activeTab === 'cbf' ? 'CBF' : activeTab === 'ofe' ? 'Ofensivo' : 'Defensivo'}
+                      <InfoTip text="São 20 dimensões, nota de 1 a 5, em 3 grupos: CBF = 8 fundamentos individuais (força, velocidade, técnica, dinâmica, inteligência, 1v1, atitude, potencial); Ofensivos = 6 princípios com a bola; Defensivos = 6 princípios sem a bola. 'Geral' mostra as 20 juntas. Quanto mais 'cheio' o radar, melhor." />
                     </h3>
                   </div>
                   <div className="h-[220px] md:h-[280px]">
@@ -1485,7 +1486,7 @@ export default function DashboardAtletasPage() {
                       <div className="w-full">
                         <div className="flex items-center gap-2 mb-3 md:mb-0">
                           <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-violet-500" />
-                          <h3 className="text-base md:text-lg font-semibold text-slate-100">Médias</h3>
+                          <h3 className="text-base md:text-lg font-semibold text-slate-100 inline-flex items-center gap-1">Médias<InfoTip text="Média das notas (escala 1 a 5) da última avaliação, separada por grupo: CBF (fundamentos), Ofensivo, Defensivo e a Geral (as 20 juntas). É a nota técnica do atleta — não confundir com os índices IDA/IDP, que vão de 0 a 100." /></h3>
                         </div>
                         <div className="flex items-center justify-around md:justify-center gap-3 md:gap-6 mt-2">
                           <div className="flex flex-col items-center">
@@ -1755,7 +1756,7 @@ export default function DashboardAtletasPage() {
                         <span className="text-base md:text-xl">🅖🅐</span>
                         <div className="text-center">
                           <p className="text-lg md:text-2xl font-black text-violet-400">{golsAssistencias.participacoes}</p>
-                          <p className="text-[9px] md:text-[10px] text-slate-400 uppercase">Particip.</p>
+                          <p className="text-[9px] md:text-[10px] text-slate-400 uppercase inline-flex items-center gap-1">Particip.<InfoTip text="Participações em gol (G+A) = gols + assistências. É a métrica mais usada no mercado para medir o envolvimento direto do atleta na produção ofensiva do time." /></p>
                         </div>
                       </div>
                       {/* Minutagem */}
@@ -1891,7 +1892,7 @@ export default function DashboardAtletasPage() {
                   {participacoesAcumuladasChartData && golsAssistencias.participacoes > 0 && (
                     <div className="mt-4">
                       <p className="text-xs text-violet-300 font-medium mb-2 flex items-center gap-1">
-                        📈 Participações Acumuladas (trajetória)
+                        📈 Participações Acumuladas (trajetória)<InfoTip text="Soma dos gols + assistências jogo a jogo, do primeiro ao último. A linha subindo forte mostra um atleta em fase produtiva; uma linha que 'estaciona' indica queda de participação — ótimo para ver o momento, não só o total." />
                       </p>
                       <div style={{ height: '180px' }}>
                         <Line
@@ -2050,7 +2051,7 @@ export default function DashboardAtletasPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-violet-400" />
-                          <p className="text-xs md:text-sm font-medium text-slate-200">Projeção de temporada</p>
+                          <p className="text-xs md:text-sm font-medium text-slate-200 inline-flex items-center gap-1">Projeção de temporada<InfoTip text="Estimativa de quanto o atleta produziria numa temporada cheia, projetando o ritmo atual (gols e assistências por partida) para o nº de jogos que você escolher ao lado. É um 'e se mantiver esse ritmo', não uma garantia." /></p>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] md:text-xs text-slate-500">Nº de jogos:</span>
