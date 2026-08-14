@@ -30,6 +30,7 @@ import { InfoTip } from '@/components/app/InfoTip'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, type MetricaPercentil } from '@/lib/stats/percentis'
+import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -425,6 +426,18 @@ export default function DashboardAtletasPage() {
     }
     return out.sort((a, b) => b.percentil - a.percentil)
   }, [atletaAtual, avaliacoes, populacaoPorPosicao])
+
+  // Aderência ao perfil da posição (nota ponderada)
+  const aderenciaPosicao = useMemo(() => {
+    if (!avaliacaoSelecionada) return null
+    const vals: Partial<Record<DimKey, number>> = {}
+    todasDimensoes.forEach((d) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const v = Number((avaliacaoSelecionada as any)[d.key])
+      if (!Number.isNaN(v)) vals[d.key as DimKey] = v
+    })
+    return calcularAderenciaPosicao(vals, atletaAtual?.posicao ?? null)
+  }, [avaliacaoSelecionada, atletaAtual])
 
   // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
   const perfilMaturacao = useMemo(() => {
@@ -990,6 +1003,7 @@ export default function DashboardAtletasPage() {
       radar,
       dimensoes,
       percentis: percentis.length ? percentis : undefined,
+      aderencia: aderenciaPosicao?.disponivel && aderenciaPosicao.grupo !== 'GERAL' ? aderenciaPosicao : undefined,
       imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
@@ -1996,6 +2010,39 @@ export default function DashboardAtletasPage() {
                           </p>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Aderência ao perfil da posição (nota ponderada) */}
+                  {aderenciaPosicao?.disponivel && aderenciaPosicao.grupo !== 'GERAL' && (
+                    <div className="mb-4 rounded-xl p-3 md:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #f59e0b40' }}>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <p className="text-xs md:text-sm font-medium text-slate-200 inline-flex items-center gap-1">
+                          🎯 Aderência ao perfil de {aderenciaPosicao.grupoLabel}
+                          <InfoTip text="Cada posição valoriza dimensões diferentes. Esta nota (0–5) pondera as 20 dimensões pelo peso que a função exige — no atacante, finalização e 1v1 pesam mais; no zagueiro, contenção e duelo. Mede 'jogador para a posição' melhor que a média simples." />
+                        </p>
+                        <div className="text-right shrink-0">
+                          <span className="text-2xl md:text-3xl font-black text-amber-400">{aderenciaPosicao.nota.toFixed(1).replace('.', ',')}</span>
+                          <span className="text-[10px] md:text-xs text-slate-500"> /5 · {aderenciaPosicao.classificacao}</span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mb-3">
+                        Nota ponderada pelo que a posição exige (média simples: {aderenciaPosicao.notaFlat.toFixed(1).replace('.', ',')}). Abaixo, as maiores exigências da função e a nota do atleta em cada uma.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
+                        {aderenciaPosicao.requisitos.map((r) => {
+                          const cor = r.valor >= 4 ? '#4ade80' : r.valor >= 3 ? '#fbbf24' : r.valor >= 2 ? '#fb923c' : '#f87171'
+                          return (
+                            <div key={r.chave} className="flex items-center gap-2">
+                              <span className="text-[10px] md:text-[11px] text-slate-400 w-28 md:w-32 flex-shrink-0 truncate">{r.label}</span>
+                              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
+                                <div className="h-full rounded-full" style={{ width: `${Math.min(100, (r.valor / 5) * 100)}%`, backgroundColor: cor }} />
+                              </div>
+                              <span className="text-[10px] md:text-[11px] font-bold w-6 text-right tabular-nums" style={{ color: cor }}>{r.valor.toFixed(1).replace('.', ',')}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
 

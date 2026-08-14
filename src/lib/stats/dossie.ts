@@ -6,6 +6,7 @@ import type { PerfilMaturacao, ResumoMetrica } from './desenvolvimento'
 import { classificarIndice, type Indice } from './indices'
 import type { MetricaEficiencia, ContextoProducao } from './eventos'
 import { classificarPercentil, corPercentil, type MetricaPercentil } from './percentis'
+import type { AderenciaPosicao } from './perfilPosicao'
 
 export type DossieAtleta = {
   nome: string
@@ -39,6 +40,7 @@ export type DossieParams = {
   radar?: { label: string; valor: number }[]
   dimensoes?: { grupo: 'CBF' | 'OFE' | 'DEF'; label: string; valor: number }[]
   percentis?: MetricaPercentil[]
+  aderencia?: AderenciaPosicao
   imc?: number | null
   pontosFortes: string | null
   pontosDesenvolver: string | null
@@ -289,6 +291,20 @@ export function gerarDossieHTML(p: DossieParams): string {
       </section>`
     : ''
 
+  const corNota = (v: number) => (v >= 4 ? '#16a34a' : v >= 3 ? '#d97706' : v >= 2 ? '#ea580c' : '#dc2626')
+  const ad = p.aderencia
+  const blocoAderencia = ad && ad.disponivel && ad.grupo !== 'GERAL'
+    ? `<section class="avoid"><h2>Aderência ao perfil de ${esc(ad.grupoLabel)} <span class="sub">nota ponderada pela posição</span></h2>
+        <div class="ad-topo">
+          <div><span class="ad-nota" style="color:${corNota(ad.nota)}">${fmt(ad.nota, 1)}</span><span class="ad-esc">/5 · ${esc(ad.classificacao)}</span></div>
+          <p class="ad-desc">As dimensões são ponderadas pelo que a posição exige (finalização e 1v1 pesam mais no ataque; contenção e duelo na defesa). Média simples: <b>${fmt(ad.notaFlat, 1)}</b>. Abaixo, as maiores exigências da função e a nota do atleta.</p>
+        </div>
+        <div class="ad-grid">
+          ${ad.requisitos.map(r => `<div class="dim-row"><span class="dim-label">${esc(r.label)}</span><div class="dim-track"><div class="dim-fill" style="width:${Math.min(100, (r.valor / 5) * 100).toFixed(0)}%;background:${corNota(r.valor)}"></div></div><span class="dim-val" style="color:${corNota(r.valor)}">${fmt(r.valor, 1)}</span></div>`).join('')}
+        </div>
+      </section>`
+    : ''
+
   const blocoTextos =
     p.pontosFortes || p.pontosDesenvolver || p.observacoes
       ? `<section>
@@ -376,6 +392,12 @@ export function gerarDossieHTML(p: DossieParams): string {
   .pct-fill { height: 100%; border-radius: 4px; }
   .pct-val { font-size: 11px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
   .pct-classe { font-size: 9.5px; color: #64748b; }
+  .ad-topo { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
+  .ad-nota { font-size: 30px; font-weight: 800; line-height: 1; }
+  .ad-esc { font-size: 11px; color: #64748b; margin-left: 4px; }
+  .ad-desc { font-size: 11.5px; color: #475569; line-height: 1.5; flex: 1; }
+  .ad-desc b { color: #0f172a; }
+  .ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 24px; }
   @media print { body { padding: 0; } @page { margin: 16mm; } .dim-grid { grid-template-columns: 1fr 1fr 1fr; } }
 </style>
 </head>
@@ -428,6 +450,7 @@ export function gerarDossieHTML(p: DossieParams): string {
   ${blocoIndices}
   ${blocoMedias}
   ${blocoRadar}
+  ${blocoAderencia}
   ${blocoDimensoes}
   ${blocoPercentis}
   ${blocoDesenvolvimento}
