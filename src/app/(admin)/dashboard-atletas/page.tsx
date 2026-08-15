@@ -29,7 +29,7 @@ import { IndiceCard } from '@/components/app/IndiceCard'
 import { InfoTip } from '@/components/app/InfoTip'
 import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
-import { percentilDe, type MetricaPercentil } from '@/lib/stats/percentis'
+import { percentilDe, classificarPercentil, corPercentil, type MetricaPercentil } from '@/lib/stats/percentis'
 import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
 import {
   Chart as ChartJS,
@@ -1767,6 +1767,32 @@ export default function DashboardAtletasPage() {
                         </div>
                       )
                     })}
+                  </div>
+                </div>
+              )}
+
+              {/* Ranking percentil vs pares de mesma posição */}
+              {percentis.length > 0 && (
+                <div className="mb-4 md:mb-6 rounded-2xl p-4 md:p-5" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <h3 className="text-base md:text-lg font-semibold text-slate-100 inline-flex items-center gap-1">
+                      📊 Ranking percentil
+                      <InfoTip text="Onde o atleta está em relação aos pares de mesma posição. P75 = melhor que 75% deles. Compara cada dimensão com a média de todos os atletas da mesma função (mínimo 3 para ser confiável). Ordenado do ponto mais forte ao mais fraco." />
+                    </h3>
+                    <span className="text-[10px] md:text-xs text-slate-500">vs {Math.max(...percentis.map(m => m.n))} atletas da posição</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mb-3">Posição relativa entre os pares. Quanto mais à direita (verde), mais o atleta se destaca naquela dimensão.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
+                    {percentis.map((m) => (
+                      <div key={m.chave} className="flex items-center gap-2">
+                        <span className="text-[10px] md:text-[11px] text-slate-400 w-24 md:w-28 flex-shrink-0 truncate">{m.label}</span>
+                        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#0f172a' }}>
+                          <div className="h-full rounded-full" style={{ width: `${m.percentil}%`, backgroundColor: corPercentil(m.percentil) }} />
+                        </div>
+                        <span className="text-[10px] md:text-[11px] font-bold w-8 text-right tabular-nums" style={{ color: corPercentil(m.percentil) }}>P{m.percentil}</span>
+                        <span className="text-[9px] text-slate-500 w-20 hidden md:inline truncate">{classificarPercentil(m.percentil)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
