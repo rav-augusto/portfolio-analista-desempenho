@@ -1020,6 +1020,7 @@ export default function DashboardAtletasPage() {
       dimensoes,
       percentis: percentis.length ? percentis : undefined,
       aderencia: aderenciaPosicao?.disponivel && aderenciaPosicao.grupo !== 'GERAL' ? aderenciaPosicao : undefined,
+      benchmarkIdade: comparacaoBenchmark?.disponivel ? comparacaoBenchmark : undefined,
       imc: imcSerie.valores.length ? imcSerie.valores[imcSerie.valores.length - 1] : null,
       pontosFortes: avaliacaoSelecionada?.pontos_fortes ?? null,
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,

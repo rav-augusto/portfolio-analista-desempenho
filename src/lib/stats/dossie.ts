@@ -7,6 +7,7 @@ import { classificarIndice, type Indice } from './indices'
 import type { MetricaEficiencia, ContextoProducao } from './eventos'
 import { classificarPercentil, corPercentil, type MetricaPercentil } from './percentis'
 import type { AderenciaPosicao } from './perfilPosicao'
+import type { ComparacaoBenchmark } from './benchmark'
 
 export type DossieAtleta = {
   nome: string
@@ -41,6 +42,7 @@ export type DossieParams = {
   dimensoes?: { grupo: 'CBF' | 'OFE' | 'DEF'; label: string; valor: number }[]
   percentis?: MetricaPercentil[]
   aderencia?: AderenciaPosicao
+  benchmarkIdade?: ComparacaoBenchmark
   imc?: number | null
   pontosFortes: string | null
   pontosDesenvolver: string | null
@@ -305,6 +307,22 @@ export function gerarDossieHTML(p: DossieParams): string {
       </section>`
     : ''
 
+  const corStatus = (s: string) => (s === 'acima' ? '#16a34a' : s === 'abaixo' ? '#dc2626' : '#d97706')
+  const bi = p.benchmarkIdade
+  const blocoBenchmarkIdade = bi && bi.disponivel
+    ? `<section class="avoid"><h2>Nível técnico vs esperado <span class="sub">${esc(bi.categoria)} · ${esc(bi.posicao)}</span></h2>
+        <div class="bi-topo">
+          <span><span class="bi-nota">${fmt(bi.mediaAtleta, 1)}</span> <span class="bi-lab">atleta</span> <span class="bi-vs">vs</span> <b>${fmt(bi.mediaBenchmark, 1)}</b> <span class="bi-lab">esperado</span></span>
+          <span class="bi-dif" style="color:${bi.diferencaMedia >= 0 ? '#16a34a' : '#dc2626'}">${bi.diferencaMedia >= 0 ? '+' : ''}${fmt(bi.diferencaMedia, 1)} vs esperado</span>
+          <span class="bi-counts">${bi.acima} acima · ${bi.dentro} no nível · ${bi.abaixo} abaixo</span>
+        </div>
+        <div class="dim-grid">
+          ${bi.dimensoes.map(d => `<div class="dim-row"><span class="dim-label">${esc(d.label)}</span><div class="dim-track"><div class="dim-fill" style="width:${Math.min(100, (d.valor / 5) * 100).toFixed(0)}%;background:${corStatus(d.status)}"></div></div><span class="dim-val" style="color:${corStatus(d.status)}">${fmt(d.valor, 1)}</span></div>`).join('')}
+        </div>
+        <p class="pct-nota">Nota do atleta comparada ao nível esperado para a idade e a posição (verde acima · âmbar no nível · vermelho abaixo).</p>
+      </section>`
+    : ''
+
   const blocoTextos =
     p.pontosFortes || p.pontosDesenvolver || p.observacoes
       ? `<section>
@@ -398,6 +416,12 @@ export function gerarDossieHTML(p: DossieParams): string {
   .ad-desc { font-size: 11.5px; color: #475569; line-height: 1.5; flex: 1; }
   .ad-desc b { color: #0f172a; }
   .ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 24px; }
+  .bi-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-bottom: 10px; font-size: 12px; color: #475569; }
+  .bi-nota { font-size: 22px; font-weight: 800; color: #0891b2; }
+  .bi-lab { font-size: 10px; color: #94a3b8; }
+  .bi-vs { color: #cbd5e1; }
+  .bi-dif { font-weight: 700; }
+  .bi-counts { color: #64748b; }
   @media print { body { padding: 0; } @page { margin: 16mm; } .dim-grid { grid-template-columns: 1fr 1fr 1fr; } }
 </style>
 </head>
@@ -451,6 +475,7 @@ export function gerarDossieHTML(p: DossieParams): string {
   ${blocoMedias}
   ${blocoRadar}
   ${blocoAderencia}
+  ${blocoBenchmarkIdade}
   ${blocoDimensoes}
   ${blocoPercentis}
   ${blocoDesenvolvimento}
