@@ -8,8 +8,18 @@ import {
   BarChart3, Target, Activity, Plus, TrendingUp, TrendingDown,
 } from 'lucide-react'
 import {
-  PageHeader, StatCard, Card, CardHeader, CardTitle, Badge, EmptyState,
+  PageHeader, StatCard, Card, CardHeader, CardTitle, Badge, EmptyState, InfoTip,
 } from '@/components/app'
+
+type BioAtleta = { id: string; nome: string; posicao: string | null; estagio: string; bio: number | null; crono: number | null }
+const idadeCrono = (dob: string | null): number | null => {
+  if (!dob) return null
+  const d = new Date(dob), h = new Date()
+  let i = h.getFullYear() - d.getFullYear()
+  const m = h.getMonth() - d.getMonth()
+  if (m < 0 || (m === 0 && h.getDate() < d.getDate())) i--
+  return i >= 0 && i < 100 ? i : null
+}
 
 type Jogo = {
   id: string
@@ -64,8 +74,34 @@ export default function DashboardPage() {
   const [avalPorMes, setAvalPorMes] = useState<{ label: string; count: number }[]>([])
   const [avalMesAtual, setAvalMesAtual] = useState(0)
   const [avalMesAnterior, setAvalMesAnterior] = useState(0)
+  const [bioAtletas, setBioAtletas] = useState<BioAtleta[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+
+  useEffect(() => {
+    const loadBio = async () => {
+      const [atsRes, fisRes] = await Promise.all([
+        supabase.from('atletas').select('id, nome, posicao, data_nascimento'),
+        supabase.from('avaliacoes_fisicas').select('atleta_id, data_avaliacao, idade_biologica, estagio_phv'),
+      ])
+      const ats = atsRes.data, fis = fisRes.data
+      if (!ats || !fis) return
+      const latest = new Map<string, { data_avaliacao: string; idade_biologica: number | null; estagio_phv: string | null }>()
+      for (const f of fis) {
+        if (!f.estagio_phv) continue
+        const prev = latest.get(f.atleta_id)
+        if (!prev || new Date(f.data_avaliacao) > new Date(prev.data_avaliacao)) latest.set(f.atleta_id, f)
+      }
+      const arr: BioAtleta[] = []
+      for (const a of ats) {
+        const f = latest.get(a.id)
+        if (!f || !f.estagio_phv) continue
+        arr.push({ id: a.id, nome: a.nome, posicao: a.posicao, estagio: f.estagio_phv, bio: f.idade_biologica, crono: idadeCrono(a.data_nascimento) })
+      }
+      setBioAtletas(arr)
+    }
+    loadBio()
+  }, [supabase])
 
   useEffect(() => {
     const loadData = async () => {
@@ -190,6 +226,13 @@ export default function DashboardPage() {
         <DonutCard title="Atletas por categoria" icon={Target} buckets={porCategoria} />
         <DistribuicaoCard title="Atletas por posição" icon={BarChart3} buckets={porPosicao.slice(0, 8)} />
       </div>
+
+      {/* Bio-banding — agrupamento por maturação */}
+      {bioAtletas.length > 0 && (
+        <div className="mb-6 sm:mb-8">
+          <BioBandingCard atletas={bioAtletas} />
+        </div>
+      )}
 
       {/* Listas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -348,6 +391,63 @@ function DonutCard({ title, icon: Icon, buckets }: { title: string; icon: React.
           </div>
         </div>
       )}
+    </Card>
+  )
+}
+
+function BioBandingCard({ atletas }: { atletas: BioAtleta[] }) {
+  const grupos: { key: string; label: string; desc: string; cor: string }[] = [
+    { key: 'pre', label: 'Pré-PHV', desc: 'antes do pico de crescimento', cor: '#22c55e' },
+    { key: 'durante', label: 'Durante o pico (PHV)', desc: 'fase de estirão', cor: '#f59e0b' },
+    { key: 'pos', label: 'Pós-PHV', desc: 'após o pico', cor: '#38bdf8' },
+  ]
+  return (
+    <Card padding="md">
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-brand" />
+          <CardTitle>Bio-banding · agrupamento por maturação</CardTitle>
+          <InfoTip text="Agrupa os atletas pela fase de maturação (PHV), não pela idade do documento. Comparar e treinar atletas na mesma fase é mais justo: um 'pré-PHV' pequeno hoje pode explodir no estirão. Padrão em centros de formação de ponta." />
+        </div>
+        <span className="text-xs text-faint tabular-nums">{atletas.length} com dados</span>
+      </CardHeader>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+        {grupos.map((g) => {
+          const lista = atletas.filter(a => a.estagio === g.key).sort((a, b) => (b.bio ?? 0) - (a.bio ?? 0))
+          return (
+            <div key={g.key} className="rounded-xl bg-app border border-line p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: g.cor }} />
+                <span className="text-sm font-semibold text-strong">{g.label}</span>
+                <span className="text-xs text-faint tabular-nums ml-auto">{lista.length}</span>
+              </div>
+              <p className="text-[10px] text-faint mb-2">{g.desc}</p>
+              {lista.length === 0 ? (
+                <p className="text-xs text-soft py-2 text-center">—</p>
+              ) : (
+                <ul className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                  {lista.map((a) => {
+                    const diff = a.bio != null && a.crono != null ? a.bio - a.crono : null
+                    return (
+                      <li key={a.id} className="flex items-center gap-2 text-xs">
+                        <span className="text-strong truncate flex-1">{a.nome}</span>
+                        {a.posicao && <span className="text-faint hidden sm:inline truncate max-w-[70px]">{a.posicao}</span>}
+                        <span className="text-soft tabular-nums shrink-0">
+                          {a.bio != null ? `${a.bio.toFixed(1).replace('.', ',')}a` : '—'}
+                          {diff != null && (
+                            <span className={diff > 0.5 ? 'text-caution' : diff < -0.5 ? 'text-info' : 'text-faint'}> ({diff > 0 ? '+' : ''}{diff.toFixed(1).replace('.', ',')})</span>
+                          )}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <p className="text-[10px] text-faint mt-3">Idade biológica ao lado do nome; entre parênteses, a diferença para a idade real (+ precoce / − tardio).</p>
     </Card>
   )
 }
