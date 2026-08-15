@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target, Sparkles } from 'lucide-react'
+import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target, Sparkles, Share2, Check, Copy } from 'lucide-react'
 import Link from 'next/link'
 import {
   calcularEstatisticasJogo,
@@ -27,7 +27,7 @@ import { calcularIDA, calcularIDP, classificarIndice } from '@/lib/stats/indices
 import { calcularEficiencia, explicarEficiencia, calcularContextoProducao } from '@/lib/stats/eventos'
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { InfoTip } from '@/components/app/InfoTip'
-import { abrirDossieParaImpressao } from '@/lib/stats/dossie'
+import { abrirDossieParaImpressao, gerarDossieHTML, type DossieParams } from '@/lib/stats/dossie'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, classificarPercentil, corPercentil, type MetricaPercentil } from '@/lib/stats/percentis'
 import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
@@ -972,8 +972,8 @@ export default function DashboardAtletasPage() {
   }
 
   // Exportar dossiê do atleta (PDF via impressão do navegador)
-  const handleExportarDossie = () => {
-    if (!atletaAtual) return
+  const montarDossieParams = (): DossieParams | null => {
+    if (!atletaAtual) return null
     const payloadParecer = montarPayloadIA()
     const parecer = payloadParecer ? gerarAnaliseGratis(payloadParecer) : null
     const dimVal = (key: string) => Number(avaliacaoSelecionada?.[key as keyof Avaliacao]) || 0
@@ -983,7 +983,7 @@ export default function DashboardAtletasPage() {
       ...dimensoesOFE.map(d => ({ grupo: 'OFE' as const, label: d.label, valor: dimVal(d.key) })),
       ...dimensoesDEF.map(d => ({ grupo: 'DEF' as const, label: d.label, valor: dimVal(d.key) })),
     ] : undefined
-    const ok = abrirDossieParaImpressao({
+    return {
       atleta: {
         nome: atletaAtual.nome,
         posicao: atletaAtual.posicao,
@@ -1012,9 +1012,40 @@ export default function DashboardAtletasPage() {
       pontosDesenvolver: avaliacaoSelecionada?.pontos_desenvolver ?? null,
       observacoes: avaliacaoSelecionada?.observacoes ?? null,
       dataAvaliacao: avaliacaoSelecionada?.data_avaliacao ?? null,
-    })
+    }
+  }
+
+  const handleExportarDossie = () => {
+    const params = montarDossieParams()
+    if (!params) return
+    const ok = abrirDossieParaImpressao(params)
     if (!ok) {
       alert('Não foi possível abrir a janela do dossiê. Verifique se o bloqueador de pop-ups está desativado.')
+    }
+  }
+
+  const [gerandoLink, setGerandoLink] = useState(false)
+  const [linkDossie, setLinkDossie] = useState<string | null>(null)
+  const handleGerarLink = async () => {
+    const params = montarDossieParams()
+    if (!params || !atletaAtual) return
+    setGerandoLink(true)
+    setLinkDossie(null)
+    try {
+      const html = gerarDossieHTML(params)
+      const { data, error } = await supabase
+        .from('dossies_publicos')
+        .insert({ atleta_id: atletaAtual.id, atleta_nome: atletaAtual.nome, html })
+        .select('id')
+        .single()
+      if (error || !data) throw error || new Error('Sem ID')
+      const url = `${window.location.origin}/dossie/${data.id}`
+      setLinkDossie(url)
+      try { await navigator.clipboard.writeText(url) } catch { /* clipboard bloqueado */ }
+    } catch {
+      alert('Não foi possível gerar o link. Confirme que a migração 011 (dossies_publicos) foi rodada no Supabase.')
+    } finally {
+      setGerandoLink(false)
     }
   }
 
@@ -1359,9 +1390,38 @@ export default function DashboardAtletasPage() {
                       <FileDown className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
                       <span className="hidden sm:inline">Dossiê PDF</span>
                     </button>
+                    <button
+                      onClick={handleGerarLink}
+                      disabled={gerandoLink}
+                      className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors disabled:opacity-50"
+                      style={{ backgroundColor: '#334155', border: '1px solid #64748b', color: '#e2e8f0' }}
+                      title="Gerar link compartilhável do dossiê (para enviar ao empresário)"
+                    >
+                      <Share2 className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
+                      <span className="hidden sm:inline">{gerandoLink ? 'Gerando...' : 'Gerar link'}</span>
+                    </button>
                   </div>
                 )}
               </div>
+
+              {/* Link compartilhável gerado */}
+              {linkDossie && (
+                <div className="mt-3 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2" style={{ backgroundColor: '#0f172a', border: '1px solid #22d3ee55' }}>
+                  <div className="flex items-center gap-2 text-cyan-400 text-xs font-medium shrink-0">
+                    <Check className="w-4 h-4" /> Link gerado (copiado):
+                  </div>
+                  <input
+                    readOnly
+                    value={linkDossie}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="flex-1 min-w-0 px-2 py-1.5 text-xs rounded-lg text-slate-200 bg-slate-800 border border-slate-600 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={() => { navigator.clipboard?.writeText(linkDossie) }} className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors"><Copy className="w-3.5 h-3.5" />Copiar</button>
+                    <a href={linkDossie} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition-colors">Abrir</a>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
