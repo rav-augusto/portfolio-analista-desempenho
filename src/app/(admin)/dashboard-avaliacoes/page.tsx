@@ -1717,6 +1717,35 @@ export default function DashboardAvaliacoesPage() {
               )}
             </div>
 
+            {/* Mapa de calor — dimensões vs benchmark */}
+            {analiseDetalhada && (
+              <div className="rounded-2xl p-4 md:p-6 mb-4 md:mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                  <h3 className="text-base md:text-lg font-semibold text-slate-100">Mapa de calor · vs benchmark da posição</h3>
+                  <div className="flex items-center gap-3 text-[10px] text-slate-400">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: '#22c55e' }} />acima</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: '#f59e0b' }} />na média</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: '#ef4444' }} />abaixo</span>
+                  </div>
+                </div>
+                <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(62px, 1fr))' }}>
+                  {analiseDetalhada.dimensoes.filter(d => activeTab === 'geral' ? d.valor > 0 : true).map(d => {
+                    const base = d.status === 'acima' ? '34,197,94' : d.status === 'abaixo' ? '239,68,68' : '245,158,11'
+                    const intensidade = Math.min(1, 0.35 + Math.abs(d.diferenca) / 2)
+                    return (
+                      <div key={d.key} title={`${d.label}: ${d.valor.toFixed(1)} (benchmark ${d.benchmark.toFixed(1)}, ${d.diferenca >= 0 ? '+' : ''}${d.diferenca.toFixed(1)})`}
+                        className="rounded-lg px-1 py-2 text-center" style={{ backgroundColor: `rgba(${base}, ${intensidade})`, border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="text-[10px] font-bold text-white/90 truncate">{d.shortLabel}</div>
+                        <div className="text-sm font-black text-white tabular-nums leading-tight">{d.valor.toFixed(1)}</div>
+                        <div className="text-[9px] text-white/75 tabular-nums">{d.diferenca >= 0 ? '+' : ''}{d.diferenca.toFixed(1)}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="text-[10px] text-slate-500 mt-2">Cor = comparação com o esperado para a posição/categoria; intensidade = tamanho da diferença. Passe o mouse para ver os números.</p>
+              </div>
+            )}
+
             {/* Tabela Detalhada */}
             <div className="rounded-2xl p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
               <div className="flex items-center gap-2 mb-4">
