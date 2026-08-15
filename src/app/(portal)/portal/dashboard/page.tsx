@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { Users, TrendingUp, Scale, Star, BarChart3, Trophy, Clock, User, FileDown, Target, Sparkles } from 'lucide-react'
@@ -219,10 +219,12 @@ export default function PortalDashboardPage() {
     }
   }, [userLoading, usuario])
 
-  // Recarregar dados quando a página recebe foco (após editar)
+  // Recarregar dados quando a página recebe foco (após editar) — só se estiverem velhos (>60s),
+  // para não recarregar a cada troca de aba.
+  const ultimaCargaRef = useRef(0)
   useEffect(() => {
     const handleFocus = () => {
-      if (usuario?.atleta_id) {
+      if (usuario?.atleta_id && Date.now() - ultimaCargaRef.current > 60000) {
         loadData()
       }
     }
@@ -257,6 +259,7 @@ export default function PortalDashboardPage() {
 
   const loadData = async () => {
     if (!usuario?.atleta_id) return
+    ultimaCargaRef.current = Date.now()
 
     // Load athlete data
     const { data: atletaData } = await supabase

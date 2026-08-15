@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target, Sparkles } from 'lucide-react'
 import Link from 'next/link'
@@ -279,6 +279,7 @@ export default function DashboardAtletasPage() {
   }, [supabase])
 
   // Função para carregar avaliações
+  const ultimaCargaRef = useRef(0)
   const loadAvaliacoes = useCallback(async () => {
     if (!atletaSelecionado) {
       setAvaliacoes([])
@@ -292,6 +293,7 @@ export default function DashboardAtletasPage() {
       .order('data_avaliacao', { ascending: true })
 
     if (data) setAvaliacoes(data)
+    ultimaCargaRef.current = Date.now()
     setLoadingAvaliacoes(false)
   }, [atletaSelecionado, supabase])
 
@@ -320,7 +322,8 @@ export default function DashboardAtletasPage() {
   // Recarregar dados quando a página recebe foco (após editar)
   useEffect(() => {
     const handleFocus = () => {
-      if (atletaSelecionado) {
+      // Só recarrega se os dados estiverem "velhos" (>60s) — evita refresh a cada troca de aba.
+      if (atletaSelecionado && Date.now() - ultimaCargaRef.current > 60000) {
         loadAvaliacoes()
       }
     }

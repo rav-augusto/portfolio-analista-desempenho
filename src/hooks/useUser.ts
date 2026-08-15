@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Usuario, UserContext } from '@/types/user'
 
@@ -8,10 +8,14 @@ export function useUser(): UserContext {
   const [user, setUser] = useState<Usuario | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  // Marca se já fizemos a 1ª carga. Recargas em segundo plano (ex.: token renovado
+  // ao voltar o foco da aba) NÃO devem mexer no isLoading — senão o layout troca a
+  // página por um spinner e remonta tudo, zerando formulários que o usuário preencheu.
+  const initialisedRef = useRef(false)
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = useCallback(async (silent = false) => {
     try {
-      setIsLoading(true)
+      if (!silent) setIsLoading(true)
       setError(null)
 
       const supabase = createClient()
@@ -87,7 +91,8 @@ export function useUser(): UserContext {
       console.error('Error fetching user:', err)
       setError(err instanceof Error ? err : new Error('Failed to fetch user'))
     } finally {
-      setIsLoading(false)
+      if (!silent) setIsLoading(false)
+      initialisedRef.current = true
     }
   }, [])
 
@@ -96,12 +101,18 @@ export function useUser(): UserContext {
 
     // Listen for auth changes
     const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        fetchUser()
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Logout: limpa. Qualquer outro evento sem sessão também.
+      if (event === 'SIGNED_OUT' || !session) {
         setUser(null)
         setIsLoading(false)
+        return
+      }
+      // Login real antes de termos carregado o usuário: recarrega em segundo plano.
+      // IMPORTANTE: ignoramos TOKEN_REFRESHED / USER_UPDATED / INITIAL_SESSION —
+      // esses disparam ao voltar o foco da aba e não devem recarregar/remontar a página.
+      if (event === 'SIGNED_IN' && !initialisedRef.current) {
+        fetchUser(true)
       }
     })
 
