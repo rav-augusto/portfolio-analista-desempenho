@@ -429,8 +429,15 @@ export default function GuiaAvaliacaoPage() {
                 </p>
               </div>
 
+              {/* Índice de navegação da aba */}
+              <div className="flex flex-wrap gap-2 -mt-4">
+                <button onClick={() => document.getElementById('dim-cbf')?.scrollIntoView({ behavior: 'smooth' })} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors">CBF (8)</button>
+                <button onClick={() => document.getElementById('dim-ofe')?.scrollIntoView({ behavior: 'smooth' })} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-500/15 text-green-400 border border-green-500/30 hover:bg-green-500/25 transition-colors">Ofensivas (6)</button>
+                <button onClick={() => document.getElementById('dim-def')?.scrollIntoView({ behavior: 'smooth' })} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 transition-colors">Defensivas (6)</button>
+              </div>
+
               {/* CBF - 8 dimensões */}
-              <div>
+              <div id="dim-cbf" className="scroll-mt-24">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30">
                     <span className="text-amber-400 font-bold">CBF</span>
@@ -851,7 +858,7 @@ export default function GuiaAvaliacaoPage() {
               </div>
 
               {/* Ofensivas - 6 dimensões */}
-              <div>
+              <div id="dim-ofe" className="scroll-mt-24">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="px-3 py-1 rounded-lg bg-green-500/20 border border-green-500/30">
                     <span className="text-green-400 font-bold">OFE</span>
@@ -1170,7 +1177,7 @@ export default function GuiaAvaliacaoPage() {
               </div>
 
               {/* Defensivas - 6 dimensões */}
-              <div>
+              <div id="dim-def" className="scroll-mt-24">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/30">
                     <span className="text-red-400 font-bold">DEF</span>
