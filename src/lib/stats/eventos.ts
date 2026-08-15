@@ -72,9 +72,11 @@ export function calcularEficiencia(avs: AvaliacaoEventos[]): Eficiencia {
   const minutos = soma(jogosComMin, 'minutos_jogados')
   const jogos = jogosComMin.length
 
-  const finNoAlvo = soma(avs, 'finalizacoes_no_alvo')
-  const finalizacoes = finNoAlvo + soma(avs, 'finalizacoes_fora') + soma(avs, 'finalizacoes_bloqueadas')
   const gols = soma(avs, 'gols')
+  // Todo gol é, por definição, uma finalização no alvo. Se o registro de finalizações
+  // ficou abaixo dos gols (dado incompleto), assumimos ao menos os gols — evita passar de 100%.
+  const finNoAlvo = Math.max(soma(avs, 'finalizacoes_no_alvo'), gols)
+  const finalizacoes = Math.max(finNoAlvo + soma(avs, 'finalizacoes_fora') + soma(avs, 'finalizacoes_bloqueadas'), gols)
 
   const pCertos = soma(avs, 'passes_certos')
   const passes = pCertos + soma(avs, 'passes_errados')
