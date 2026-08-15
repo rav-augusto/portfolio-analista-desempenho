@@ -31,6 +31,7 @@ import { abrirDossieParaImpressao, gerarDossieHTML, type DossieParams } from '@/
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, classificarPercentil, corPercentil, type MetricaPercentil } from '@/lib/stats/percentis'
 import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
+import { compararComBenchmark } from '@/lib/stats/benchmark'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -440,6 +441,18 @@ export default function DashboardAtletasPage() {
       if (!Number.isNaN(v)) vals[d.key as DimKey] = v
     })
     return calcularAderenciaPosicao(vals, atletaAtual?.posicao ?? null)
+  }, [avaliacaoSelecionada, atletaAtual])
+
+  // Nível técnico vs esperado para a idade (categoria) e posição
+  const comparacaoBenchmark = useMemo(() => {
+    if (!avaliacaoSelecionada || !atletaAtual) return null
+    const vals: Partial<Record<DimKey, number>> = {}
+    todasDimensoes.forEach((d) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const v = Number((avaliacaoSelecionada as any)[d.key])
+      if (!Number.isNaN(v)) vals[d.key as DimKey] = v
+    })
+    return compararComBenchmark(vals, atletaAtual.posicao ?? null, atletaAtual.data_nascimento ?? null)
   }, [avaliacaoSelecionada, atletaAtual])
 
   // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
@@ -1828,6 +1841,49 @@ export default function DashboardAtletasPage() {
                       )
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Nível técnico vs esperado para a idade/posição */}
+              {comparacaoBenchmark?.disponivel && (
+                <div className="mb-4 md:mb-6 rounded-2xl p-4 md:p-5" style={{ backgroundColor: '#1e293b', border: '1px solid #06b6d455' }}>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <h3 className="text-base md:text-lg font-semibold text-slate-100 inline-flex items-center gap-1">
+                      🎯 Nível técnico vs esperado para a idade
+                      <InfoTip text="Compara cada dimensão com o NÍVEL ESPERADO para a idade (categoria) e a posição do atleta — referência de CBF/FIFA/centros de formação. Verde = acima do esperado, âmbar = no nível, vermelho = abaixo. Responde 'em que pé ele está para a idade dele'." />
+                    </h3>
+                    <span className="text-[10px] md:text-xs text-slate-500">{comparacaoBenchmark.categoria} · {comparacaoBenchmark.posicao}</span>
+                  </div>
+                  <div className="flex items-center gap-4 flex-wrap mb-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl md:text-3xl font-black text-cyan-400">{comparacaoBenchmark.mediaAtleta.toFixed(1).replace('.', ',')}</span>
+                      <span className="text-xs text-slate-500">atleta</span>
+                      <span className="text-slate-600">vs</span>
+                      <span className="text-lg font-bold text-slate-300">{comparacaoBenchmark.mediaBenchmark.toFixed(1).replace('.', ',')}</span>
+                      <span className="text-xs text-slate-500">esperado</span>
+                    </div>
+                    <span className="text-sm font-bold px-2 py-0.5 rounded-lg" style={{ backgroundColor: comparacaoBenchmark.diferencaMedia >= 0 ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.15)', color: comparacaoBenchmark.diferencaMedia >= 0 ? '#4ade80' : '#f87171' }}>
+                      {comparacaoBenchmark.diferencaMedia >= 0 ? '+' : ''}{comparacaoBenchmark.diferencaMedia.toFixed(1).replace('.', ',')} vs esperado
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      <b className="text-green-400">{comparacaoBenchmark.acima}</b> acima · <b className="text-amber-400">{comparacaoBenchmark.dentro}</b> no nível · <b className="text-red-400">{comparacaoBenchmark.abaixo}</b> abaixo
+                    </span>
+                  </div>
+                  <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(62px, 1fr))' }}>
+                    {comparacaoBenchmark.dimensoes.map((d) => {
+                      const base = d.status === 'acima' ? '34,197,94' : d.status === 'abaixo' ? '239,68,68' : '245,158,11'
+                      const intensidade = Math.min(1, 0.35 + Math.abs(d.diferenca) / 2)
+                      return (
+                        <div key={d.key} title={`${d.label}: ${d.valor.toFixed(1)} (esperado ${d.benchmark.toFixed(1)}, ${d.diferenca >= 0 ? '+' : ''}${d.diferenca.toFixed(1)})`}
+                          className="rounded-lg px-1 py-2 text-center" style={{ backgroundColor: `rgba(${base}, ${intensidade})`, border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div className="text-[10px] font-bold text-white/90 truncate">{d.short}</div>
+                          <div className="text-sm font-black text-white tabular-nums leading-tight">{d.valor.toFixed(1)}</div>
+                          <div className="text-[9px] text-white/75 tabular-nums">{d.diferenca >= 0 ? '+' : ''}{d.diferenca.toFixed(1)}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-2">Nota do atleta em cima, diferença para o esperado embaixo. Passe o mouse para ver o valor esperado.</p>
                 </div>
               )}
 
