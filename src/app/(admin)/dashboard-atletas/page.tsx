@@ -1073,6 +1073,20 @@ export default function DashboardAtletasPage() {
 
   const [gerandoLink, setGerandoLink] = useState(false)
   const [linkDossie, setLinkDossie] = useState<string | null>(null)
+  const [dossiesAtleta, setDossiesAtleta] = useState<{ id: string; criado_em: string }[]>([])
+
+  const carregarDossies = useCallback(async () => {
+    if (!atletaSelecionado) { setDossiesAtleta([]); return }
+    const { data } = await supabase
+      .from('dossies_publicos')
+      .select('id, criado_em')
+      .eq('atleta_id', atletaSelecionado)
+      .order('criado_em', { ascending: false })
+    setDossiesAtleta(data || [])
+  }, [atletaSelecionado, supabase])
+
+  useEffect(() => { carregarDossies() }, [carregarDossies])
+
   const handleGerarLink = async () => {
     const params = montarDossieParams()
     if (!params || !atletaAtual) return
@@ -1089,11 +1103,19 @@ export default function DashboardAtletasPage() {
       const url = `${window.location.origin}/dossie/${data.id}`
       setLinkDossie(url)
       try { await navigator.clipboard.writeText(url) } catch { /* clipboard bloqueado */ }
+      carregarDossies()
     } catch {
       alert('Não foi possível gerar o link. Confirme que a migração 011 (dossies_publicos) foi rodada no Supabase.')
     } finally {
       setGerandoLink(false)
     }
+  }
+
+  const handleRevogarDossie = async (id: string) => {
+    const { error } = await supabase.from('dossies_publicos').delete().eq('id', id)
+    if (error) { alert('Não foi possível revogar. Rode a migração 012 (permissão de revogar) no Supabase.'); return }
+    setDossiesAtleta(prev => prev.filter(d => d.id !== id))
+    if (linkDossie?.endsWith(id)) setLinkDossie(null)
   }
 
   // Gerar análise por IA
@@ -1467,6 +1489,25 @@ export default function DashboardAtletasPage() {
                     <button onClick={() => { navigator.clipboard?.writeText(linkDossie) }} className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors"><Copy className="w-3.5 h-3.5" />Copiar</button>
                     <a href={linkDossie} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition-colors">Abrir</a>
                   </div>
+                </div>
+              )}
+
+              {/* Dossiês compartilhados (gerenciar / revogar) */}
+              {dossiesAtleta.length > 0 && (
+                <div className="mt-3 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <p className="text-[11px] font-medium text-slate-400 mb-2 flex items-center gap-1"><Share2 className="w-3.5 h-3.5" /> Dossiês compartilhados deste atleta ({dossiesAtleta.length})</p>
+                  <ul className="space-y-1.5">
+                    {dossiesAtleta.map((d) => (
+                      <li key={d.id} className="flex items-center gap-2 text-xs">
+                        <span className="text-slate-500 tabular-nums shrink-0">{new Date(d.criado_em).toLocaleDateString('pt-BR')} {new Date(d.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-slate-600 truncate flex-1 hidden sm:inline">/dossie/{d.id.slice(0, 8)}…</span>
+                        <a href={`/dossie/${d.id}`} target="_blank" rel="noopener noreferrer" className="px-2 py-1 rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors shrink-0">Abrir</a>
+                        <button onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/dossie/${d.id}`) }} className="px-2 py-1 rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors shrink-0">Copiar</button>
+                        <button onClick={() => handleRevogarDossie(d.id)} className="px-2 py-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors shrink-0">Revogar</button>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[10px] text-slate-600 mt-2">Revogar apaga o link — quem tiver a URL deixa de conseguir abrir.</p>
                 </div>
               )}
             </div>
