@@ -480,6 +480,24 @@ export default function DashboardAtletasPage() {
       maturacao: perfilMaturacao?.classificacao ?? null,
     })
   }, [atletaAtual, avaliacoes, comparacaoBenchmark, resumoFisicoData, perfilMaturacao])
+
+  // Evolução da média do atleta vs o nível esperado (está encurtando a distância?)
+  const evoVsEsperado = useMemo(() => {
+    if (avaliacoes.length < 2 || !comparacaoBenchmark?.disponivel) return null
+    const labels = avaliacoes.map(a => new Date(a.data_avaliacao + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }))
+    const mediaAtleta = avaliacoes.map(a => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const vals = todasDimensoes.map(d => Number((a as any)[d.key]) || 0).filter(v => v > 0)
+      return vals.length ? Number((vals.reduce((x, y) => x + y, 0) / vals.length).toFixed(2)) : 0
+    })
+    return {
+      labels,
+      datasets: [
+        { label: 'Atleta', data: mediaAtleta, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,.12)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#06b6d4', pointBorderColor: '#1e293b' },
+        { label: 'Esperado p/ idade', data: avaliacoes.map(() => Number(comparacaoBenchmark.mediaBenchmark.toFixed(2))), borderColor: '#94a3b8', borderDash: [6, 4], pointRadius: 0, fill: false, tension: 0 },
+      ],
+    }
+  }, [avaliacoes, comparacaoBenchmark])
   const metricasFisicasDisponiveis = useMemo(
     () => METRICAS_FISICAS.filter(m => serieFisica(avaliacoesFisicas, m.key).valores.length > 0),
     [avaliacoesFisicas]
@@ -1918,6 +1936,24 @@ export default function DashboardAtletasPage() {
                     })}
                   </div>
                   <p className="text-[10px] text-slate-500 mt-2">Nota do atleta em cima, diferença para o esperado embaixo. Passe o mouse para ver o valor esperado.</p>
+                </div>
+              )}
+
+              {/* Evolução vs nível esperado */}
+              {evoVsEsperado && (
+                <div className="mb-4 md:mb-6 rounded-2xl p-4 md:p-5" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <h3 className="text-base md:text-lg font-semibold text-slate-100 mb-1 flex items-center gap-1">📈 Evolução vs nível esperado<InfoTip text="Média geral do atleta a cada avaliação (linha cheia) contra o nível esperado para a idade/posição (linha tracejada). A pergunta de ouro do desenvolvimento: ele está encurtando a distância — ou já passou — do nível esperado?" /></h3>
+                  <p className="text-[11px] text-slate-400 mb-3">Se a linha do atleta sobe em direção (ou acima) da tracejada, está evoluindo na direção certa.</p>
+                  <div className="h-[220px]">
+                    <Line
+                      data={evoVsEsperado}
+                      options={{
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { min: 0, max: 5, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: '#334155' } }, x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } } },
+                        plugins: { legend: { position: 'bottom' as const, labels: { color: '#e2e8f0', boxWidth: 12, font: { size: 11 } } } },
+                      }}
+                    />
+                  </div>
                 </div>
               )}
 
