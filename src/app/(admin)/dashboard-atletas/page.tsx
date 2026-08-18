@@ -32,6 +32,7 @@ import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, classificarPercentil, corPercentil, type MetricaPercentil } from '@/lib/stats/percentis'
 import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
 import { compararComBenchmark } from '@/lib/stats/benchmark'
+import { gerarAlertas } from '@/lib/stats/alertas'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -454,6 +455,19 @@ export default function DashboardAtletasPage() {
     })
     return compararComBenchmark(vals, atletaAtual.posicao ?? null, atletaAtual.data_nascimento ?? null)
   }, [avaliacaoSelecionada, atletaAtual])
+
+  // Alertas automáticos (pontos de atenção)
+  const alertas = useMemo(() => {
+    if (!atletaAtual) return []
+    const ultima = avaliacoes.length ? avaliacoes[avaliacoes.length - 1].data_avaliacao : null
+    const dias = ultima ? Math.floor((Date.now() - new Date(ultima).getTime()) / 86400000) : null
+    return gerarAlertas({
+      diasDesdeUltima: dias,
+      benchmark: comparacaoBenchmark?.disponivel ? { acima: comparacaoBenchmark.acima, dentro: comparacaoBenchmark.dentro, abaixo: comparacaoBenchmark.abaixo, diferencaMedia: comparacaoBenchmark.diferencaMedia } : null,
+      fisico: resumoFisicoData.map(r => ({ label: r.label, melhorou: r.melhorou })),
+      maturacao: perfilMaturacao?.classificacao ?? null,
+    })
+  }, [atletaAtual, avaliacoes, comparacaoBenchmark, resumoFisicoData, perfilMaturacao])
 
   // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
   const perfilMaturacao = useMemo(() => {
@@ -1478,6 +1492,24 @@ export default function DashboardAtletasPage() {
             </div>
           ) : (
             <>
+              {/* Alertas automáticos (pontos de atenção) */}
+              {alertas.length > 0 && (
+                <div className="mb-4 rounded-2xl p-4 md:p-5" style={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}>
+                  <h3 className="text-base md:text-lg font-semibold text-slate-100 mb-3 flex items-center gap-1">⚠️ Pontos de atenção<InfoTip text="O sistema aponta sozinho o que merece o seu olhar: nível abaixo do esperado pra idade, avaliação desatualizada, queda física, leitura de maturação e destaques positivos. Priorizados por urgência." /></h3>
+                  <ul className="space-y-2">
+                    {alertas.map((a, i) => {
+                      const cor = a.severidade === 'alta' ? '#f87171' : a.severidade === 'media' ? '#fbbf24' : a.severidade === 'positiva' ? '#4ade80' : '#22d3ee'
+                      return (
+                        <li key={i} className="flex items-start gap-2.5 text-sm">
+                          <span className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: cor }} />
+                          <span className="text-slate-300">{a.texto}</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )}
+
               {/* Tabs Geral / CBF / OFE / DEF */}
               <div className="flex gap-1 md:gap-2 mb-4 overflow-x-auto pb-1">
                 <button
