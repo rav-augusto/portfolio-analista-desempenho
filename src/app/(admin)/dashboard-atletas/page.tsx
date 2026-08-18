@@ -457,6 +457,18 @@ export default function DashboardAtletasPage() {
   }, [avaliacaoSelecionada, atletaAtual])
 
   // Alertas automáticos (pontos de atenção)
+  // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
+  const perfilMaturacao = useMemo(() => {
+    const ordenadas = [...avaliacoesFisicas].sort((a, b) => new Date(b.data_avaliacao).getTime() - new Date(a.data_avaliacao).getTime())
+    const ref = ordenadas[0] ?? null
+    const idadeCron = ref ? idadeCronologicaEm(atletaAtual?.data_nascimento ?? null, ref.data_avaliacao) : null
+    return interpretarMaturacao(ref?.idade_biologica ?? null, idadeCron, ref?.estagio_phv ?? null)
+  }, [avaliacoesFisicas, atletaAtual])
+
+  const resumoFisicoData = useMemo(() => resumoFisico(avaliacoesFisicas), [avaliacoesFisicas])
+  const imcSerie = useMemo(() => serieIMC(avaliacoesFisicas), [avaliacoesFisicas])
+
+  // Alertas automáticos (pontos de atenção) — depende de benchmark/físico/maturação
   const alertas = useMemo(() => {
     if (!atletaAtual) return []
     const ultima = avaliacoes.length ? avaliacoes[avaliacoes.length - 1].data_avaliacao : null
@@ -468,17 +480,6 @@ export default function DashboardAtletasPage() {
       maturacao: perfilMaturacao?.classificacao ?? null,
     })
   }, [atletaAtual, avaliacoes, comparacaoBenchmark, resumoFisicoData, perfilMaturacao])
-
-  // ---- Desenvolvimento (físico + maturação) — lê da tabela avaliacoes_fisicas ----
-  const perfilMaturacao = useMemo(() => {
-    const ordenadas = [...avaliacoesFisicas].sort((a, b) => new Date(b.data_avaliacao).getTime() - new Date(a.data_avaliacao).getTime())
-    const ref = ordenadas[0] ?? null
-    const idadeCron = ref ? idadeCronologicaEm(atletaAtual?.data_nascimento ?? null, ref.data_avaliacao) : null
-    return interpretarMaturacao(ref?.idade_biologica ?? null, idadeCron, ref?.estagio_phv ?? null)
-  }, [avaliacoesFisicas, atletaAtual])
-
-  const resumoFisicoData = useMemo(() => resumoFisico(avaliacoesFisicas), [avaliacoesFisicas])
-  const imcSerie = useMemo(() => serieIMC(avaliacoesFisicas), [avaliacoesFisicas])
   const metricasFisicasDisponiveis = useMemo(
     () => METRICAS_FISICAS.filter(m => serieFisica(avaliacoesFisicas, m.key).valores.length > 0),
     [avaliacoesFisicas]
