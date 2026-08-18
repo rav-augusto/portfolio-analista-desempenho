@@ -73,10 +73,11 @@ export function calcularEficiencia(avs: AvaliacaoEventos[]): Eficiencia {
   const jogos = jogosComMin.length
 
   const gols = soma(avs, 'gols')
-  // Todo gol é, por definição, uma finalização no alvo. Se o registro de finalizações
-  // ficou abaixo dos gols (dado incompleto), assumimos ao menos os gols — evita passar de 100%.
-  const finNoAlvo = Math.max(soma(avs, 'finalizacoes_no_alvo'), gols)
-  const finalizacoes = Math.max(finNoAlvo + soma(avs, 'finalizacoes_fora') + soma(avs, 'finalizacoes_bloqueadas'), gols)
+  const finNoAlvo = soma(avs, 'finalizacoes_no_alvo')
+  const finalizacoes = finNoAlvo + soma(avs, 'finalizacoes_fora') + soma(avs, 'finalizacoes_bloqueadas')
+  // Todo gol é uma finalização no alvo: se o registro de "no alvo" ficou abaixo dos gols,
+  // o dado está incompleto — não exibimos % no alvo/conversão (evita 700% e o falso 100%).
+  const finalizacaoConsistente = finalizacoes > 0 && finNoAlvo >= gols
 
   const pCertos = soma(avs, 'passes_certos')
   const passes = pCertos + soma(avs, 'passes_errados')
@@ -103,8 +104,8 @@ export function calcularEficiencia(avs: AvaliacaoEventos[]): Eficiencia {
     jogos,
     finalizacoes,
     finalizacoesNoAlvo: finNoAlvo,
-    percNoAlvo: pct(finNoAlvo, finalizacoes),
-    conversao: pct(gols, finalizacoes),
+    percNoAlvo: finalizacaoConsistente ? pct(finNoAlvo, finalizacoes) : null,
+    conversao: finalizacaoConsistente ? pct(gols, finalizacoes) : null,
     passes,
     precisaoPasse: pct(pCertos, passes),
     passesDecisivos,

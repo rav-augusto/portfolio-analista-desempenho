@@ -97,6 +97,7 @@ export function calcularAderenciaPosicao(
   const notaFlat = somaFlat / presentes.length
   const requisitos = DIMS
     .map((k) => ({ chave: k, label: DIM_LABEL[k], valor: valores[k] ?? 0, peso: pesoDe(grupo, k) }))
+    .filter((r) => r.valor > 0) // não mostrar exigência com nota 0 (dimensão não avaliada)
     .sort((a, b) => b.peso - a.peso)
     .slice(0, 6)
   return {

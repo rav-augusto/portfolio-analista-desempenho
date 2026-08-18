@@ -107,7 +107,9 @@ export function calcularCategoria(dataNascimento: string | null, categoriaField?
   if (!dataNascimento) return 'U17'
   const hoje = new Date()
   const nasc = new Date(dataNascimento + 'T12:00:00')
-  const idade = hoje.getFullYear() - nasc.getFullYear()
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade-- // aniversário ainda não passou este ano
   if (idade <= 10) return 'U11'
   if (idade === 11) return 'U12'
   if (idade === 12) return 'U13'

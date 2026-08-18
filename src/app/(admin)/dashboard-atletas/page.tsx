@@ -393,7 +393,9 @@ export default function DashboardAtletasPage() {
 
   // ---- Percentis por dimensão vs pares de MESMA posição ----
   // População: media de cada dimensão por atleta, agrupada por posição.
-  const populacaoPorPosicao = useMemo(() => {
+  // Perfil médio (por dimensão) de cada atleta, agrupado por posição — mantém o id
+  // para poder EXCLUIR o próprio atleta ao calcular o percentil dele (sem autoviés).
+  const perfisPorPosicao = useMemo(() => {
     const porAtleta = new Map<string, { posicao: string | null; sums: Record<string, { s: number; c: number }> }>()
     for (const row of perfisRaw) {
       let e = porAtleta.get(row.atleta_id)
@@ -404,13 +406,12 @@ export default function DashboardAtletasPage() {
         e.sums[k] = cur
       }
     }
-    const pop: Record<string, Record<string, number[]>> = {}
-    for (const [, e] of porAtleta) {
+    const pop: Record<string, { id: string; vals: Record<string, number> }[]> = {}
+    for (const [id, e] of porAtleta) {
       const pos = e.posicao || 'Sem posição'
-      pop[pos] = pop[pos] || {}
-      for (const k in e.sums) {
-        (pop[pos][k] = pop[pos][k] || []).push(e.sums[k].s / e.sums[k].c)
-      }
+      const vals: Record<string, number> = {}
+      for (const k in e.sums) vals[k] = e.sums[k].s / e.sums[k].c
+      ;(pop[pos] = pop[pos] || []).push({ id, vals })
     }
     return pop
   }, [perfisRaw])
@@ -418,19 +419,19 @@ export default function DashboardAtletasPage() {
   const percentis = useMemo<MetricaPercentil[]>(() => {
     if (!atletaAtual || avaliacoes.length === 0) return []
     const pos = atletaAtual.posicao || 'Sem posição'
-    const popPos = populacaoPorPosicao[pos] || {}
+    const outros = (perfisPorPosicao[pos] || []).filter((p) => p.id !== atletaAtual.id)
     const out: MetricaPercentil[] = []
     for (const d of todasDimensoes) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const subjVals = avaliacoes.map((a) => Number((a as any)[d.key])).filter((v) => !Number.isNaN(v) && v > 0)
       if (!subjVals.length) continue
       const subjAvg = subjVals.reduce((a, b) => a + b, 0) / subjVals.length
-      const popAll = popPos[d.key] || []
-      if (popAll.length < 3) continue // população pequena demais pra ser confiável
+      const popAll = outros.map((p) => p.vals[d.key]).filter((v) => v != null && v > 0)
+      if (popAll.length < 2) continue // precisa de pares suficientes (fora o próprio atleta)
       out.push({ chave: d.key, label: d.label, valor: subjAvg, percentil: percentilDe(subjAvg, popAll), n: popAll.length })
     }
     return out.sort((a, b) => b.percentil - a.percentil)
-  }, [atletaAtual, avaliacoes, populacaoPorPosicao])
+  }, [atletaAtual, avaliacoes, perfisPorPosicao])
 
   // Aderência ao perfil da posição (nota ponderada)
   const aderenciaPosicao = useMemo(() => {
