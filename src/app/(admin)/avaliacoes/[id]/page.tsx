@@ -466,7 +466,8 @@ export default function EditarAvaliacaoPage() {
       assist_lancamento: assistLancamento,
       assist_bola_parada: assistBolaPparada,
       // Estatísticas do jogo (eventos 007)
-      finalizacoes_no_alvo: evNum('finalizacoes_no_alvo'),
+      // Todo gol é uma finalização no alvo: garante consistência (evita conversão > 100%).
+      finalizacoes_no_alvo: Math.max(evNum('finalizacoes_no_alvo') ?? 0, parseInt(gols) || 0) || null,
       finalizacoes_fora: evNum('finalizacoes_fora'),
       finalizacoes_bloqueadas: evNum('finalizacoes_bloqueadas'),
       passes_certos: evNum('passes_certos'),
@@ -1014,7 +1015,8 @@ export default function EditarAvaliacaoPage() {
             {/* Estatísticas do jogo (eventos - migração 007/010) */}
             {tipo === 'jogo' && (
               <div className="mt-4 rounded-xl p-3 sm:p-4" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
-                <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2"><span>📊</span> Estatísticas do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional)</span></h4>
+                <h4 className="text-sm font-semibold text-cyan-400 mb-1 flex items-center gap-2"><span>📊</span> Estatísticas do jogo <span className="text-[10px] text-slate-500 font-normal">(opcional)</span></h4>
+                <p className="text-[10px] text-slate-500 mb-3">Dica: registre as finalizações junto com os gols. Todo gol já conta como finalização no alvo — assim a conversão fica real (ex.: 3 gols em 10 finalizações = 30%).</p>
                 {([
                   { titulo: 'Finalizações', cor: '#22c55e', campos: [['finalizacoes_no_alvo', 'No alvo'], ['finalizacoes_fora', 'Para fora'], ['finalizacoes_bloqueadas', 'Bloqueadas'], ['toques_area', 'Toques na área']] },
                   { titulo: '1 contra 1 (dribles)', cor: '#ec4899', campos: [['dribles_tentados', 'Tentados'], ['dribles_certos', 'Certos']] },
