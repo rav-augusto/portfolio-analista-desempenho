@@ -264,11 +264,11 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
     setExportando(true)
     try {
       const canvas = await html2canvas(exportRef.current, { backgroundColor: '#0a0a0b', scale: 2 })
-      const fileName = `escalacao-${(nome || 'time').toLowerCase().replace(/\s+/g, '-')}.png`
-      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+      const fileName = `escalacao-${(nome || 'time').toLowerCase().replace(/\s+/g, '-')}.jpg`
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92))
       if (!blob) return
 
-      const file = new File([blob], fileName, { type: 'image/png' })
+      const file = new File([blob], fileName, { type: 'image/jpeg' })
       const nav = navigator as Navigator & {
         canShare?: (data?: { files?: File[] }) => boolean
         share?: (data: { files?: File[]; title?: string }) => Promise<void>
@@ -336,7 +336,8 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
         <div className="flex items-center gap-2 shrink-0">
           <Button variant="secondary" onClick={handleExportar} disabled={exportando || totalTitulares === 0}>
             {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            <span className="hidden sm:inline">Compartilhar imagem</span>
+            <span className="hidden sm:inline">Exportar JPG</span>
+            <span className="sm:hidden">JPG</span>
           </Button>
           <Button onClick={handleSalvar} disabled={salvando}>
             {salvando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -416,6 +417,30 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
               })}
             </div>
             <p className="text-center text-xs text-faint mt-3">{totalTitulares} de {formacao.slots.length} posições preenchidas</p>
+
+            <div className="mt-4 pt-4 border-t border-line">
+              <p className="text-xs font-semibold uppercase tracking-wider text-faint mb-2.5 px-1">Banco {suplentesOrdenados.length > 0 && `(${suplentesOrdenados.length})`}</p>
+              {suplentesOrdenados.length === 0 ? (
+                <p className="text-xs text-faint text-center py-3">Toque em &quot;+ banco&quot; no elenco pra marcar o suplente</p>
+              ) : (
+                <div className="flex gap-3 overflow-x-auto pb-1 px-1">
+                  {suplentesOrdenados.map(atleta => (
+                    <div key={atleta.id} className="flex flex-col items-center gap-1 shrink-0 w-14">
+                      <div className="relative w-11 h-11 rounded-full bg-surface border-2 border-info overflow-hidden grid place-items-center">
+                        {atleta.foto_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
+                        ) : <User className="w-4 h-4 text-faint" />}
+                        {atleta.numero_camisa != null && (
+                          <span className="absolute -bottom-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-info text-app text-[9px] font-bold grid place-items-center border-2 border-app">{atleta.numero_camisa}</span>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-soft text-center truncate w-full">{primeiroNome(atleta.nome)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </Card>
 
           <div className="flex flex-col gap-4">
