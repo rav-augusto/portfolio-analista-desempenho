@@ -20,6 +20,7 @@ import {
   UserCog,
   Activity,
   Shirt,
+  UsersRound,
 } from 'lucide-react'
 
 const adminMenu: AppMenuItem[] = [
@@ -30,6 +31,7 @@ const adminMenu: AppMenuItem[] = [
   { href: '/guia-avaliacao', icon: BookOpen, label: 'Guia de Avaliacao' },
   { href: '/clubes', icon: Shield, label: 'Clubes' },
   { href: '/atletas', icon: Users, label: 'Atletas' },
+  { href: '/comissao-tecnica', icon: UsersRound, label: 'Comissão Técnica' },
   { href: '/escalacoes', icon: Shirt, label: 'Escalações' },
   { href: '/jogos', icon: Gamepad2, label: 'Jogos' },
   { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo' },

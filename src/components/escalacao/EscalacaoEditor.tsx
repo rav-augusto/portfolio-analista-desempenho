@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { cn } from '@/lib/utils/cn'
 import { FORMACOES, getFormacao } from '@/lib/formacoes'
-import { ArrowLeft, Save, Loader2, Download, User } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Download, User, UsersRound } from 'lucide-react'
 import { Card, Button, Select, Input, Textarea, Badge, Spinner } from '@/components/app'
 
 type Clube = { id: string; nome: string; escudo_url: string | null }
@@ -19,6 +19,13 @@ type Atleta = {
   foto_url: string | null
   numero_camisa: number | null
   posicao: string | null
+  clube_id: string
+}
+type Membro = {
+  id: string
+  nome: string
+  funcao: string
+  foto_url: string | null
   clube_id: string
 }
 
@@ -46,8 +53,10 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   const [observacoes, setObservacoes] = useState('')
 
   const [atletas, setAtletas] = useState<Atleta[]>([])
+  const [membros, setMembros] = useState<Membro[]>([])
   const [slots, setSlots] = useState<Record<string, string | null>>({})
   const [suplentes, setSuplentes] = useState<Set<string>>(new Set())
+  const [staffIds, setStaffIds] = useState<Set<string>>(new Set())
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null)
 
@@ -88,6 +97,13 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
         setSlots(novosSlots)
         setSuplentes(novosSuplentes)
       }
+
+      const { data: staffRel } = await supabase
+        .from('escalacao_staff')
+        .select('membro_id')
+        .eq('escalacao_id', escalacaoId)
+      if (staffRel) setStaffIds(new Set(staffRel.map(r => r.membro_id)))
+
       setCarregando(false)
     }
     carregar()
@@ -95,12 +111,15 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   }, [escalacaoId])
 
   useEffect(() => {
-    if (!clubeId) { setJogos([]); setAtletas([]); return }
+    if (!clubeId) { setJogos([]); setAtletas([]); setMembros([]); return }
     supabase.from('jogos').select('id, adversario, data_jogo, clube_id').eq('clube_id', clubeId).order('data_jogo', { ascending: false }).then(({ data }) => {
       if (data) setJogos(data)
     })
     supabase.from('atletas').select('id, nome, foto_url, numero_camisa, posicao, clube_id').eq('clube_id', clubeId).order('numero_camisa', { ascending: true }).then(({ data }) => {
       if (data) setAtletas(data)
+    })
+    supabase.from('comissao_tecnica').select('id, nome, funcao, foto_url, clube_id').eq('clube_id', clubeId).order('nome').then(({ data }) => {
+      if (data) setMembros(data)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clubeId])
@@ -132,6 +151,15 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       const next = new Set(prev)
       if (next.has(atletaId)) next.delete(atletaId)
       else next.add(atletaId)
+      return next
+    })
+  }
+
+  const toggleStaff = (membroId: string) => {
+    setStaffIds(prev => {
+      const next = new Set(prev)
+      if (next.has(membroId)) next.delete(membroId)
+      else next.add(membroId)
       return next
     })
   }
@@ -202,6 +230,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       const { error } = await supabase.from('escalacoes').update(payload).eq('id', id)
       if (error) { setErro('Erro ao salvar escalação.'); setSalvando(false); return }
       await supabase.from('escalacao_atletas').delete().eq('escalacao_id', id)
+      await supabase.from('escalacao_staff').delete().eq('escalacao_id', id)
     } else {
       const { data, error } = await supabase.from('escalacoes').insert({ ...payload, criado_por: user?.id || null }).select('id').single()
       if (error || !data) { setErro('Erro ao criar escalação.'); setSalvando(false); return }
@@ -220,6 +249,12 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       if (error) { setErro('Escalação salva, mas houve erro ao salvar o elenco.'); setSalvando(false); return }
     }
 
+    if (staffIds.size > 0) {
+      const staffLinhas = Array.from(staffIds).map((membroId, i) => ({ escalacao_id: id, membro_id: membroId, ordem: i }))
+      const { error } = await supabase.from('escalacao_staff').insert(staffLinhas)
+      if (error) { setErro('Escalação salva, mas houve erro ao salvar a comissão técnica.'); setSalvando(false); return }
+    }
+
     setSalvando(false)
     router.push('/escalacoes')
   }
@@ -229,11 +264,32 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
     setExportando(true)
     try {
       const canvas = await html2canvas(exportRef.current, { backgroundColor: '#0a0a0b', scale: 2 })
-      const url = canvas.toDataURL('image/png')
+      const fileName = `escalacao-${(nome || 'time').toLowerCase().replace(/\s+/g, '-')}.png`
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+      if (!blob) return
+
+      const file = new File([blob], fileName, { type: 'image/png' })
+      const nav = navigator as Navigator & {
+        canShare?: (data?: { files?: File[] }) => boolean
+        share?: (data: { files?: File[]; title?: string }) => Promise<void>
+      }
+
+      // No celular, abre a folha de compartilhamento nativa (WhatsApp, etc.) direto.
+      if (nav.canShare?.({ files: [file] }) && nav.share) {
+        try {
+          await nav.share({ files: [file], title: nome || 'Escalação' })
+          return
+        } catch {
+          // Usuário cancelou o compartilhamento ou o navegador recusou — cai para o download.
+        }
+      }
+
+      const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `escalacao-${(nome || 'time').toLowerCase().replace(/\s+/g, '-')}.png`
+      a.download = fileName
       a.click()
+      URL.revokeObjectURL(url)
     } finally {
       setExportando(false)
     }
@@ -249,6 +305,8 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
     .map(s => ({ slot: s, atleta: atletasMap.get(slots[s.id]!) }))
     .filter((x): x is { slot: typeof formacao.slots[number]; atleta: Atleta } => !!x.atleta)
   const suplentesOrdenados = Array.from(suplentes).map(id => atletasMap.get(id)).filter((a): a is Atleta => !!a)
+  const membrosMap = new Map(membros.map(m => [m.id, m]))
+  const staffOrdenado = Array.from(staffIds).map(id => membrosMap.get(id)).filter((m): m is Membro => !!m)
 
   return (
     <div>
@@ -263,7 +321,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
         <div className="flex items-center gap-2 shrink-0">
           <Button variant="secondary" onClick={handleExportar} disabled={exportando || totalTitulares === 0}>
             {exportando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            <span className="hidden sm:inline">Baixar imagem</span>
+            <span className="hidden sm:inline">Compartilhar imagem</span>
           </Button>
           <Button onClick={handleSalvar} disabled={salvando}>
             {salvando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -279,7 +337,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
           <Select
             label="Clube"
             value={clubeId}
-            onChange={(e) => { setClubeId(e.target.value); setJogoId(''); setSlots({}); setSuplentes(new Set()) }}
+            onChange={(e) => { setClubeId(e.target.value); setJogoId(''); setSlots({}); setSuplentes(new Set()); setStaffIds(new Set()) }}
           >
             <option value="">Selecione</option>
             {clubes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
@@ -387,7 +445,40 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             </Card>
 
             <Card padding="sm">
-              <Input label="Treinador" value={treinador} onChange={(e) => setTreinador(e.target.value)} placeholder="Nome do treinador" className="mb-3" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-faint mb-3 px-1">Comissão técnica</p>
+              {membros.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-faint mb-2">Nenhum membro cadastrado nesse clube.</p>
+                  <Link href="/comissao-tecnica/novo" className="text-xs text-brand hover:text-brand-hover">Cadastrar treinador / staff</Link>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 mb-4">
+                  {membros.map(membro => {
+                    const selecionado = staffIds.has(membro.id)
+                    return (
+                      <button
+                        type="button"
+                        key={membro.id}
+                        onClick={() => toggleStaff(membro.id)}
+                        className={cn('flex items-center gap-2.5 p-2 rounded-xl border text-left transition-colors', selecionado ? 'bg-brand-soft border-brand/30' : 'bg-app border-line hover:border-line-strong')}
+                      >
+                        <div className="shrink-0 w-9 h-9 rounded-full bg-surface-2 border border-line overflow-hidden grid place-items-center">
+                          {membro.foto_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={membro.foto_url} alt={membro.nome} className="w-full h-full object-cover" />
+                          ) : <UsersRound className="w-4 h-4 text-faint" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-strong truncate">{membro.nome}</p>
+                          <p className="text-[11px] text-faint truncate">{membro.funcao}</p>
+                        </div>
+                        {selecionado && <Badge variant="brand" size="sm">Na escalação</Badge>}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+              <Input label="Treinador (texto livre, opcional)" value={treinador} onChange={(e) => setTreinador(e.target.value)} placeholder="Usado só se a comissão acima estiver vazia" className="mb-3" />
               <Textarea label="Observações" value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Notas sobre a escalação (opcional)" rows={3} />
             </Card>
           </div>
@@ -464,12 +555,32 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                   </div>
                 </div>
               )}
-              {treinador && (
+              {staffOrdenado.length > 0 ? (
+                <div className="mt-auto pt-4 border-t border-line">
+                  <p className="text-xs font-bold uppercase tracking-widest text-faint mb-2">Comissão Técnica</p>
+                  <div className="flex flex-wrap gap-3">
+                    {staffOrdenado.map(membro => (
+                      <div key={membro.id} className="flex items-center gap-2">
+                        <div className="w-9 h-9 rounded-full bg-surface border border-line overflow-hidden grid place-items-center shrink-0">
+                          {membro.foto_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={membro.foto_url} alt={membro.nome} className="w-full h-full object-cover" />
+                          ) : <UsersRound className="w-4 h-4 text-faint" />}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-strong truncate">{membro.nome}</p>
+                          <p className="text-[10px] text-faint truncate">{membro.funcao}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : treinador ? (
                 <div className="mt-auto pt-4 border-t border-line">
                   <p className="text-xs text-faint uppercase tracking-wider">Treinador</p>
                   <p className="text-sm text-strong font-medium">{treinador}</p>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
