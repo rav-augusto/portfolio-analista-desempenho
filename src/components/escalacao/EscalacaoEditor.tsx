@@ -419,9 +419,9 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             <p className="text-center text-xs text-faint mt-3">{totalTitulares} de {formacao.slots.length} posições preenchidas</p>
 
             <div className="mt-4 pt-4 border-t border-line">
-              <p className="text-xs font-semibold uppercase tracking-wider text-faint mb-2.5 px-1">Banco {suplentesOrdenados.length > 0 && `(${suplentesOrdenados.length})`}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-faint mb-2.5 px-1">Suplentes {suplentesOrdenados.length > 0 && `(${suplentesOrdenados.length})`}</p>
               {suplentesOrdenados.length === 0 ? (
-                <p className="text-xs text-faint text-center py-3">Toque em &quot;+ banco&quot; no elenco pra marcar o suplente</p>
+                <p className="text-xs text-faint text-center py-3">Toque em &quot;+ suplente&quot; no elenco pra marcar</p>
               ) : (
                 <div className="flex gap-3 overflow-x-auto pb-1 px-1">
                   {suplentesOrdenados.map(atleta => (
@@ -475,7 +475,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                         <Badge variant="brand" size="sm">{formacao.slots.find(s => s.id === slotId)?.label}</Badge>
                       ) : (
                         <button type="button" onClick={() => toggleSuplente(atleta.id)} className={cn('text-[10px] font-semibold px-2 py-1 rounded-lg border shrink-0 transition-colors', isSuplente ? 'bg-info/15 text-info border-info/30' : 'text-faint border-line hover:text-strong hover:border-line-strong')}>
-                          {isSuplente ? 'Banco' : '+ banco'}
+                          {isSuplente ? 'Suplente' : '+ suplente'}
                         </button>
                       )}
                     </div>
