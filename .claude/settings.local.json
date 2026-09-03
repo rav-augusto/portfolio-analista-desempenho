@@ -13,7 +13,27 @@
       "Bash(git push)",
       "Bash(npx vercel:*)",
       "Bash(timeout:*)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "Bash(git checkout:*)",
+      "WebFetch(domain:claude.ai)",
+      "WebSearch",
+      "Bash(winget upgrade:*)",
+      "WebFetch(domain:claude.com)",
+      "Bash(cp \"C:/Users/root/Downloads/entrega-direcao-c/src/app/portfolio.css\" \"C:/Sistemas/olhar-da-base-app/src/app/portfolio.css\")",
+      "Bash(cp \"C:/Users/root/Downloads/entrega-direcao-c/src/app/layout.tsx\" \"C:/Sistemas/olhar-da-base-app/src/app/layout.tsx\")",
+      "Bash(git *)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Sistemas\\\\olhar-da-base-app\\\\src\\\\app\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(postcss\")",
+      "Bash(npm view *)",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "WebFetch(domain:send.kaply.io)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)"
     ]
   }
 }

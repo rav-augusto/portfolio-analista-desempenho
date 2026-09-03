@@ -19,6 +19,7 @@ import {
   GitCompare,
   UserCog,
   Activity,
+  Shirt,
 } from 'lucide-react'
 
 const adminMenu: AppMenuItem[] = [
@@ -29,6 +30,7 @@ const adminMenu: AppMenuItem[] = [
   { href: '/guia-avaliacao', icon: BookOpen, label: 'Guia de Avaliacao' },
   { href: '/clubes', icon: Shield, label: 'Clubes' },
   { href: '/atletas', icon: Users, label: 'Atletas' },
+  { href: '/escalacoes', icon: Shirt, label: 'Escalações' },
   { href: '/jogos', icon: Gamepad2, label: 'Jogos' },
   { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo' },
   { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas' },
