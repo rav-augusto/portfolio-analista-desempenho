@@ -308,6 +308,21 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   const membrosMap = new Map(membros.map(m => [m.id, m]))
   const staffOrdenado = Array.from(staffIds).map(id => membrosMap.get(id)).filter((m): m is Membro => !!m)
 
+  const linhaAtletaExport = (atleta: Atleta, cor: 'brand' | 'info') => (
+    <div key={atleta.id} className="flex items-center gap-2.5">
+      <div className={cn('relative w-9 h-9 rounded-full bg-surface border-2 overflow-hidden grid place-items-center shrink-0', cor === 'brand' ? 'border-brand' : 'border-info')}>
+        {atleta.foto_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={atleta.foto_url} alt={atleta.nome} className="w-full h-full object-cover" />
+        ) : <User className="w-4 h-4 text-faint" />}
+        {atleta.numero_camisa != null && (
+          <span className={cn('absolute -bottom-1 -right-1 min-w-4 h-4 px-1 rounded-full text-app text-[9px] font-bold grid place-items-center border-2 border-app', cor === 'brand' ? 'bg-brand' : 'bg-info')}>{atleta.numero_camisa}</span>
+        )}
+      </div>
+      <span className={cn('text-sm truncate', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')}>{atleta.nome}</span>
+    </div>
+  )
+
   return (
     <div>
       <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -532,26 +547,16 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             </div>
             <div className="flex-1 flex flex-col gap-6">
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-brand mb-2">Titulares</p>
-                <div className="flex flex-col gap-1.5">
-                  {titularesOrdenados.map(({ atleta }) => (
-                    <div key={atleta.id} className="flex items-center gap-2 text-sm">
-                      <span className="w-6 text-faint font-bold tabular-nums">{atleta.numero_camisa ?? '—'}</span>
-                      <span className="text-strong">{atleta.nome}</span>
-                    </div>
-                  ))}
+                <p className="text-xs font-bold uppercase tracking-widest text-brand mb-2.5">Titulares</p>
+                <div className="flex flex-col gap-2">
+                  {titularesOrdenados.map(({ atleta }) => linhaAtletaExport(atleta, 'brand'))}
                 </div>
               </div>
               {suplentesOrdenados.length > 0 && (
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-info mb-2">Suplentes</p>
-                  <div className="flex flex-col gap-1.5">
-                    {suplentesOrdenados.map(atleta => (
-                      <div key={atleta.id} className="flex items-center gap-2 text-sm">
-                        <span className="w-6 text-faint font-bold tabular-nums">{atleta.numero_camisa ?? '—'}</span>
-                        <span className="text-soft">{atleta.nome}</span>
-                      </div>
-                    ))}
+                  <p className="text-xs font-bold uppercase tracking-widest text-info mb-2.5">Suplentes</p>
+                  <div className="flex flex-col gap-2">
+                    {suplentesOrdenados.map(atleta => linhaAtletaExport(atleta, 'info'))}
                   </div>
                 </div>
               )}
