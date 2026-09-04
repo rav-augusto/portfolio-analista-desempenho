@@ -274,22 +274,6 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92))
       if (!blob) return
 
-      const file = new File([blob], fileName, { type: 'image/jpeg' })
-      const nav = navigator as Navigator & {
-        canShare?: (data?: { files?: File[] }) => boolean
-        share?: (data: { files?: File[]; title?: string }) => Promise<void>
-      }
-
-      // No celular, abre a folha de compartilhamento nativa (WhatsApp, etc.) direto.
-      if (nav.canShare?.({ files: [file] }) && nav.share) {
-        try {
-          await nav.share({ files: [file], title: nome || 'Escalação' })
-          return
-        } catch {
-          // Usuário cancelou o compartilhamento ou o navegador recusou — cai para o download.
-        }
-      }
-
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
