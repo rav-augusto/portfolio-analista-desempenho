@@ -299,8 +299,8 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   const staffOrdenado = Array.from(staffIds).map(id => membrosMap.get(id)).filter((m): m is Membro => !!m)
 
   const linhaAtletaExport = (atleta: Atleta, cor: 'brand' | 'info') => (
-    <div key={atleta.id} className="flex items-center gap-2.5">
-      <div className={cn('relative w-9 h-9 rounded-full bg-surface border-2 overflow-hidden grid place-items-center shrink-0', cor === 'brand' ? 'border-brand' : 'border-info')}>
+    <div key={atleta.id} className="flex items-center mb-2">
+      <div className={cn('relative w-9 h-9 rounded-full bg-surface border-2 overflow-hidden grid place-items-center shrink-0 mr-2.5', cor === 'brand' ? 'border-brand' : 'border-info')}>
         {atleta.foto_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
@@ -530,24 +530,20 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       {/* Template de exportação, renderizado fora da viewport e capturado via html2canvas */}
       <div className="fixed left-0 top-0 -z-50 opacity-0 pointer-events-none" aria-hidden>
         <div ref={exportRef} className="w-[900px] bg-app p-8">
-          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-line">
+          <div className="flex items-center mb-6 pb-4 border-b border-line">
             {clubeAtual?.escudo_url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="w-14 h-14 object-contain" />
+              <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="w-14 h-14 object-contain mr-3" />
             )}
             <div>
               <p className="text-2xl font-bold text-strong">{clubeAtual?.nome || 'Time'}</p>
               <p className="text-sm text-soft">{nome || 'Escalação'} · {formacao.label}{treinador ? ` · Treinador: ${treinador}` : ''}</p>
             </div>
           </div>
-          <div className="flex gap-8">
+          <div className="flex">
             <div
-              className="relative rounded-2xl overflow-hidden shrink-0"
-              style={{
-                width: 420,
-                height: 618,
-                background: 'repeating-linear-gradient(180deg, #1c6b3a 0, #1c6b3a 12.5%, #195f33 12.5%, #195f33 25%)',
-              }}
+              className="relative rounded-2xl overflow-hidden shrink-0 mr-8"
+              style={{ width: 420, height: 618, background: '#1c6b3a' }}
             >
               <CampoMarcacoes />
               {titularesOrdenados.map(({ slot, atleta }) => (
@@ -564,17 +560,17 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                 </div>
               ))}
             </div>
-            <div className="flex-1 flex flex-col gap-6">
-              <div>
+            <div className="flex-1 flex flex-col">
+              <div className="mb-6">
                 <p className="text-xs font-bold uppercase tracking-widest text-brand mb-2.5">Titulares</p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   {titularesOrdenados.map(({ atleta }) => linhaAtletaExport(atleta, 'brand'))}
                 </div>
               </div>
               {suplentesOrdenados.length > 0 && (
-                <div>
+                <div className="mb-6">
                   <p className="text-xs font-bold uppercase tracking-widest text-info mb-2.5">Suplentes</p>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col">
                     {suplentesOrdenados.map(atleta => linhaAtletaExport(atleta, 'info'))}
                   </div>
                 </div>
@@ -582,10 +578,10 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
               {staffOrdenado.length > 0 ? (
                 <div className="mt-auto pt-4 border-t border-line">
                   <p className="text-xs font-bold uppercase tracking-widest text-faint mb-2">Comissão Técnica</p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap">
                     {staffOrdenado.map(membro => (
-                      <div key={membro.id} className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-full bg-surface border border-line overflow-hidden grid place-items-center shrink-0">
+                      <div key={membro.id} className="flex items-center mr-3 mb-3">
+                        <div className="w-9 h-9 rounded-full bg-surface border border-line overflow-hidden grid place-items-center shrink-0 mr-2">
                           {membro.foto_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
@@ -616,6 +612,11 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
 function CampoMarcacoes() {
   return (
     <svg viewBox="0 0 68 100" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+      <g>
+        {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+          <rect key={i} x="0" y={i * 12.5} width="68" height="12.5" fill={i % 2 === 0 ? '#1c6b3a' : '#195f33'} />
+        ))}
+      </g>
       <g fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4">
         <rect x="1" y="1" width="66" height="98" />
         <line x1="1" y1="50" x2="67" y2="50" />
