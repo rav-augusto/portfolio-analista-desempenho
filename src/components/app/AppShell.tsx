@@ -13,6 +13,7 @@ export type AppMenuItem = {
   icon: React.ComponentType<{ className?: string }>
   label: string
   masterOnly?: boolean
+  hideForProfessor?: boolean
 }
 
 type Tone = 'brand' | 'portal'
@@ -36,11 +37,11 @@ export function AppShell({
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  const { user, isMaster } = useUser()
+  const { user, isMaster, isProfessor } = useUser()
 
   const filteredItems = useMemo(
-    () => menuItems.filter((i) => !i.masterOnly || isMaster),
-    [menuItems, isMaster]
+    () => menuItems.filter((i) => (!i.masterOnly || isMaster) && (!i.hideForProfessor || !isProfessor)),
+    [menuItems, isMaster, isProfessor]
   )
 
   // Travar scroll do body quando drawer aberto no mobile

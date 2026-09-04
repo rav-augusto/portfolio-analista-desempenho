@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { email, nome, senha, role, atleta_id } = body
+    const { email, nome, senha, role, atleta_id, clube_id } = body
 
     if (!email || !nome || !role) {
       return NextResponse.json({ error: 'Email, nome e role sao obrigatorios' }, { status: 400 })
@@ -84,6 +84,7 @@ export async function POST(request: Request) {
         nome,
         role,
         atleta_id: atleta_id || null,
+        clube_id: clube_id || null,
         ativo: true
       })
       .select()

@@ -1,4 +1,4 @@
-export type UserRole = 'master' | 'analista' | 'atleta'
+export type UserRole = 'master' | 'analista' | 'atleta' | 'professor'
 
 export type Usuario = {
   id: string
@@ -6,6 +6,7 @@ export type Usuario = {
   nome: string
   role: UserRole
   atleta_id: string | null
+  clube_id: string | null
   ativo: boolean
   created_at: string
   updated_at?: string
@@ -29,6 +30,7 @@ export type UserContext = {
   isMaster: boolean
   isAnalista: boolean
   isAtleta: boolean
+  isProfessor: boolean
   // Permission helpers
   canCreate: boolean
   canEdit: (criadoPor: string | null | undefined) => boolean
@@ -43,11 +45,13 @@ export type CreateUsuarioInput = {
   nome: string
   role: UserRole
   atleta_id?: string | null
+  clube_id?: string | null
 }
 
 export type UpdateUsuarioInput = {
   nome?: string
   role?: UserRole
   atleta_id?: string | null
+  clube_id?: string | null
   ativo?: boolean
 }

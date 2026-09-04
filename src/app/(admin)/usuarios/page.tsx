@@ -5,29 +5,33 @@ import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { useRouter } from 'next/navigation'
 import {
-  Plus, Pencil, Trash2, UserCog, Search, Check, Ban, Shield, User, Users, Eye, EyeOff,
+  Plus, Pencil, Trash2, UserCog, Search, Check, Ban, Shield, User, Users, Eye, EyeOff, GraduationCap,
 } from 'lucide-react'
 import {
   PageHeader, Button, Input, Select, StatCard, Card, Badge, EmptyState, Spinner, Modal,
 } from '@/components/app'
 
-type Role = 'master' | 'analista' | 'atleta'
+type Role = 'master' | 'analista' | 'atleta' | 'professor'
 type Usuario = {
   id: string
   email: string
   nome: string
   role: Role
   atleta_id: string | null
+  clube_id: string | null
   ativo: boolean
   created_at: string
   atleta?: { id: string; nome: string } | null
+  clube?: { id: string; nome: string } | null
 }
 type Atleta = { id: string; nome: string }
+type Clube = { id: string; nome: string }
 type ModalData = { mode: 'create' | 'edit'; usuario?: Usuario }
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [atletas, setAtletas] = useState<Atleta[]>([])
+  const [clubes, setClubes] = useState<Clube[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filtroRole, setFiltroRole] = useState('')
@@ -44,6 +48,7 @@ export default function UsuariosPage() {
   const [showSenha, setShowSenha] = useState(false)
   const [formRole, setFormRole] = useState<Role>('analista')
   const [formAtletaId, setFormAtletaId] = useState<string>('')
+  const [formClubeId, setFormClubeId] = useState<string>('')
   const [formAtivo, setFormAtivo] = useState(true)
 
   const supabase = createClient()
@@ -60,22 +65,24 @@ export default function UsuariosPage() {
   }, [isMaster])
 
   const loadData = async () => {
-    const [usuariosRes, atletasRes] = await Promise.all([
-      supabase.from('usuarios').select('*, atleta:atletas(id, nome)').order('nome'),
+    const [usuariosRes, atletasRes, clubesRes] = await Promise.all([
+      supabase.from('usuarios').select('*, atleta:atletas(id, nome), clube:clubes(id, nome)').order('nome'),
       supabase.from('atletas').select('id, nome').order('nome'),
+      supabase.from('clubes').select('id, nome').order('nome'),
     ])
     if (usuariosRes.data) setUsuarios(usuariosRes.data)
     if (atletasRes.data) setAtletas(atletasRes.data)
+    if (clubesRes.data) setClubes(clubesRes.data)
     setLoading(false)
   }
 
   const handleOpenModal = (mode: 'create' | 'edit', usuario?: Usuario) => {
     setError(null); setFormSenha(''); setShowSenha(false)
     if (mode === 'create') {
-      setFormEmail(''); setFormNome(''); setFormRole('analista'); setFormAtletaId(''); setFormAtivo(true)
+      setFormEmail(''); setFormNome(''); setFormRole('analista'); setFormAtletaId(''); setFormClubeId(''); setFormAtivo(true)
     } else if (usuario) {
       setFormEmail(usuario.email); setFormNome(usuario.nome); setFormRole(usuario.role)
-      setFormAtletaId(usuario.atleta_id || ''); setFormAtivo(usuario.ativo)
+      setFormAtletaId(usuario.atleta_id || ''); setFormClubeId(usuario.clube_id || ''); setFormAtivo(usuario.ativo)
     }
     setModal({ mode, usuario })
   }
@@ -86,6 +93,7 @@ export default function UsuariosPage() {
     if (modal?.mode === 'create' && !formSenha) { setError('Senha é obrigatória para novo usuário'); return }
     if (modal?.mode === 'create' && formSenha.length < 6) { setError('Senha deve ter no mínimo 6 caracteres'); return }
     if (formRole === 'atleta' && !formAtletaId) { setError('Selecione um atleta para vincular'); return }
+    if (formRole === 'professor' && !formClubeId) { setError('Selecione o clube que o professor vai gerenciar'); return }
 
     setSaving(true); setError(null)
     try {
@@ -96,6 +104,7 @@ export default function UsuariosPage() {
           body: JSON.stringify({
             email: formEmail, nome: formNome, senha: formSenha, role: formRole,
             atleta_id: formRole === 'atleta' ? formAtletaId : null,
+            clube_id: formRole === 'professor' ? formClubeId : null,
           }),
         })
         const result = await response.json()
@@ -104,12 +113,17 @@ export default function UsuariosPage() {
       } else if (modal?.mode === 'edit' && modal.usuario) {
         const { error: updateError } = await supabase
           .from('usuarios')
-          .update({ nome: formNome, role: formRole, atleta_id: formRole === 'atleta' ? formAtletaId : null, ativo: formAtivo })
+          .update({
+            nome: formNome, role: formRole,
+            atleta_id: formRole === 'atleta' ? formAtletaId : null,
+            clube_id: formRole === 'professor' ? formClubeId : null,
+            ativo: formAtivo,
+          })
           .eq('id', modal.usuario.id)
         if (updateError) throw updateError
         setUsuarios(usuarios.map(u =>
           u.id === modal.usuario!.id
-            ? { ...u, nome: formNome, role: formRole, atleta_id: formRole === 'atleta' ? formAtletaId : null, ativo: formAtivo }
+            ? { ...u, nome: formNome, role: formRole, atleta_id: formRole === 'atleta' ? formAtletaId : null, clube_id: formRole === 'professor' ? formClubeId : null, ativo: formAtivo }
             : u
         ))
       }
@@ -138,9 +152,10 @@ export default function UsuariosPage() {
   const roleIcon = (role: string) =>
     role === 'master' ? <Shield className="w-3.5 h-3.5" />
       : role === 'analista' ? <UserCog className="w-3.5 h-3.5" />
+      : role === 'professor' ? <GraduationCap className="w-3.5 h-3.5" />
       : <User className="w-3.5 h-3.5" />
-  const roleLabel = (role: string) => role === 'master' ? 'Master' : role === 'analista' ? 'Analista' : role === 'atleta' ? 'Atleta' : role
-  const roleBadge = (role: string): 'brand' | 'info' | 'neutral' => role === 'master' ? 'brand' : role === 'analista' ? 'info' : 'neutral'
+  const roleLabel = (role: string) => role === 'master' ? 'Master' : role === 'analista' ? 'Analista' : role === 'atleta' ? 'Atleta' : role === 'professor' ? 'Professor' : role
+  const roleBadge = (role: string): 'brand' | 'info' | 'neutral' | 'positive' => role === 'master' ? 'brand' : role === 'analista' ? 'info' : role === 'professor' ? 'positive' : 'neutral'
 
   const kpis = useMemo(() => ({
     total: usuarios.length,
@@ -191,6 +206,7 @@ export default function UsuariosPage() {
               <option value="">Todos os papéis</option>
               <option value="master">Master</option>
               <option value="analista">Analista</option>
+              <option value="professor">Professor</option>
               <option value="atleta">Atleta</option>
             </Select>
             <Select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} className="sm:w-36">
@@ -237,7 +253,7 @@ export default function UsuariosPage() {
                     </td>
                     <td className="px-3 py-3 text-soft hidden md:table-cell truncate max-w-[200px]">{u.email}</td>
                     <td className="px-3 py-3"><Badge variant={roleBadge(u.role)} size="sm">{roleIcon(u.role)}{roleLabel(u.role)}</Badge></td>
-                    <td className="px-3 py-3 text-soft hidden lg:table-cell truncate max-w-[160px]">{u.atleta?.nome || <span className="text-faint">—</span>}</td>
+                    <td className="px-3 py-3 text-soft hidden lg:table-cell truncate max-w-[160px]">{u.atleta?.nome || u.clube?.nome || <span className="text-faint">—</span>}</td>
                     <td className="px-3 py-3 text-center">
                       {u.ativo ? <Badge variant="positive" size="sm">Ativo</Badge> : <Badge variant="negative" size="sm">Inativo</Badge>}
                     </td>
@@ -294,6 +310,7 @@ export default function UsuariosPage() {
           )}
           <Select label="Tipo de usuário" value={formRole} onChange={(e) => setFormRole(e.target.value as Role)}>
             <option value="analista">Analista</option>
+            <option value="professor">Professor</option>
             <option value="atleta">Atleta</option>
             <option value="master">Master</option>
           </Select>
@@ -301,6 +318,12 @@ export default function UsuariosPage() {
             <Select label="Vincular ao atleta" value={formAtletaId} onChange={(e) => setFormAtletaId(e.target.value)}>
               <option value="">Selecione um atleta...</option>
               {atletas.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
+            </Select>
+          )}
+          {formRole === 'professor' && (
+            <Select label="Clube que ele vai gerenciar" value={formClubeId} onChange={(e) => setFormClubeId(e.target.value)} hint="Acesso restrito a Atletas, Comissão Técnica e Escalações desse clube">
+              <option value="">Selecione um clube...</option>
+              {clubes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
             </Select>
           )}
           {modal?.mode === 'edit' && (

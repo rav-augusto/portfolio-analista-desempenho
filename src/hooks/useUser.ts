@@ -73,6 +73,7 @@ export function useUser(): UserContext {
               nome: authUser.email!.split('@')[0],
               role: 'analista',
               atleta_id: null,
+              clube_id: null,
               ativo: true,
               created_at: new Date().toISOString()
             })
@@ -125,24 +126,27 @@ export function useUser(): UserContext {
   const isMaster = user?.role === 'master'
   const isAnalista = user?.role === 'analista'
   const isAtleta = user?.role === 'atleta'
+  const isProfessor = user?.role === 'professor'
 
   // Permission helpers
-  const canCreate = isMaster || isAnalista
+  const canCreate = isMaster || isAnalista || isProfessor
   const canManageUsers = isMaster
 
+  // Professor so enxerga (via RLS de SELECT) o que ja e do proprio clube,
+  // entao qualquer linha que ele conseguiu carregar ja pode editar/excluir.
   const canEdit = useCallback((criadoPor: string | null | undefined): boolean => {
     if (!user) return false
-    if (isMaster) return true
+    if (isMaster || isProfessor) return true
     if (isAtleta) return false
     return criadoPor === user.id
-  }, [user, isMaster, isAtleta])
+  }, [user, isMaster, isAtleta, isProfessor])
 
   const canDelete = useCallback((criadoPor: string | null | undefined): boolean => {
     if (!user) return false
-    if (isMaster) return true
+    if (isMaster || isProfessor) return true
     if (isAtleta) return false
     return criadoPor === user.id
-  }, [user, isMaster, isAtleta])
+  }, [user, isMaster, isAtleta, isProfessor])
 
   return {
     user,
@@ -151,6 +155,7 @@ export function useUser(): UserContext {
     isMaster,
     isAnalista,
     isAtleta,
+    isProfessor,
     canCreate,
     canEdit,
     canDelete,

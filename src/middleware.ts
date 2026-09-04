@@ -38,10 +38,13 @@ export async function middleware(request: NextRequest) {
     '/analises',
     '/atletas',
     '/avaliacoes',
+    '/avaliacao-fisica',
     '/usuarios',
     '/portal',
     '/comparar-atletas',
-    '/guia-avaliacao'
+    '/guia-avaliacao',
+    '/escalacoes',
+    '/comissao-tecnica'
   ]
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
@@ -73,10 +76,13 @@ export const config = {
     '/analises/:path*',
     '/atletas/:path*',
     '/avaliacoes/:path*',
+    '/avaliacao-fisica/:path*',
     '/usuarios/:path*',
     '/portal/:path*',
     '/comparar-atletas/:path*',
     '/guia-avaliacao/:path*',
+    '/escalacoes/:path*',
+    '/comissao-tecnica/:path*',
     '/login',
   ],
 }

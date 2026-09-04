@@ -24,33 +24,36 @@ import {
 } from 'lucide-react'
 
 const adminMenu: AppMenuItem[] = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard-atletas', icon: TrendingUp, label: 'Evolucao Atletas' },
-  { href: '/dashboard-avaliacoes', icon: Target, label: 'Comparativo' },
-  { href: '/comparar-atletas', icon: GitCompare, label: 'Comparar Atletas' },
-  { href: '/guia-avaliacao', icon: BookOpen, label: 'Guia de Avaliacao' },
-  { href: '/clubes', icon: Shield, label: 'Clubes' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', hideForProfessor: true },
+  { href: '/dashboard-atletas', icon: TrendingUp, label: 'Evolucao Atletas', hideForProfessor: true },
+  { href: '/dashboard-avaliacoes', icon: Target, label: 'Comparativo', hideForProfessor: true },
+  { href: '/comparar-atletas', icon: GitCompare, label: 'Comparar Atletas', hideForProfessor: true },
+  { href: '/guia-avaliacao', icon: BookOpen, label: 'Guia de Avaliacao', hideForProfessor: true },
+  { href: '/clubes', icon: Shield, label: 'Clubes', hideForProfessor: true },
   { href: '/atletas', icon: Users, label: 'Atletas' },
   { href: '/comissao-tecnica', icon: UsersRound, label: 'Comissão Técnica' },
   { href: '/escalacoes', icon: Shirt, label: 'Escalações' },
-  { href: '/jogos', icon: Gamepad2, label: 'Jogos' },
-  { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo' },
-  { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas' },
-  { href: '/avaliacao-fisica', icon: Activity, label: 'Avaliacao Fisica' },
+  { href: '/jogos', icon: Gamepad2, label: 'Jogos', hideForProfessor: true },
+  { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo', hideForProfessor: true },
+  { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas', hideForProfessor: true },
+  { href: '/avaliacao-fisica', icon: Activity, label: 'Avaliacao Fisica', hideForProfessor: true },
   { href: '/usuarios', icon: UserCog, label: 'Usuarios', masterOnly: true },
 ]
+
+const ROTAS_PROFESSOR = ['/atletas', '/comissao-tecnica', '/escalacoes']
 
 const roleLabels: Record<string, string> = {
   master: 'Master',
   analista: 'Analista',
   atleta: 'Atleta',
+  professor: 'Professor',
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
-  const { user, isLoading, isAtleta } = useUser()
+  const { user, isLoading, isAtleta, isProfessor } = useUser()
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -65,6 +68,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push('/portal')
     }
   }, [isLoading, isAtleta, pathname, router])
+
+  useEffect(() => {
+    if (!isLoading && isProfessor && !ROTAS_PROFESSOR.some(r => pathname.startsWith(r))) {
+      router.push('/escalacoes')
+    }
+  }, [isLoading, isProfessor, pathname, router])
 
   const roleLabel = useMemo(
     () => (user?.role ? roleLabels[user.role] ?? 'Usuario' : ''),
