@@ -563,7 +563,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             )}
             <p className="text-2xl font-bold text-strong" style={{ margin: 0 }}>{clubeAtual?.nome || 'Time'}{adversario ? ` × ${adversario}` : ''}</p>
             <p className="text-sm text-soft" style={{ margin: 0, marginTop: 6 }}>Escalação · {formacao.label}</p>
-            {detalhesPartida && <p className="text-xs text-faint" style={{ margin: 0, marginTop: 8 }}>{detalhesPartida}</p>}
+            {detalhesPartida && <p className="text-xs text-strong" style={{ margin: 0, marginTop: 8, fontWeight: 700 }}>{detalhesPartida}</p>}
           </div>
 
           {/* Campo grande, nome embaixo de cada foto — sem lista de titulares ao lado */}
@@ -639,6 +639,13 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
               <p className="text-sm text-strong font-medium" style={{ margin: 0, marginTop: 4 }}>{treinador}</p>
             </div>
           ) : null}
+
+          {observacoes && (
+            <div className="border-t border-line" style={{ marginTop: 28, paddingTop: 20 }}>
+              <p className="text-xs font-bold uppercase tracking-widest text-info" style={{ margin: 0, marginBottom: 8 }}>Observações</p>
+              <p className="text-sm text-strong" style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{observacoes}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
