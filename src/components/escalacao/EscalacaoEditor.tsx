@@ -33,6 +33,20 @@ type Origin = { kind: 'slot'; slotId: string } | { kind: 'roster' }
 
 const primeiroNome = (nomeCompleto: string) => nomeCompleto.trim().split(/\s+/)[0]
 
+const POSICAO_SLOT_LABEL: Record<string, string> = {
+  'Goleiro': 'GOL',
+  'Lateral Direito': 'LD',
+  'Lateral Esquerdo': 'LE',
+  'Zagueiro': 'ZAG',
+  'Volante': 'VOL',
+  'Meio-Campo': 'MC',
+  'Meia Atacante': 'MEI',
+  'Ponta Direita': 'PD',
+  'Ponta Esquerda': 'PE',
+  'Centroavante': 'CA',
+  'Atacante': 'ATA',
+}
+
 export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   const router = useRouter()
   const supabase = createClient()
@@ -164,6 +178,20 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       const next = new Set(prev)
       if (next.has(atletaId)) next.delete(atletaId)
       else next.add(atletaId)
+      return next
+    })
+  }
+
+  const preencherPosicaoAutomatico = (atleta: Atleta) => {
+    const label = POSICAO_SLOT_LABEL[atleta.posicao || '']
+    if (!label) return
+    const slotVazio = formacao.slots.find(s => s.label === label && !slots[s.id])
+    if (!slotVazio) return
+    setSlots(prev => ({ ...prev, [slotVazio.id]: atleta.id }))
+    setSuplentes(prev => {
+      if (!prev.has(atleta.id)) return prev
+      const next = new Set(prev)
+      next.delete(atleta.id)
       return next
     })
   }
@@ -463,7 +491,12 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                   const emCampo = !!slotId
                   const isSuplente = suplentes.has(atleta.id)
                   return (
-                    <div key={atleta.id} className={cn('flex items-center gap-2.5 p-2 rounded-xl border transition-colors', emCampo ? 'bg-brand-soft border-brand/30' : isSuplente ? 'bg-info/5 border-info/30' : 'bg-app border-line')}>
+                    <div
+                      key={atleta.id}
+                      onClick={() => !emCampo && preencherPosicaoAutomatico(atleta)}
+                      title={!emCampo ? 'Clique para escalar na posição, ou arraste pro campo' : undefined}
+                      className={cn('flex items-center gap-2.5 p-2 rounded-xl border transition-colors', emCampo ? 'bg-brand-soft border-brand/30' : isSuplente ? 'bg-info/5 border-info/30 cursor-pointer hover:border-info/50' : 'bg-app border-line cursor-pointer hover:border-line-strong')}
+                    >
                       <div
                         onPointerDown={!emCampo ? beginDrag(atleta.id, { kind: 'roster' }) : undefined}
                         className={cn('shrink-0 relative w-10 h-10 rounded-full bg-surface-2 border overflow-hidden grid place-items-center', emCampo ? 'border-brand' : 'border-line cursor-grab active:cursor-grabbing touch-none', draggingId === atleta.id && 'opacity-30')}
@@ -483,7 +516,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                       {emCampo ? (
                         <Badge variant="brand" size="sm">{formacao.slots.find(s => s.id === slotId)?.label}</Badge>
                       ) : (
-                        <button type="button" onClick={() => toggleSuplente(atleta.id)} className={cn('text-[10px] font-semibold px-2 py-1 rounded-lg border shrink-0 transition-colors', isSuplente ? 'bg-info/15 text-info border-info/30' : 'text-faint border-line hover:text-strong hover:border-line-strong')}>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); toggleSuplente(atleta.id) }} className={cn('text-[10px] font-semibold px-2 py-1 rounded-lg border shrink-0 transition-colors', isSuplente ? 'bg-info/15 text-info border-info/30' : 'text-faint border-line hover:text-strong hover:border-line-strong')}>
                           {isSuplente ? 'Suplente' : '+ suplente'}
                         </button>
                       )}
