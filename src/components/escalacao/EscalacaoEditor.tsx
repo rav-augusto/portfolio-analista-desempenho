@@ -589,6 +589,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
               </div>
             ))}
           </div>
+          <p className="text-brand" style={{ textAlign: 'center', margin: 0, marginTop: 12, fontSize: 14, fontWeight: 700, letterSpacing: '0.05em' }}>{formacao.label}</p>
 
           {suplentesOrdenados.length > 0 && (
             <div style={{ marginTop: 28 }}>
