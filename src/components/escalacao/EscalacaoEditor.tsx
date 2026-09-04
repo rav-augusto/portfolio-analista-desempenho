@@ -322,26 +322,6 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
     horarioJogo && `Bola rolando ${horarioJogo}`,
   ].filter(Boolean).join(' · ')
 
-  const linhaAtletaExport = (atleta: Atleta, cor: 'brand' | 'info') => (
-    <div key={atleta.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 14 }}>
-      <div
-        className={cn('absolute rounded-full bg-surface border-2 overflow-hidden grid place-items-center', cor === 'brand' ? 'border-brand' : 'border-info')}
-        style={{ left: 0, top: 0, width: 36, height: 36 }}
-      >
-        {atleta.foto_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-        ) : <User style={{ width: 16, height: 16 }} className="text-faint" />}
-        {atleta.numero_camisa != null && (
-          <span
-            className={cn('absolute rounded-full text-app text-[9px] font-bold grid place-items-center border-2 border-app', cor === 'brand' ? 'bg-brand' : 'bg-info')}
-            style={{ bottom: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px' }}
-          >{atleta.numero_camisa}</span>
-        )}
-      </div>
-      <p className={cn('text-sm', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')} style={{ margin: 0, paddingTop: 8 }}>{atleta.nome}</p>
-    </div>
-  )
 
   return (
     <div>
@@ -584,65 +564,79 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             {detalhesPartida && <p className="text-xs text-faint" style={{ margin: 0, marginTop: 8 }}>{detalhesPartida}</p>}
           </div>
 
-          <div style={{ overflow: 'hidden' }}>
-            <div
-              className="rounded-2xl overflow-hidden"
-              style={{ float: 'left', width: 420, height: 618, marginRight: 32, position: 'relative', background: '#1c6b3a' }}
-            >
-              <CampoMarcacoes />
-              {titularesOrdenados.map(({ slot, atleta }) => (
-                <div key={slot.id} className="absolute" style={{ left: `${slot.x}%`, top: `${slot.y}%`, transform: 'translate(-50%, -50%)' }}>
-                  <div className="rounded-full bg-surface border-2 border-brand overflow-hidden grid place-items-center shadow-lg" style={{ position: 'relative', width: 56, height: 56 }}>
-                    {atleta.foto_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-                    ) : <User style={{ width: 24, height: 24 }} className="text-faint" />}
-                    {atleta.numero_camisa != null && (
-                      <span
-                        className="absolute rounded-full bg-brand text-app text-[11px] font-bold grid place-items-center border-2 border-app"
-                        style={{ bottom: -6, right: -6, minWidth: 20, height: 20, padding: '0 4px' }}
-                      >{atleta.numero_camisa}</span>
-                    )}
-                  </div>
+          {/* Campo grande, nome embaixo de cada foto — sem lista de titulares ao lado */}
+          <div
+            style={{ width: 520, height: 765, margin: '0 auto', position: 'relative', background: '#1c6b3a' }}
+          >
+            <CampoMarcacoes />
+            {titularesOrdenados.map(({ slot, atleta }) => (
+              <div key={slot.id} className="absolute" style={{ left: `${slot.x}%`, top: `${slot.y}%`, transform: 'translate(-50%, -50%)', width: 110, textAlign: 'center' }}>
+                <div className="rounded-full bg-surface border-2 border-brand overflow-hidden grid place-items-center shadow-lg" style={{ position: 'relative', width: 64, height: 64, margin: '0 auto' }}>
+                  {atleta.foto_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                  ) : <User style={{ width: 26, height: 26 }} className="text-faint" />}
+                  {atleta.numero_camisa != null && (
+                    <span
+                      className="absolute rounded-full bg-brand text-app text-[11px] font-bold grid place-items-center border-2 border-app"
+                      style={{ bottom: -6, right: -6, minWidth: 20, height: 20, padding: '0 4px' }}
+                    >{atleta.numero_camisa}</span>
+                  )}
                 </div>
-              ))}
-            </div>
-
-            <div style={{ overflow: 'hidden' }}>
-              <div style={{ marginBottom: 28 }}>
-                <p className="text-xs font-bold uppercase tracking-widest text-brand" style={{ margin: 0, marginBottom: 16 }}>Titulares</p>
-                {titularesOrdenados.map(({ atleta }) => linhaAtletaExport(atleta, 'brand'))}
+                <p style={{ display: 'inline-block', margin: 0, marginTop: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 4, maxWidth: 110 }}>{atleta.nome}</p>
               </div>
-              {suplentesOrdenados.length > 0 && (
-                <div style={{ marginBottom: 28 }}>
-                  <p className="text-xs font-bold uppercase tracking-widest text-info" style={{ margin: 0, marginBottom: 16 }}>Suplentes</p>
-                  {suplentesOrdenados.map(atleta => linhaAtletaExport(atleta, 'info'))}
-                </div>
-              )}
-              {staffOrdenado.length > 0 ? (
-                <div className="border-t border-line" style={{ paddingTop: 20 }}>
-                  <p className="text-xs font-bold uppercase tracking-widest text-faint" style={{ margin: 0, marginBottom: 16 }}>Comissão Técnica</p>
-                  {staffOrdenado.map(membro => (
-                    <div key={membro.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 14 }}>
-                      <div className="absolute rounded-full bg-surface border border-line overflow-hidden grid place-items-center" style={{ left: 0, top: 0, width: 36, height: 36 }}>
-                        {membro.foto_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-                        ) : <UsersRound style={{ width: 16, height: 16 }} className="text-faint" />}
-                      </div>
-                      <p className="text-xs font-medium text-strong" style={{ margin: 0, paddingTop: 6 }}>{membro.nome}</p>
-                      <p className="text-[10px] text-faint" style={{ margin: 0 }}>{membro.funcao}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : treinador ? (
-                <div className="border-t border-line" style={{ paddingTop: 20 }}>
-                  <p className="text-xs text-faint uppercase tracking-wider" style={{ margin: 0 }}>Treinador</p>
-                  <p className="text-sm text-strong font-medium" style={{ margin: 0, marginTop: 4 }}>{treinador}</p>
-                </div>
-              ) : null}
-            </div>
+            ))}
           </div>
+
+          {suplentesOrdenados.length > 0 && (
+            <div style={{ marginTop: 28 }}>
+              <p className="text-xs font-bold uppercase tracking-widest text-info" style={{ margin: 0, marginBottom: 16 }}>Suplentes</p>
+              <div>
+                {suplentesOrdenados.map(atleta => (
+                  <div key={atleta.id} style={{ display: 'inline-block', verticalAlign: 'top', width: 96, textAlign: 'center', marginRight: 16, marginBottom: 16 }}>
+                    <div className="rounded-full bg-surface border-2 border-info overflow-hidden grid place-items-center" style={{ position: 'relative', width: 56, height: 56, margin: '0 auto' }}>
+                      {atleta.foto_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                      ) : <User style={{ width: 22, height: 22 }} className="text-faint" />}
+                      {atleta.numero_camisa != null && (
+                        <span
+                          className="absolute rounded-full bg-info text-app text-[9px] font-bold grid place-items-center border-2 border-app"
+                          style={{ bottom: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px' }}
+                        >{atleta.numero_camisa}</span>
+                      )}
+                    </div>
+                    <p className="text-strong" style={{ margin: 0, marginTop: 6, fontSize: 12, fontWeight: 500 }}>{atleta.nome}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {staffOrdenado.length > 0 ? (
+            <div className="border-t border-line" style={{ marginTop: 28, paddingTop: 20 }}>
+              <p className="text-xs font-bold uppercase tracking-widest text-faint" style={{ margin: 0, marginBottom: 16 }}>Comissão Técnica</p>
+              <div>
+                {staffOrdenado.map(membro => (
+                  <div key={membro.id} style={{ display: 'inline-block', verticalAlign: 'top', width: 96, textAlign: 'center', marginRight: 16, marginBottom: 16 }}>
+                    <div className="rounded-full bg-surface border border-line overflow-hidden grid place-items-center" style={{ position: 'relative', width: 48, height: 48, margin: '0 auto' }}>
+                      {membro.foto_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                      ) : <UsersRound style={{ width: 18, height: 18 }} className="text-faint" />}
+                    </div>
+                    <p className="text-strong" style={{ margin: 0, marginTop: 6, fontSize: 12, fontWeight: 500 }}>{membro.nome}</p>
+                    <p className="text-faint" style={{ margin: 0, fontSize: 10 }}>{membro.funcao}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : treinador ? (
+            <div className="border-t border-line" style={{ marginTop: 28, paddingTop: 20 }}>
+              <p className="text-xs text-faint uppercase tracking-wider" style={{ margin: 0 }}>Treinador</p>
+              <p className="text-sm text-strong font-medium" style={{ margin: 0, marginTop: 4 }}>{treinador}</p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
