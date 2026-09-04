@@ -331,9 +331,12 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
         {atleta.foto_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-        ) : <User className="w-4 h-4 text-faint" />}
+        ) : <User style={{ width: 16, height: 16 }} className="text-faint" />}
         {atleta.numero_camisa != null && (
-          <span className={cn('absolute -bottom-1 -right-1 min-w-4 h-4 px-1 rounded-full text-app text-[9px] font-bold grid place-items-center border-2 border-app', cor === 'brand' ? 'bg-brand' : 'bg-info')}>{atleta.numero_camisa}</span>
+          <span
+            className={cn('absolute rounded-full text-app text-[9px] font-bold grid place-items-center border-2 border-app', cor === 'brand' ? 'bg-brand' : 'bg-info')}
+            style={{ bottom: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px' }}
+          >{atleta.numero_camisa}</span>
         )}
       </div>
       <p className={cn('text-sm', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')} style={{ margin: 0, paddingTop: 8 }}>{atleta.nome}</p>
@@ -588,14 +591,17 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             >
               <CampoMarcacoes />
               {titularesOrdenados.map(({ slot, atleta }) => (
-                <div key={slot.id} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${slot.x}%`, top: `${slot.y}%` }}>
-                  <div className="relative w-14 h-14 rounded-full bg-surface border-2 border-brand overflow-hidden grid place-items-center shadow-lg">
+                <div key={slot.id} className="absolute" style={{ left: `${slot.x}%`, top: `${slot.y}%`, transform: 'translate(-50%, -50%)' }}>
+                  <div className="rounded-full bg-surface border-2 border-brand overflow-hidden grid place-items-center shadow-lg" style={{ position: 'relative', width: 56, height: 56 }}>
                     {atleta.foto_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-                    ) : <User className="w-6 h-6 text-faint" />}
+                    ) : <User style={{ width: 24, height: 24 }} className="text-faint" />}
                     {atleta.numero_camisa != null && (
-                      <span className="absolute -bottom-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-brand text-app text-[11px] font-bold grid place-items-center border-2 border-app">{atleta.numero_camisa}</span>
+                      <span
+                        className="absolute rounded-full bg-brand text-app text-[11px] font-bold grid place-items-center border-2 border-app"
+                        style={{ bottom: -6, right: -6, minWidth: 20, height: 20, padding: '0 4px' }}
+                      >{atleta.numero_camisa}</span>
                     )}
                   </div>
                 </div>
@@ -622,7 +628,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                         {membro.foto_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-                        ) : <UsersRound className="w-4 h-4 text-faint" />}
+                        ) : <UsersRound style={{ width: 16, height: 16 }} className="text-faint" />}
                       </div>
                       <p className="text-xs font-medium text-strong" style={{ margin: 0, paddingTop: 6 }}>{membro.nome}</p>
                       <p className="text-[10px] text-faint" style={{ margin: 0 }}>{membro.funcao}</p>
