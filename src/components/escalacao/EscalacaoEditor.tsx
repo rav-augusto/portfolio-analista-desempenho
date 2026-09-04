@@ -583,7 +583,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                     >{atleta.numero_camisa}</span>
                   )}
                 </div>
-                <p style={{ display: 'inline-block', margin: 0, marginTop: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 4, maxWidth: 110 }}>{atleta.nome}</p>
+                <p style={{ margin: 0, marginTop: 6, color: '#fff', fontSize: 12, fontWeight: 700, textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7)' }}>{atleta.nome}</p>
               </div>
             ))}
           </div>
