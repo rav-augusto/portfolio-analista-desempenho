@@ -12,7 +12,7 @@ import { ArrowLeft, Save, Loader2, Download, User, UsersRound } from 'lucide-rea
 import { Card, Button, Select, Input, Textarea, Badge, Spinner } from '@/components/app'
 
 type Clube = { id: string; nome: string; escudo_url: string | null }
-type Jogo = { id: string; adversario: string; data_jogo: string; clube_id: string }
+type Jogo = { id: string; adversario: string; data_jogo: string; clube_id: string; local: string | null; competicao: string | null }
 type Atleta = {
   id: string
   nome: string
@@ -51,6 +51,11 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   const [nome, setNome] = useState('')
   const [treinador, setTreinador] = useState('')
   const [observacoes, setObservacoes] = useState('')
+  const [adversario, setAdversario] = useState('')
+  const [competicao, setCompeticao] = useState('')
+  const [local, setLocal] = useState('')
+  const [horarioJogo, setHorarioJogo] = useState('')
+  const [horarioApresentacao, setHorarioApresentacao] = useState('')
 
   const [atletas, setAtletas] = useState<Atleta[]>([])
   const [membros, setMembros] = useState<Membro[]>([])
@@ -81,6 +86,11 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       setNome(esc.nome || '')
       setTreinador(esc.treinador || '')
       setObservacoes(esc.observacoes || '')
+      setAdversario(esc.adversario || '')
+      setCompeticao(esc.competicao || '')
+      setLocal(esc.local || '')
+      setHorarioJogo(esc.horario_jogo || '')
+      setHorarioApresentacao(esc.horario_apresentacao || '')
 
       const { data: rel } = await supabase
         .from('escalacao_atletas')
@@ -112,7 +122,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
 
   useEffect(() => {
     if (!clubeId) { setJogos([]); setAtletas([]); setMembros([]); return }
-    supabase.from('jogos').select('id, adversario, data_jogo, clube_id').eq('clube_id', clubeId).order('data_jogo', { ascending: false }).then(({ data }) => {
+    supabase.from('jogos').select('id, adversario, data_jogo, clube_id, local, competicao').eq('clube_id', clubeId).order('data_jogo', { ascending: false }).then(({ data }) => {
       if (data) setJogos(data)
     })
     supabase.from('atletas').select('id, nome, foto_url, numero_camisa, posicao, clube_id').eq('clube_id', clubeId).order('numero_camisa', { ascending: true }).then(({ data }) => {
@@ -128,6 +138,9 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
     if (!jogoId) return
     const jogo = jogos.find(j => j.id === jogoId)
     if (jogo && !nome) setNome(`vs ${jogo.adversario}`)
+    if (jogo && !adversario) setAdversario(jogo.adversario)
+    if (jogo?.local && !local) setLocal(jogo.local)
+    if (jogo?.competicao && !competicao) setCompeticao(jogo.competicao)
     supabase.from('analises_jogo').select('sistema_tatico').eq('jogo_id', jogoId).maybeSingle().then(({ data }) => {
       if (data?.sistema_tatico && FORMACOES.some(f => f.id === data.sistema_tatico)) {
         setFormacaoId(data.sistema_tatico)
@@ -222,6 +235,11 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       formacao: formacaoId,
       treinador: treinador || null,
       observacoes: observacoes || null,
+      adversario: adversario || null,
+      competicao: competicao || null,
+      local: local || null,
+      horario_jogo: horarioJogo || null,
+      horario_apresentacao: horarioApresentacao || null,
     }
 
     let id = escalacaoId
@@ -297,10 +315,19 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   const suplentesOrdenados = Array.from(suplentes).map(id => atletasMap.get(id)).filter((a): a is Atleta => !!a)
   const membrosMap = new Map(membros.map(m => [m.id, m]))
   const staffOrdenado = Array.from(staffIds).map(id => membrosMap.get(id)).filter((m): m is Membro => !!m)
+  const detalhesPartida = [
+    competicao,
+    local,
+    horarioApresentacao && `Apresentação ${horarioApresentacao}`,
+    horarioJogo && `Bola rolando ${horarioJogo}`,
+  ].filter(Boolean).join(' · ')
 
   const linhaAtletaExport = (atleta: Atleta, cor: 'brand' | 'info') => (
-    <div key={atleta.id} className="flex items-center mb-2">
-      <div className={cn('relative w-9 h-9 rounded-full bg-surface border-2 overflow-hidden grid place-items-center shrink-0 mr-2.5', cor === 'brand' ? 'border-brand' : 'border-info')}>
+    <div key={atleta.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 10 }}>
+      <div
+        className={cn('absolute rounded-full bg-surface border-2 overflow-hidden grid place-items-center', cor === 'brand' ? 'border-brand' : 'border-info')}
+        style={{ left: 0, top: 0, width: 36, height: 36 }}
+      >
         {atleta.foto_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={atleta.foto_url} alt={atleta.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
@@ -309,7 +336,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
           <span className={cn('absolute -bottom-1 -right-1 min-w-4 h-4 px-1 rounded-full text-app text-[9px] font-bold grid place-items-center border-2 border-app', cor === 'brand' ? 'bg-brand' : 'bg-info')}>{atleta.numero_camisa}</span>
         )}
       </div>
-      <span className={cn('text-sm truncate', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')}>{atleta.nome}</span>
+      <p className={cn('text-sm', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')} style={{ paddingTop: 8 }}>{atleta.nome}</p>
     </div>
   )
 
@@ -356,6 +383,15 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             {FORMACOES.map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
           </Select>
           <Input label="Título" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: vs Palmeiras" />
+        </div>
+
+        <p className="text-xs font-semibold uppercase tracking-wider text-faint mt-5 mb-2 px-1">Detalhes da partida (aparecem na imagem)</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <Input label="Adversário" value={adversario} onChange={(e) => setAdversario(e.target.value)} placeholder="Ex: River FC" />
+          <Input label="Competição" value={competicao} onChange={(e) => setCompeticao(e.target.value)} placeholder="Ex: Campeonato Sub-15" />
+          <Input label="Local" value={local} onChange={(e) => setLocal(e.target.value)} placeholder="Ex: CT Laranja Mecânica" />
+          <Input label="Apresentação" type="time" value={horarioApresentacao} onChange={(e) => setHorarioApresentacao(e.target.value)} />
+          <Input label="Horário do jogo" type="time" value={horarioJogo} onChange={(e) => setHorarioJogo(e.target.value)} />
         </div>
       </Card>
 
@@ -527,23 +563,28 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
         </div>
       )}
 
-      {/* Template de exportação, renderizado fora da viewport e capturado via html2canvas */}
+      {/* Template de exportação, renderizado fora da viewport e capturado via html2canvas.
+          Evita `flex`/`gap` de propósito: o html2canvas não suporta bem essas propriedades,
+          então o layout aqui usa position:absolute + float + margin, que ele renderiza certo. */}
       <div className="fixed left-0 top-0 -z-50 opacity-0 pointer-events-none" aria-hidden>
         <div ref={exportRef} className="w-[900px] bg-app p-8">
-          <div className="flex items-center mb-6 pb-4 border-b border-line">
+          <div
+            className="mb-6 pb-4 border-b border-line"
+            style={{ position: 'relative', minHeight: clubeAtual?.escudo_url ? 64 : undefined, paddingLeft: clubeAtual?.escudo_url ? 72 : 0 }}
+          >
             {clubeAtual?.escudo_url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="w-14 h-14 object-contain mr-3" />
+              <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="absolute object-contain" style={{ left: 0, top: 0, width: 56, height: 56 }} />
             )}
-            <div>
-              <p className="text-2xl font-bold text-strong">{clubeAtual?.nome || 'Time'}</p>
-              <p className="text-sm text-soft">{nome || 'Escalação'} · {formacao.label}{treinador ? ` · Treinador: ${treinador}` : ''}</p>
-            </div>
+            <p className="text-2xl font-bold text-strong">{clubeAtual?.nome || 'Time'}{adversario ? ` × ${adversario}` : ''}</p>
+            <p className="text-sm text-soft" style={{ marginTop: 4 }}>{nome || 'Escalação'} · {formacao.label}</p>
+            {detalhesPartida && <p className="text-xs text-faint" style={{ marginTop: 6 }}>{detalhesPartida}</p>}
           </div>
-          <div className="flex">
+
+          <div style={{ overflow: 'hidden' }}>
             <div
-              className="relative rounded-2xl overflow-hidden shrink-0 mr-8"
-              style={{ width: 420, height: 618, background: '#1c6b3a' }}
+              className="rounded-2xl overflow-hidden"
+              style={{ float: 'left', width: 420, height: 618, marginRight: 32, position: 'relative', background: '#1c6b3a' }}
             >
               <CampoMarcacoes />
               {titularesOrdenados.map(({ slot, atleta }) => (
@@ -560,43 +601,36 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
                 </div>
               ))}
             </div>
-            <div className="flex-1 flex flex-col">
+
+            <div style={{ overflow: 'hidden' }}>
               <div className="mb-6">
                 <p className="text-xs font-bold uppercase tracking-widest text-brand mb-2.5">Titulares</p>
-                <div className="flex flex-col">
-                  {titularesOrdenados.map(({ atleta }) => linhaAtletaExport(atleta, 'brand'))}
-                </div>
+                {titularesOrdenados.map(({ atleta }) => linhaAtletaExport(atleta, 'brand'))}
               </div>
               {suplentesOrdenados.length > 0 && (
                 <div className="mb-6">
                   <p className="text-xs font-bold uppercase tracking-widest text-info mb-2.5">Suplentes</p>
-                  <div className="flex flex-col">
-                    {suplentesOrdenados.map(atleta => linhaAtletaExport(atleta, 'info'))}
-                  </div>
+                  {suplentesOrdenados.map(atleta => linhaAtletaExport(atleta, 'info'))}
                 </div>
               )}
               {staffOrdenado.length > 0 ? (
-                <div className="mt-auto pt-4 border-t border-line">
-                  <p className="text-xs font-bold uppercase tracking-widest text-faint mb-2">Comissão Técnica</p>
-                  <div className="flex flex-wrap">
-                    {staffOrdenado.map(membro => (
-                      <div key={membro.id} className="flex items-center mr-3 mb-3">
-                        <div className="w-9 h-9 rounded-full bg-surface border border-line overflow-hidden grid place-items-center shrink-0 mr-2">
-                          {membro.foto_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
-                          ) : <UsersRound className="w-4 h-4 text-faint" />}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium text-strong truncate">{membro.nome}</p>
-                          <p className="text-[10px] text-faint truncate">{membro.funcao}</p>
-                        </div>
+                <div className="pt-4 border-t border-line">
+                  <p className="text-xs font-bold uppercase tracking-widest text-faint mb-2.5">Comissão Técnica</p>
+                  {staffOrdenado.map(membro => (
+                    <div key={membro.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 10 }}>
+                      <div className="absolute rounded-full bg-surface border border-line overflow-hidden grid place-items-center" style={{ left: 0, top: 0, width: 36, height: 36 }}>
+                        {membro.foto_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                        ) : <UsersRound className="w-4 h-4 text-faint" />}
                       </div>
-                    ))}
-                  </div>
+                      <p className="text-xs font-medium text-strong" style={{ paddingTop: 4 }}>{membro.nome}</p>
+                      <p className="text-[10px] text-faint">{membro.funcao}</p>
+                    </div>
+                  ))}
                 </div>
               ) : treinador ? (
-                <div className="mt-auto pt-4 border-t border-line">
+                <div className="pt-4 border-t border-line">
                   <p className="text-xs text-faint uppercase tracking-wider">Treinador</p>
                   <p className="text-sm text-strong font-medium">{treinador}</p>
                 </div>
