@@ -323,7 +323,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   ].filter(Boolean).join(' · ')
 
   const linhaAtletaExport = (atleta: Atleta, cor: 'brand' | 'info') => (
-    <div key={atleta.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 10 }}>
+    <div key={atleta.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 14 }}>
       <div
         className={cn('absolute rounded-full bg-surface border-2 overflow-hidden grid place-items-center', cor === 'brand' ? 'border-brand' : 'border-info')}
         style={{ left: 0, top: 0, width: 36, height: 36 }}
@@ -336,7 +336,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
           <span className={cn('absolute -bottom-1 -right-1 min-w-4 h-4 px-1 rounded-full text-app text-[9px] font-bold grid place-items-center border-2 border-app', cor === 'brand' ? 'bg-brand' : 'bg-info')}>{atleta.numero_camisa}</span>
         )}
       </div>
-      <p className={cn('text-sm', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')} style={{ paddingTop: 8 }}>{atleta.nome}</p>
+      <p className={cn('text-sm', cor === 'brand' ? 'text-strong font-medium' : 'text-soft')} style={{ margin: 0, paddingTop: 8 }}>{atleta.nome}</p>
     </div>
   )
 
@@ -567,18 +567,18 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
           Evita `flex`/`gap` de propósito: o html2canvas não suporta bem essas propriedades,
           então o layout aqui usa position:absolute + float + margin, que ele renderiza certo. */}
       <div className="fixed left-0 top-0 -z-50 opacity-0 pointer-events-none" aria-hidden>
-        <div ref={exportRef} className="w-[900px] bg-app p-8">
+        <div ref={exportRef} className="w-[900px] bg-app" style={{ padding: 32 }}>
           <div
-            className="mb-6 pb-4 border-b border-line"
-            style={{ position: 'relative', minHeight: clubeAtual?.escudo_url ? 64 : undefined, paddingLeft: clubeAtual?.escudo_url ? 72 : 0 }}
+            className="border-b border-line"
+            style={{ position: 'relative', minHeight: clubeAtual?.escudo_url ? 64 : undefined, paddingLeft: clubeAtual?.escudo_url ? 72 : 0, marginBottom: 24, paddingBottom: 16 }}
           >
             {clubeAtual?.escudo_url && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="absolute object-contain" style={{ left: 0, top: 0, width: 56, height: 56 }} />
             )}
-            <p className="text-2xl font-bold text-strong">{clubeAtual?.nome || 'Time'}{adversario ? ` × ${adversario}` : ''}</p>
-            <p className="text-sm text-soft" style={{ marginTop: 4 }}>{nome || 'Escalação'} · {formacao.label}</p>
-            {detalhesPartida && <p className="text-xs text-faint" style={{ marginTop: 6 }}>{detalhesPartida}</p>}
+            <p className="text-2xl font-bold text-strong" style={{ margin: 0 }}>{clubeAtual?.nome || 'Time'}{adversario ? ` × ${adversario}` : ''}</p>
+            <p className="text-sm text-soft" style={{ margin: 0, marginTop: 6 }}>{nome || 'Escalação'} · {formacao.label}</p>
+            {detalhesPartida && <p className="text-xs text-faint" style={{ margin: 0, marginTop: 8 }}>{detalhesPartida}</p>}
           </div>
 
           <div style={{ overflow: 'hidden' }}>
@@ -603,36 +603,36 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
             </div>
 
             <div style={{ overflow: 'hidden' }}>
-              <div className="mb-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-brand mb-2.5">Titulares</p>
+              <div style={{ marginBottom: 28 }}>
+                <p className="text-xs font-bold uppercase tracking-widest text-brand" style={{ margin: 0, marginBottom: 16 }}>Titulares</p>
                 {titularesOrdenados.map(({ atleta }) => linhaAtletaExport(atleta, 'brand'))}
               </div>
               {suplentesOrdenados.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-xs font-bold uppercase tracking-widest text-info mb-2.5">Suplentes</p>
+                <div style={{ marginBottom: 28 }}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-info" style={{ margin: 0, marginBottom: 16 }}>Suplentes</p>
                   {suplentesOrdenados.map(atleta => linhaAtletaExport(atleta, 'info'))}
                 </div>
               )}
               {staffOrdenado.length > 0 ? (
-                <div className="pt-4 border-t border-line">
-                  <p className="text-xs font-bold uppercase tracking-widest text-faint mb-2.5">Comissão Técnica</p>
+                <div className="border-t border-line" style={{ paddingTop: 20 }}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-faint" style={{ margin: 0, marginBottom: 16 }}>Comissão Técnica</p>
                   {staffOrdenado.map(membro => (
-                    <div key={membro.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 10 }}>
+                    <div key={membro.id} style={{ position: 'relative', paddingLeft: 44, minHeight: 36, marginBottom: 14 }}>
                       <div className="absolute rounded-full bg-surface border border-line overflow-hidden grid place-items-center" style={{ left: 0, top: 0, width: 36, height: 36 }}>
                         {membro.foto_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={membro.foto_url} alt={membro.nome} crossOrigin="anonymous" className="w-full h-full object-cover" />
                         ) : <UsersRound className="w-4 h-4 text-faint" />}
                       </div>
-                      <p className="text-xs font-medium text-strong" style={{ paddingTop: 4 }}>{membro.nome}</p>
-                      <p className="text-[10px] text-faint">{membro.funcao}</p>
+                      <p className="text-xs font-medium text-strong" style={{ margin: 0, paddingTop: 6 }}>{membro.nome}</p>
+                      <p className="text-[10px] text-faint" style={{ margin: 0 }}>{membro.funcao}</p>
                     </div>
                   ))}
                 </div>
               ) : treinador ? (
-                <div className="pt-4 border-t border-line">
-                  <p className="text-xs text-faint uppercase tracking-wider">Treinador</p>
-                  <p className="text-sm text-strong font-medium">{treinador}</p>
+                <div className="border-t border-line" style={{ paddingTop: 20 }}>
+                  <p className="text-xs text-faint uppercase tracking-wider" style={{ margin: 0 }}>Treinador</p>
+                  <p className="text-sm text-strong font-medium" style={{ margin: 0, marginTop: 4 }}>{treinador}</p>
                 </div>
               ) : null}
             </div>
