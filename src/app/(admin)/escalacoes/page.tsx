@@ -4,20 +4,19 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
-import { Plus, Pencil, Trash2, Shield, Gamepad2, LayoutGrid } from 'lucide-react'
+import { Plus, Pencil, Trash2, Shield, Swords, LayoutGrid } from 'lucide-react'
 import {
   PageHeader, Card, Badge, Button, EmptyState, Spinner, Modal,
 } from '@/components/app'
 
 type Escalacao = {
   id: string
-  nome: string | null
+  adversario: string | null
   formacao: string
   treinador: string | null
   criado_por: string | null
   created_at: string
   clubes: { nome: string; escudo_url: string | null } | null
-  jogos: { adversario: string; data_jogo: string } | null
 }
 
 export default function EscalacoesPage() {
@@ -37,7 +36,7 @@ export default function EscalacoesPage() {
   const loadData = async () => {
     const { data } = await supabase
       .from('escalacoes')
-      .select('id, nome, formacao, treinador, criado_por, created_at, clubes(nome, escudo_url), jogos(adversario, data_jogo)')
+      .select('id, adversario, formacao, treinador, criado_por, created_at, clubes(nome, escudo_url)')
       .order('created_at', { ascending: false })
     if (data) setEscalacoes(data as unknown as Escalacao[])
     setLoading(false)
@@ -53,7 +52,6 @@ export default function EscalacoesPage() {
   }
 
   const getClube = (c: Escalacao['clubes']) => (Array.isArray(c) ? c[0] : c)
-  const getJogo = (j: Escalacao['jogos']) => (Array.isArray(j) ? j[0] : j)
 
   return (
     <div>
@@ -79,7 +77,6 @@ export default function EscalacoesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {escalacoes.map((esc) => {
             const clube = getClube(esc.clubes)
-            const jogo = getJogo(esc.jogos)
             return (
               <Card key={esc.id} padding="none" className="group flex flex-col overflow-hidden">
                 <Link href={`/escalacoes/${esc.id}`} className="flex items-start gap-3 p-4">
@@ -90,15 +87,14 @@ export default function EscalacoesPage() {
                     ) : <Shield className="w-5 h-5 text-faint" />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-strong truncate group-hover:text-brand transition-colors">{esc.nome || clube?.nome || 'Escalação'}</p>
-                    <p className="text-xs text-soft truncate mt-0.5">{clube?.nome}</p>
+                    <p className="font-semibold text-strong truncate group-hover:text-brand transition-colors">{clube?.nome || 'Escalação'}</p>
+                    {esc.adversario && (
+                      <p className="text-xs text-soft truncate mt-0.5 flex items-center gap-1">
+                        <Swords className="w-3 h-3 shrink-0" /> {esc.adversario}
+                      </p>
+                    )}
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                       <Badge variant="brand" size="sm">{esc.formacao}</Badge>
-                      {jogo && (
-                        <span className="text-[11px] text-faint flex items-center gap-1 truncate">
-                          <Gamepad2 className="w-3 h-3 shrink-0" /> {jogo.adversario}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </Link>
@@ -131,7 +127,7 @@ export default function EscalacoesPage() {
           </>
         }
       >
-        <p className="text-sm text-soft">Excluir <b className="text-strong">{aExcluir?.nome || 'esta escalação'}</b>? Esta ação não pode ser desfeita.</p>
+        <p className="text-sm text-soft">Excluir <b className="text-strong">{getClube(aExcluir?.clubes ?? null)?.nome || 'esta escalação'}{aExcluir?.adversario ? ` × ${aExcluir.adversario}` : ''}</b>? Esta ação não pode ser desfeita.</p>
       </Modal>
     </div>
   )

@@ -12,7 +12,6 @@ import { ArrowLeft, Save, Loader2, Download, User, UsersRound } from 'lucide-rea
 import { Card, Button, Select, Input, Textarea, Badge, Spinner } from '@/components/app'
 
 type Clube = { id: string; nome: string; escudo_url: string | null }
-type Jogo = { id: string; adversario: string; data_jogo: string; clube_id: string; local: string | null; competicao: string | null }
 type Atleta = {
   id: string
   nome: string
@@ -59,10 +58,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
 
   const [clubes, setClubes] = useState<Clube[]>([])
   const [clubeId, setClubeId] = useState('')
-  const [jogos, setJogos] = useState<Jogo[]>([])
-  const [jogoId, setJogoId] = useState('')
   const [formacaoId, setFormacaoId] = useState(FORMACOES[0].id)
-  const [nome, setNome] = useState('')
   const [treinador, setTreinador] = useState('')
   const [observacoes, setObservacoes] = useState('')
   const [adversario, setAdversario] = useState('')
@@ -95,9 +91,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       const { data: esc } = await supabase.from('escalacoes').select('*').eq('id', escalacaoId).single()
       if (!esc) { setCarregando(false); return }
       setClubeId(esc.clube_id)
-      setJogoId(esc.jogo_id || '')
       setFormacaoId(esc.formacao)
-      setNome(esc.nome || '')
       setTreinador(esc.treinador || '')
       setObservacoes(esc.observacoes || '')
       setAdversario(esc.adversario || '')
@@ -135,10 +129,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
   }, [escalacaoId])
 
   useEffect(() => {
-    if (!clubeId) { setJogos([]); setAtletas([]); setMembros([]); return }
-    supabase.from('jogos').select('id, adversario, data_jogo, clube_id, local, competicao').eq('clube_id', clubeId).order('data_jogo', { ascending: false }).then(({ data }) => {
-      if (data) setJogos(data)
-    })
+    if (!clubeId) { setAtletas([]); setMembros([]); return }
     supabase.from('atletas').select('id, nome, foto_url, numero_camisa, posicao, clube_id').eq('clube_id', clubeId).order('numero_camisa', { ascending: true }).then(({ data }) => {
       if (data) setAtletas(data)
     })
@@ -147,21 +138,6 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clubeId])
-
-  useEffect(() => {
-    if (!jogoId) return
-    const jogo = jogos.find(j => j.id === jogoId)
-    if (jogo && !nome) setNome(`vs ${jogo.adversario}`)
-    if (jogo && !adversario) setAdversario(jogo.adversario)
-    if (jogo?.local && !local) setLocal(jogo.local)
-    if (jogo?.competicao && !competicao) setCompeticao(jogo.competicao)
-    supabase.from('analises_jogo').select('sistema_tatico').eq('jogo_id', jogoId).maybeSingle().then(({ data }) => {
-      if (data?.sistema_tatico && FORMACOES.some(f => f.id === data.sistema_tatico)) {
-        setFormacaoId(data.sistema_tatico)
-      }
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jogoId])
 
   const slotByAtleta = useMemo(() => {
     const m = new Map<string, string>()
@@ -258,8 +234,6 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
 
     const payload = {
       clube_id: clubeId,
-      jogo_id: jogoId || null,
-      nome: nome || null,
       formacao: formacaoId,
       treinador: treinador || null,
       observacoes: observacoes || null,
@@ -316,7 +290,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
         width: exportRef.current.scrollWidth,
         height: exportRef.current.scrollHeight,
       })
-      const fileName = `escalacao-${(nome || 'time').toLowerCase().replace(/\s+/g, '-')}.jpg`
+      const fileName = `escalacao-${(adversario || clubeAtual?.nome || 'time').toLowerCase().replace(/\s+/g, '-')}.jpg`
       const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92))
       if (!blob) return
 
@@ -377,23 +351,18 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
       {erro && <div className="bg-negative/10 text-negative text-sm p-3 rounded-xl border border-negative/20 mb-4">{erro}</div>}
 
       <Card padding="sm" className="mb-4 sm:mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Select
             label="Clube"
             value={clubeId}
-            onChange={(e) => { setClubeId(e.target.value); setJogoId(''); setSlots({}); setSuplentes(new Set()); setStaffIds(new Set()) }}
+            onChange={(e) => { setClubeId(e.target.value); setSlots({}); setSuplentes(new Set()); setStaffIds(new Set()) }}
           >
             <option value="">Selecione</option>
             {clubes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
           </Select>
-          <Select label="Jogo (opcional)" value={jogoId} onChange={(e) => setJogoId(e.target.value)} disabled={!clubeId}>
-            <option value="">Sem jogo vinculado</option>
-            {jogos.map(j => <option key={j.id} value={j.id}>{j.adversario} — {new Date(j.data_jogo + 'T12:00:00').toLocaleDateString('pt-BR')}</option>)}
-          </Select>
           <Select label="Formação" value={formacaoId} onChange={(e) => setFormacaoId(e.target.value)}>
             {FORMACOES.map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
           </Select>
-          <Input label="Título" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: vs Palmeiras" />
         </div>
 
         <p className="text-xs font-semibold uppercase tracking-wider text-faint mt-5 mb-2 px-1">Detalhes da partida (aparecem na imagem)</p>
@@ -593,7 +562,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
               <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="absolute object-contain" style={{ left: 0, top: 0, width: 56, height: 56 }} />
             )}
             <p className="text-2xl font-bold text-strong" style={{ margin: 0 }}>{clubeAtual?.nome || 'Time'}{adversario ? ` × ${adversario}` : ''}</p>
-            <p className="text-sm text-soft" style={{ margin: 0, marginTop: 6 }}>{nome || 'Escalação'} · {formacao.label}</p>
+            <p className="text-sm text-soft" style={{ margin: 0, marginTop: 6 }}>Escalação · {formacao.label}</p>
             {detalhesPartida && <p className="text-xs text-faint" style={{ margin: 0, marginTop: 8 }}>{detalhesPartida}</p>}
           </div>
 
