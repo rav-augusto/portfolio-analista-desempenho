@@ -562,7 +562,7 @@ export function EscalacaoEditor({ escalacaoId }: { escalacaoId?: string }) {
               <img src={clubeAtual.escudo_url} alt="" crossOrigin="anonymous" className="absolute object-contain" style={{ left: 0, top: 0, width: 56, height: 56 }} />
             )}
             <p className="text-2xl font-bold text-strong" style={{ margin: 0 }}>{clubeAtual?.nome || 'Time'}{adversario ? ` × ${adversario}` : ''}</p>
-            <p className="text-sm text-soft" style={{ margin: 0, marginTop: 6 }}>Escalação · {formacao.label}</p>
+            <p className="text-sm text-soft" style={{ margin: 0, marginTop: 6 }}>Escalação</p>
             {detalhesPartida && <p className="text-xs text-strong" style={{ margin: 0, marginTop: 8, fontWeight: 700 }}>{detalhesPartida}</p>}
           </div>
 
