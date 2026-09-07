@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
 import { cn } from '@/lib/utils/cn'
 import {
-  ArrowLeft, Save, Loader2, Download, Upload, ArrowUpRight, Minus, Circle, Type, Undo2, Trash2,
+  ArrowLeft, Save, Loader2, Download, Upload, ArrowUpRight, Minus, Circle, Type, Undo2, Trash2, Camera,
 } from 'lucide-react'
 import { Card, Button, Select, Input, Textarea, Spinner } from '@/components/app'
 
@@ -95,6 +95,7 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
   const [novoArquivo, setNovoArquivo] = useState<File | null>(null)
   const [novaPreviewUrl, setNovaPreviewUrl] = useState<string | null>(null)
   const [imagemPronta, setImagemPronta] = useState(false)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
 
   const [formas, setFormas] = useState<Forma[]>([])
   const [emProgresso, setEmProgresso] = useState<Forma | null>(null)
@@ -103,6 +104,7 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const imagemFonte = novaPreviewUrl || imagemUrlAtual
@@ -150,11 +152,35 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
   const handleArquivo = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setNovoArquivo(file)
-    setNovaPreviewUrl(URL.createObjectURL(file))
     setImagemPronta(false)
     setFormas([])
     setEmProgresso(null)
+    if (file.type.startsWith('video/')) {
+      setVideoUrl(URL.createObjectURL(file))
+      setNovoArquivo(null)
+      setNovaPreviewUrl(null)
+      return
+    }
+    setVideoUrl(null)
+    setNovoArquivo(file)
+    setNovaPreviewUrl(URL.createObjectURL(file))
+  }
+
+  const capturarQuadro = () => {
+    const video = videoRef.current
+    if (!video || video.videoWidth === 0) return
+    const off = document.createElement('canvas')
+    off.width = video.videoWidth
+    off.height = video.videoHeight
+    const ctx = off.getContext('2d')
+    if (!ctx) return
+    ctx.drawImage(video, 0, 0)
+    off.toBlob((blob) => {
+      if (!blob) return
+      setNovoArquivo(new File([blob], 'quadro-capturado.jpg', { type: 'image/jpeg' }))
+      setNovaPreviewUrl(URL.createObjectURL(blob))
+      setVideoUrl(null)
+    }, 'image/jpeg', 0.92)
   }
 
   const paraPercentual = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -298,12 +324,31 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 sm:gap-6">
         <Card padding="sm">
-          {!imagemFonte ? (
+          {videoUrl ? (
+            <div className="flex flex-col items-center">
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                controls
+                playsInline
+                className="w-full rounded-xl border border-line bg-app max-h-[70vh]"
+              />
+              <p className="text-xs text-faint mt-2 text-center">O vídeo fica só no seu aparelho — nada é enviado. Pause no momento certo e capture o quadro.</p>
+              <Button className="mt-3" onClick={capturarQuadro}>
+                <Camera className="w-4 h-4" /> Capturar quadro
+              </Button>
+              <button type="button" onClick={() => { setVideoUrl(null); fileInputRef.current?.click() }} className="mt-2 text-xs text-brand hover:text-brand-hover">Escolher outro arquivo</button>
+              <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleArquivo} className="hidden" />
+            </div>
+          ) : !imagemFonte ? (
             <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-line rounded-2xl">
               <Upload className="w-8 h-8 text-faint mb-3" />
-              <p className="text-sm text-soft mb-3">Envie um print do vídeo ou uma foto</p>
-              <Button size="sm" onClick={() => fileInputRef.current?.click()}>Selecionar imagem</Button>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleArquivo} className="hidden" />
+              <p className="text-sm text-soft mb-3">Envie um print, uma foto, ou o vídeo direto</p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => fileInputRef.current?.click()}><Upload className="w-3.5 h-3.5" /> Selecionar arquivo</Button>
+              </div>
+              <p className="text-xs text-faint mt-3">Vídeo: toca no seu aparelho, você pausa e captura o quadro — nada é enviado até isso</p>
+              <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleArquivo} className="hidden" />
             </div>
           ) : (
             <>
@@ -336,8 +381,8 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
                 <button type="button" onClick={limparTudo} disabled={formas.length === 0} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-line text-negative hover:border-negative/40 disabled:opacity-40">
                   <Trash2 className="w-3.5 h-3.5" /> Limpar
                 </button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="ml-auto text-xs text-brand hover:text-brand-hover">Trocar imagem</button>
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleArquivo} className="hidden" />
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="ml-auto text-xs text-brand hover:text-brand-hover">Trocar imagem/vídeo</button>
+                <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleArquivo} className="hidden" />
               </div>
 
               <div className="relative w-full overflow-hidden rounded-xl border border-line bg-app">
