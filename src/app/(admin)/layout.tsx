@@ -21,6 +21,7 @@ import {
   Activity,
   Shirt,
   UsersRound,
+  PenTool,
 } from 'lucide-react'
 
 const adminMenu: AppMenuItem[] = [
@@ -33,6 +34,7 @@ const adminMenu: AppMenuItem[] = [
   { href: '/atletas', icon: Users, label: 'Atletas' },
   { href: '/comissao-tecnica', icon: UsersRound, label: 'Comissão Técnica' },
   { href: '/escalacoes', icon: Shirt, label: 'Escalações' },
+  { href: '/anotacoes', icon: PenTool, label: 'Anotações Táticas', hideForProfessor: true },
   { href: '/jogos', icon: Gamepad2, label: 'Jogos', hideForProfessor: true },
   { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo', hideForProfessor: true },
   { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas', hideForProfessor: true },
