@@ -45,7 +45,8 @@ export async function middleware(request: NextRequest) {
     '/guia-avaliacao',
     '/escalacoes',
     '/comissao-tecnica',
-    '/anotacoes'
+    '/anotacoes',
+    '/prancheta'
   ]
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
@@ -85,6 +86,7 @@ export const config = {
     '/escalacoes/:path*',
     '/comissao-tecnica/:path*',
     '/anotacoes/:path*',
+    '/prancheta/:path*',
     '/login',
   ],
 }

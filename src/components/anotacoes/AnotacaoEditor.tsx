@@ -5,76 +5,12 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useUser } from '@/hooks/useUser'
-import { cn } from '@/lib/utils/cn'
-import {
-  ArrowLeft, Save, Loader2, Download, Upload, ArrowUpRight, Minus, Circle, Type, Undo2, Trash2, Camera,
-} from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Download, Upload, Camera } from 'lucide-react'
 import { Card, Button, Select, Input, Textarea, Spinner } from '@/components/app'
+import { BarraFerramentas } from '@/components/desenho/BarraFerramentas'
+import { desenharForma, CORES_DESENHO, FERRAMENTAS_ARRASTO, type Forma, type FerramentaDesenho } from '@/lib/desenho'
 
 type Atleta = { id: string; nome: string; clubes: { nome: string } | { nome: string }[] | null }
-
-type Ferramenta = 'seta' | 'linha' | 'circulo' | 'texto'
-
-type Forma =
-  | { tipo: 'seta' | 'linha' | 'circulo'; x1: number; y1: number; x2: number; y2: number; cor: string }
-  | { tipo: 'texto'; x1: number; y1: number; texto: string; cor: string }
-
-const CORES = ['#ef4444', '#eab308', '#3b82f6', '#ffffff', '#22c55e']
-
-function desenharForma(ctx: CanvasRenderingContext2D, f: Forma, w: number, h: number) {
-  const x1 = (f.x1 / 100) * w
-  const y1 = (f.y1 / 100) * h
-  ctx.strokeStyle = f.cor
-  ctx.fillStyle = f.cor
-  ctx.lineWidth = Math.max(3, w * 0.005)
-  ctx.lineCap = 'round'
-
-  if (f.tipo === 'texto') {
-    const tamanhoFonte = Math.max(18, w * 0.028)
-    ctx.font = `bold ${tamanhoFonte}px system-ui, sans-serif`
-    ctx.textBaseline = 'top'
-    const largura = ctx.measureText(f.texto).width
-    ctx.fillStyle = 'rgba(0,0,0,0.65)'
-    ctx.fillRect(x1 - 5, y1 - 3, largura + 10, tamanhoFonte + 8)
-    ctx.fillStyle = f.cor
-    ctx.fillText(f.texto, x1, y1)
-    return
-  }
-
-  const x2 = (f.x2 / 100) * w
-  const y2 = (f.y2 / 100) * h
-
-  if (f.tipo === 'circulo') {
-    const raio = Math.hypot(x2 - x1, y2 - y1)
-    ctx.beginPath()
-    ctx.arc(x1, y1, raio, 0, Math.PI * 2)
-    ctx.stroke()
-    return
-  }
-
-  ctx.beginPath()
-  ctx.moveTo(x1, y1)
-  ctx.lineTo(x2, y2)
-  ctx.stroke()
-
-  if (f.tipo === 'seta') {
-    const angulo = Math.atan2(y2 - y1, x2 - x1)
-    const tam = Math.max(16, w * 0.022)
-    ctx.beginPath()
-    ctx.moveTo(x2, y2)
-    ctx.lineTo(x2 - tam * Math.cos(angulo - Math.PI / 6), y2 - tam * Math.sin(angulo - Math.PI / 6))
-    ctx.lineTo(x2 - tam * Math.cos(angulo + Math.PI / 6), y2 - tam * Math.sin(angulo + Math.PI / 6))
-    ctx.closePath()
-    ctx.fill()
-  }
-}
-
-const FERRAMENTAS: { id: Ferramenta; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'seta', label: 'Seta', icon: ArrowUpRight },
-  { id: 'linha', label: 'Linha', icon: Minus },
-  { id: 'circulo', label: 'Círculo', icon: Circle },
-  { id: 'texto', label: 'Texto', icon: Type },
-]
 
 export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
   const router = useRouter()
@@ -99,8 +35,8 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
 
   const [formas, setFormas] = useState<Forma[]>([])
   const [emProgresso, setEmProgresso] = useState<Forma | null>(null)
-  const [ferramenta, setFerramenta] = useState<Ferramenta>('seta')
-  const [cor, setCor] = useState(CORES[0])
+  const [ferramenta, setFerramenta] = useState<FerramentaDesenho>('seta')
+  const [cor, setCor] = useState(CORES_DESENHO[0])
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -200,13 +136,18 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
       if (texto && texto.trim()) setFormas(prev => [...prev, { tipo: 'texto', x1: x, y1: y, texto: texto.trim(), cor }])
       return
     }
+    if (ferramenta === 'ficha') {
+      const numero = formas.filter(f => f.tipo === 'ficha' && f.cor === cor).length + 1
+      setFormas(prev => [...prev, { tipo: 'ficha', x1: x, y1: y, numero, cor }])
+      return
+    }
     setEmProgresso({ tipo: ferramenta, x1: x, y1: y, x2: x, y2: y, cor })
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!emProgresso) return
     const { x, y } = paraPercentual(e)
-    setEmProgresso(prev => (prev && prev.tipo !== 'texto' ? { ...prev, x2: x, y2: y } : prev))
+    setEmProgresso(prev => (prev && FERRAMENTAS_ARRASTO.has(prev.tipo) ? { ...prev, x2: x, y2: y } : prev))
   }
 
   const handlePointerUp = () => {
@@ -352,38 +293,21 @@ export function AnotacaoEditor({ anotacaoId }: { anotacaoId?: string }) {
             </div>
           ) : (
             <>
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                {FERRAMENTAS.map(f => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setFerramenta(f.id)}
-                    className={cn('inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors', ferramenta === f.id ? 'bg-brand text-app border-brand' : 'bg-app text-soft border-line hover:border-line-strong')}
-                  >
-                    <f.icon className="w-3.5 h-3.5" /> {f.label}
-                  </button>
-                ))}
-                <div className="w-px h-6 bg-line mx-1" />
-                {CORES.map(c => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setCor(c)}
-                    aria-label={`Cor ${c}`}
-                    className={cn('w-6 h-6 rounded-full border-2', cor === c ? 'border-brand' : 'border-line')}
-                    style={{ background: c }}
-                  />
-                ))}
-                <div className="w-px h-6 bg-line mx-1" />
-                <button type="button" onClick={desfazer} disabled={formas.length === 0} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-line text-soft hover:border-line-strong disabled:opacity-40">
-                  <Undo2 className="w-3.5 h-3.5" /> Desfazer
-                </button>
-                <button type="button" onClick={limparTudo} disabled={formas.length === 0} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-line text-negative hover:border-negative/40 disabled:opacity-40">
-                  <Trash2 className="w-3.5 h-3.5" /> Limpar
-                </button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="ml-auto text-xs text-brand hover:text-brand-hover">Trocar imagem/vídeo</button>
-                <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleArquivo} className="hidden" />
-              </div>
+              <BarraFerramentas
+                ferramenta={ferramenta}
+                onFerramenta={setFerramenta}
+                cor={cor}
+                onCor={setCor}
+                podeDesfazer={formas.length > 0}
+                onDesfazer={desfazer}
+                onLimpar={limparTudo}
+                extra={
+                  <>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="ml-auto text-xs text-brand hover:text-brand-hover">Trocar imagem/vídeo</button>
+                    <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleArquivo} className="hidden" />
+                  </>
+                }
+              />
 
               <div className="relative w-full overflow-hidden rounded-xl border border-line bg-app">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
