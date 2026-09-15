@@ -23,6 +23,7 @@ import {
   UsersRound,
   PenTool,
   LayoutTemplate,
+  Zap,
 } from 'lucide-react'
 
 const adminMenu: AppMenuItem[] = [
@@ -39,12 +40,13 @@ const adminMenu: AppMenuItem[] = [
   { href: '/prancheta', icon: LayoutTemplate, label: 'Prancheta Tática', hideForProfessor: true },
   { href: '/jogos', icon: Gamepad2, label: 'Jogos', hideForProfessor: true },
   { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo', hideForProfessor: true },
+  { href: '/avaliacao-rapida', icon: Zap, label: 'Avaliação Rápida' },
   { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas' },
   { href: '/avaliacao-fisica', icon: Activity, label: 'Avaliacao Fisica' },
   { href: '/usuarios', icon: UserCog, label: 'Usuarios', masterOnly: true },
 ]
 
-const ROTAS_PROFESSOR = ['/atletas', '/comissao-tecnica', '/escalacoes', '/avaliacoes', '/avaliacao-fisica', '/dashboard-atletas']
+const ROTAS_PROFESSOR = ['/atletas', '/comissao-tecnica', '/escalacoes', '/avaliacoes', '/avaliacao-fisica', '/avaliacao-rapida', '/dashboard-atletas']
 
 const roleLabels: Record<string, string> = {
   master: 'Master',
