@@ -299,7 +299,7 @@ export function serieAtletaVsCurva(
     const idade = idadeDecimalEm(dataNascimento, p.data_avaliacao)
     if (idade == null) continue
     const d = new Date(p.data_avaliacao + 'T12:00:00')
-    labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }))
+    labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }))
     const v = p.valores[key]
     atleta.push(typeof v === 'number' ? v : null)
     const curva = benchmarkNaIdade(posicao, idade)

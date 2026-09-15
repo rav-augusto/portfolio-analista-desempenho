@@ -90,8 +90,15 @@ function graficoCurvaSVG(
     return `<path d="${d}" fill="none" stroke="${cor}" stroke-width="2"${dashAttr}/>${dots}`
   }
 
+  // Decimacao: com muitas avaliacoes, mostrar so alguns rotulos pra nao sobrepor.
+  // Alvo ~6 rotulos por grafico. Primeiro e ultimo sempre marcados.
+  const maxLabels = 6
+  const passo = n <= maxLabels ? 1 : Math.ceil((n - 1) / (maxLabels - 1))
+  const mostrar = (i: number) => i === 0 || i === n - 1 || i % passo === 0
   const labels = serie.labels
-    .map((l, i) => `<text x="${x(i).toFixed(1)}" y="${H - 12}" font-size="9" fill="#64748b" text-anchor="middle">${esc(l)}</text>`)
+    .map((l, i) => mostrar(i)
+      ? `<text x="${x(i).toFixed(1)}" y="${H - 12}" font-size="9" fill="#64748b" text-anchor="middle">${esc(l)}</text>`
+      : '')
     .join('')
 
   return `
@@ -177,7 +184,7 @@ export function gerarBoletimHTML(p: BoletimParams): string {
     const esperado: (number | null)[] = []
     for (const pt of ord) {
       const d = new Date(pt.data_avaliacao + 'T12:00:00')
-      labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }))
+      labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }))
       // Media so das dimensoes mostradas que tem valor.
       const vs: number[] = []
       for (const dim of p.dimensoesMostrar) {
