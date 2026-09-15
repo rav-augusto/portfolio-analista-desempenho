@@ -28,9 +28,14 @@ import { calcularEficiencia, explicarEficiencia, calcularContextoProducao } from
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { InfoTip } from '@/components/app/InfoTip'
 import { abrirDossieParaImpressao, gerarDossieHTML, type DossieParams } from '@/lib/stats/dossie'
-import { abrirBoletimParaImpressao, gerarBoletimHTML, type BoletimParams } from '@/lib/stats/boletim'
+import {
+  abrirBoletimParaImpressao, gerarBoletimHTML, type BoletimParams,
+  abrirBoletimRapidoParaImpressao, gerarBoletimRapidoHTML,
+  type BoletimRapidoParams, type PontoAvaliacaoRapida,
+} from '@/lib/stats/boletim'
 import { DIMS_20 } from '@/lib/stats/benchmark'
 import type { PontoAvaliacao } from '@/lib/stats/curva'
+import { FAIXAS, faixaPorIdade, idadeAnosEm } from '@/lib/stats/faixas'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, classificarPercentil, corPercentil, type MetricaPercentil } from '@/lib/stats/percentis'
 import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
@@ -322,6 +327,22 @@ export default function DashboardAtletasPage() {
       setAvaliacoesFisicas((data as AvaliacaoFisica[]) ?? [])
     }
     loadFisicas()
+  }, [atletaSelecionado, supabase])
+
+  // Carregar avaliacoes RAPIDAS (modulo Escolinha, tabela separada com JSONB).
+  // Usado pra decidir se o boletim do pai sai na versao CBF ou na versao rapida por faixa.
+  const [avaliacoesRapidas, setAvaliacoesRapidas] = useState<{ data_avaliacao: string; faixa: string; notas: Record<string, number> }[]>([])
+  useEffect(() => {
+    const loadRapidas = async () => {
+      if (!atletaSelecionado) { setAvaliacoesRapidas([]); return }
+      const { data } = await supabase
+        .from('avaliacoes_rapidas')
+        .select('data_avaliacao, faixa, notas')
+        .eq('atleta_id', atletaSelecionado)
+        .order('data_avaliacao', { ascending: true })
+      setAvaliacoesRapidas((data as { data_avaliacao: string; faixa: string; notas: Record<string, number> }[]) ?? [])
+    }
+    loadRapidas()
   }, [atletaSelecionado, supabase])
 
   // Recarregar dados quando a página recebe foco (após editar)
@@ -1124,7 +1145,11 @@ export default function DashboardAtletasPage() {
   }
 
   // -------------------- Boletim do PAI --------------------
-  // Reusa dossies_publicos (com tipo='boletim'). Linguagem de pai, curva por idade.
+  // Regra: se o atleta so tem avaliacoes rapidas (modulo Escolinha), sai o boletim
+  // rapido (dimensoes da faixa dele, sem curva CBF). Se tem avaliacoes CBF, sai o
+  // boletim classico com curva por idade. Se tem os dois, prefere CBF (mais rico).
+  const usaBoletimRapido = avaliacoes.length === 0 && avaliacoesRapidas.length > 0
+
   const montarBoletimParams = (): BoletimParams | null => {
     if (!atletaAtual) return null
     const pontos: PontoAvaliacao[] = avaliacoes.map(av => ({
@@ -1150,7 +1175,44 @@ export default function DashboardAtletasPage() {
     }
   }
 
+  const montarBoletimRapidoParams = (): BoletimRapidoParams | null => {
+    if (!atletaAtual || avaliacoesRapidas.length === 0) return null
+    // Faixa: usa a REGISTRADA na avaliacao mais recente (fix bug #2 revisor).
+    // Se por algum motivo veio null/vazio, cai no calculo por idade como fallback.
+    const ultima = avaliacoesRapidas[avaliacoesRapidas.length - 1]
+    const ultimaData = ultima.data_avaliacao
+    const idade = idadeAnosEm(atletaAtual.data_nascimento, ultimaData)
+    const faixa = ultima.faixa
+      ? (FAIXAS.find(f => f.key === ultima.faixa) ?? faixaPorIdade(idade))
+      : faixaPorIdade(idade)
+    const pontos: PontoAvaliacaoRapida[] = avaliacoesRapidas.map(av => ({
+      data_avaliacao: av.data_avaliacao,
+      faixa: av.faixa,
+      notas: av.notas ?? {},
+    }))
+    return {
+      atleta: {
+        nome: atletaAtual.nome,
+        posicao: atletaAtual.posicao,
+        clube: getClubeName(atletaAtual.clubes),
+        dataNascimento: atletaAtual.data_nascimento,
+        fotoUrl: atletaAtual.foto_url,
+      },
+      pontos,
+      dataAvaliacao: ultimaData,
+      faixa,
+      idadeAtleta: idade,
+    }
+  }
+
   const handleExportarBoletim = () => {
+    if (usaBoletimRapido) {
+      const params = montarBoletimRapidoParams()
+      if (!params) return
+      const ok = abrirBoletimRapidoParaImpressao(params)
+      if (!ok) alert('Não foi possível abrir a janela do boletim. Verifique se o bloqueador de pop-ups está desativado.')
+      return
+    }
     const params = montarBoletimParams()
     if (!params) return
     const ok = abrirBoletimParaImpressao(params)
@@ -1175,12 +1237,20 @@ export default function DashboardAtletasPage() {
   useEffect(() => { carregarBoletins() }, [carregarBoletins])
 
   const handleGerarLinkBoletim = async () => {
-    const params = montarBoletimParams()
-    if (!params || !atletaAtual) return
+    if (!atletaAtual) return
+    // Escolhe qual HTML gerar de acordo com o mesmo criterio do botao "Boletim do pai".
+    let html: string | null = null
+    if (usaBoletimRapido) {
+      const rapidoParams = montarBoletimRapidoParams()
+      if (rapidoParams) html = gerarBoletimRapidoHTML(rapidoParams)
+    } else {
+      const params = montarBoletimParams()
+      if (params) html = gerarBoletimHTML(params)
+    }
+    if (!html) return
     setGerandoLinkBoletim(true)
     setLinkBoletim(null)
     try {
-      const html = gerarBoletimHTML(params)
       const { data, error } = await supabase
         .from('dossies_publicos')
         .insert({ atleta_id: atletaAtual.id, atleta_nome: atletaAtual.nome, html, tipo: 'boletim' })
@@ -1556,14 +1626,23 @@ export default function DashboardAtletasPage() {
                       <Share2 className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
                       <span className="hidden sm:inline">{gerandoLink ? 'Gerando...' : 'Gerar link'}</span>
                     </button>
+                  </div>
+                )}
+
+                {/* Botoes de Boletim do Pai — aparecem se existir qualquer avaliacao
+                    (CBF classica OU rapida do modulo Escolinha). Sem isso, atleta com
+                    so avaliacoes_rapidas nao teria como gerar boletim (bug critico do
+                    revisor: o wrapper acima era gated por `avaliacoes.length > 0`). */}
+                {(avaliacoes.length > 0 || avaliacoesRapidas.length > 0) && (
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
                     <button
                       onClick={handleExportarBoletim}
                       className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
                       style={{ backgroundColor: '#1e3a8a', border: '1px solid #3b82f6', color: '#e2e8f0' }}
-                      title="Gerar boletim do pai (linguagem simples, curva por idade)"
+                      title={usaBoletimRapido ? 'Boletim do pai (versão rápida, dimensões da faixa)' : 'Boletim do pai (versão CBF, curva por idade)'}
                     >
                       <FileText className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
-                      <span className="hidden sm:inline">Boletim do pai</span>
+                      <span className="hidden sm:inline">Boletim do pai{usaBoletimRapido ? ' (rápido)' : ''}</span>
                     </button>
                     <button
                       onClick={handleGerarLinkBoletim}
