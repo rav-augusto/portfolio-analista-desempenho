@@ -8,10 +8,13 @@ import Link from 'next/link'
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js'
 import { Radar, Line } from 'react-chartjs-2'
 import { PageHeader, StatCard, Card, CardHeader, CardTitle, Badge, Button, Spinner, EmptyState, Modal } from '@/components/app'
+import { FAIXAS, faixaPorIdade, idadeAnosEm } from '@/lib/stats/faixas'
+import { abrirBoletimRapidoParaImpressao, type PontoAvaliacaoRapida } from '@/lib/stats/boletim'
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, CategoryScale, LinearScale)
 
-type Atleta = { id: string; nome: string; posicao: string | null; foto_url: string | null; clubes: { nome: string } | { nome: string }[] | null }
+type Atleta = { id: string; nome: string; posicao: string | null; foto_url: string | null; data_nascimento: string | null; clubes: { nome: string } | { nome: string }[] | null }
+type AvaliacaoRapidaItem = { id: string; data_avaliacao: string; faixa: string; notas: Record<string, number> }
 const getClubeName = (clubes: { nome: string } | { nome: string }[] | null | undefined): string =>
   !clubes ? '' : Array.isArray(clubes) ? clubes[0]?.nome || '' : clubes.nome || ''
 
@@ -69,6 +72,7 @@ export default function AvaliacoesAtletaPage() {
   const atletaId = params.atletaId as string
   const [atleta, setAtleta] = useState<Atleta | null>(null)
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([])
+  const [avaliacoesRapidas, setAvaliacoesRapidas] = useState<AvaliacaoRapidaItem[]>([])
   const [loading, setLoading] = useState(true)
   const [aExcluir, setAExcluir] = useState<Avaliacao | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -77,15 +81,53 @@ export default function AvaliacoesAtletaPage() {
   useEffect(() => { loadData() }, [atletaId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
-    const { data: atletaData } = await supabase.from('atletas').select('id, nome, posicao, foto_url, clubes(nome)').eq('id', atletaId).single()
-    if (atletaData) setAtleta(atletaData)
-    const { data: avaliacoesData } = await supabase
-      .from('avaliacoes_atleta')
-      .select(`id, data_avaliacao, tipo, contexto_treino, minutos_jogados, gols, assistencias, forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial, penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva, contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva, altura_avaliacao, peso_avaliacao, envergadura, velocidade_10m, velocidade_30m, salto_vertical, agilidade_teste, yoyo_nivel, yoyo_distancia, idade_biologica, estagio_phv, sentar_alcancar, jogos(adversario, data_jogo)`)
-      .eq('atleta_id', atletaId)
-      .order('data_avaliacao', { ascending: false })
-    if (avaliacoesData) setAvaliacoes(avaliacoesData)
+    const [respAtleta, respAvaliacoes, respRapidas] = await Promise.all([
+      supabase.from('atletas').select('id, nome, posicao, foto_url, data_nascimento, clubes(nome)').eq('id', atletaId).single(),
+      supabase
+        .from('avaliacoes_atleta')
+        .select(`id, data_avaliacao, tipo, contexto_treino, minutos_jogados, gols, assistencias, forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial, penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva, contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva, altura_avaliacao, peso_avaliacao, envergadura, velocidade_10m, velocidade_30m, salto_vertical, agilidade_teste, yoyo_nivel, yoyo_distancia, idade_biologica, estagio_phv, sentar_alcancar, jogos(adversario, data_jogo)`)
+        .eq('atleta_id', atletaId)
+        .order('data_avaliacao', { ascending: false }),
+      supabase
+        .from('avaliacoes_rapidas')
+        .select('id, data_avaliacao, faixa, notas')
+        .eq('atleta_id', atletaId)
+        .order('data_avaliacao', { ascending: false }),
+    ])
+    if (respAtleta.data) setAtleta(respAtleta.data)
+    if (respAvaliacoes.data) setAvaliacoes(respAvaliacoes.data)
+    if (respRapidas.data) setAvaliacoesRapidas(respRapidas.data as AvaliacaoRapidaItem[])
     setLoading(false)
+  }
+
+  // ---- Boletim rapido (modulo Escolinha) ----
+  const gerarBoletimRapido = () => {
+    if (!atleta || avaliacoesRapidas.length === 0) return
+    // Faixa: usa a REGISTRADA na avaliacao mais recente (nao recalcula pela idade
+    // atual, senao mistura faixas quando o atleta muda de idade).
+    const ord = [...avaliacoesRapidas].sort((a, b) => a.data_avaliacao.localeCompare(b.data_avaliacao))
+    const ultima = ord[ord.length - 1]
+    const idade = idadeAnosEm(atleta.data_nascimento, ultima.data_avaliacao)
+    const faixa = FAIXAS.find(f => f.key === ultima.faixa) ?? faixaPorIdade(idade)
+    const pontos: PontoAvaliacaoRapida[] = ord.map(av => ({
+      data_avaliacao: av.data_avaliacao,
+      faixa: av.faixa,
+      notas: av.notas ?? {},
+    }))
+    const ok = abrirBoletimRapidoParaImpressao({
+      atleta: {
+        nome: atleta.nome,
+        posicao: atleta.posicao,
+        clube: getClubeName(atleta.clubes),
+        dataNascimento: atleta.data_nascimento,
+        fotoUrl: atleta.foto_url,
+      },
+      pontos,
+      dataAvaliacao: ultima.data_avaliacao,
+      faixa,
+      idadeAtleta: idade,
+    })
+    if (!ok) alert('Não foi possível abrir a janela do boletim. Verifique o bloqueador de pop-ups.')
   }
 
   const confirmarExclusao = async () => {
@@ -170,9 +212,39 @@ export default function AvaliacoesAtletaPage() {
         </div>
       </div>
 
+      {/* Card das Avaliacoes Rapidas (modulo Escolinha) — aparece se existir alguma,
+          independente do atleta ter CBF ou nao. Botao gera o Boletim do Pai (rapido). */}
+      {avaliacoesRapidas.length > 0 && (
+        <Card padding="md" className="mb-4 sm:mb-6" style={{ borderColor: '#3b82f655' }}>
+          <div className="flex items-start gap-3 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">Módulo Escolinha</span>
+                <Badge variant="info" size="sm">{avaliacoesRapidas.length} avaliação{avaliacoesRapidas.length !== 1 ? 'ões' : ''} rápida{avaliacoesRapidas.length !== 1 ? 's' : ''}</Badge>
+              </div>
+              <p className="text-sm text-soft">
+                Última em {new Date(avaliacoesRapidas[0].data_avaliacao + 'T12:00:00').toLocaleDateString('pt-BR')} — faixa {FAIXAS.find(f => f.key === avaliacoesRapidas[0].faixa)?.label ?? avaliacoesRapidas[0].faixa}.
+              </p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" onClick={gerarBoletimRapido}>
+                <Star className="w-4 h-4" /> Boletim do pai (rápido)
+              </Button>
+              <Link href="/avaliacao-rapida"><Button variant="ghost" size="sm">Nova avaliação rápida</Button></Link>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {avaliacoes.length === 0 ? (
-        <EmptyState icon={Star} title="Nenhuma avaliação para este atleta" description="Crie a primeira avaliação para começar a acompanhar a evolução."
-          action={<Link href={`/avaliacoes/nova?atleta=${atletaId}`}><Button size="sm"><Plus className="w-4 h-4" />Nova avaliação</Button></Link>} />
+        avaliacoesRapidas.length > 0 ? (
+          <EmptyState icon={Star} title="Sem avaliação CBF completa"
+            description="Este atleta só tem avaliações do módulo Escolinha (rápidas). Use o boletim rápido acima ou crie uma avaliação CBF completa se quiser análise de jogo."
+            action={<Link href={`/avaliacoes/nova?atleta=${atletaId}`}><Button size="sm"><Plus className="w-4 h-4" />Nova avaliação CBF</Button></Link>} />
+        ) : (
+          <EmptyState icon={Star} title="Nenhuma avaliação para este atleta" description="Crie a primeira avaliação para começar a acompanhar a evolução."
+            action={<Link href={`/avaliacoes/nova?atleta=${atletaId}`}><Button size="sm"><Plus className="w-4 h-4" />Nova avaliação</Button></Link>} />
+        )
       ) : (
         <>
           {/* KPIs */}

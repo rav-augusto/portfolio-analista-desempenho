@@ -1595,6 +1595,37 @@ export default function DashboardAtletasPage() {
                   </div>
                 )}
 
+                {/* Modulo Escolinha — resumo das avaliacoes rapidas.
+                    Aparece sempre que existirem, com destaque quando o atleta so tem essas.
+                    Sem isso, atleta so-rapida caia em "Selecione um atleta" perpetuo. */}
+                {avaliacoesRapidas.length > 0 && (() => {
+                  const ord = [...avaliacoesRapidas].sort((a, b) => a.data_avaliacao.localeCompare(b.data_avaliacao))
+                  const ultima = ord[ord.length - 1]
+                  const faixaLabel = FAIXAS.find(f => f.key === ultima.faixa)?.label ?? ultima.faixa
+                  return (
+                    <div className="mt-4 rounded-xl p-3 md:p-4" style={{ backgroundColor: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.35)' }}>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-blue-400 mb-1">Módulo Escolinha</p>
+                          <p className="text-sm text-slate-200">
+                            <b className="text-white">{avaliacoesRapidas.length} avaliação{avaliacoesRapidas.length !== 1 ? 'ões' : ''} rápida{avaliacoesRapidas.length !== 1 ? 's' : ''}</b> — última em {new Date(ultima.data_avaliacao + 'T12:00:00').toLocaleDateString('pt-BR')}, faixa <b>{faixaLabel}</b>.
+                          </p>
+                          {usaBoletimRapido && (
+                            <p className="text-xs text-slate-400 mt-1">Este atleta ainda não tem avaliação CBF completa — use o boletim rápido no botão abaixo.</p>
+                          )}
+                        </div>
+                        <Link href="/avaliacao-rapida">
+                          <button className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium shrink-0" style={{ backgroundColor: '#334155', border: '1px solid #64748b', color: '#e2e8f0' }}>
+                            <Star className="w-4 h-4 text-blue-400" />
+                            <span className="hidden sm:inline">Nova avaliação rápida</span>
+                            <span className="sm:hidden">Nova</span>
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })()}
+
                 {/* Ações: parecer + IA + dossiê */}
                 {avaliacoes.length > 0 && (
                   <div className="flex flex-wrap items-center gap-2">

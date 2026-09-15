@@ -18,6 +18,8 @@ type AtletaComAvaliacoes = {
   total_avaliacoes: number
   ultima_avaliacao: string | null
   media_geral: number
+  // 'cbf' = tem avaliacoes_atleta; 'rapida' = so avaliacoes_rapidas (modulo Escolinha)
+  tipo: 'cbf' | 'rapida'
 }
 
 // Anel de média (0–5) — cor por faixa
@@ -51,24 +53,32 @@ export default function AvaliacoesPage() {
   }, [])
 
   const loadAtletas = async () => {
-    const { data: avaliacoes, error } = await supabase
-      .from('avaliacoes_atleta')
-      .select(`
-        atleta_id, data_avaliacao,
-        forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial,
-        penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva,
-        contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva,
-        atletas(id, nome, posicao, foto_url, clubes(nome))
-      `)
-      .order('data_avaliacao', { ascending: false })
+    // Puxa em paralelo as duas tabelas: CBF classica + rapidas (modulo Escolinha).
+    const [respCBF, respRapida] = await Promise.all([
+      supabase
+        .from('avaliacoes_atleta')
+        .select(`
+          atleta_id, data_avaliacao,
+          forca, velocidade, tecnica, dinamica, inteligencia, um_contra_um, atitude, potencial,
+          penetracao, cobertura_ofensiva, espaco_com_bola, espaco_sem_bola, mobilidade, unidade_ofensiva,
+          contencao, cobertura_defensiva, equilibrio_recuperacao, equilibrio_defensivo, concentracao_def, unidade_defensiva,
+          atletas(id, nome, posicao, foto_url, clubes(nome))
+        `)
+        .order('data_avaliacao', { ascending: false }),
+      supabase
+        .from('avaliacoes_rapidas')
+        .select('atleta_id, data_avaliacao, notas, atletas(id, nome, posicao, foto_url, clubes(nome))')
+        .order('data_avaliacao', { ascending: false }),
+    ])
 
-    if (!error && avaliacoes) {
-      const atletasMap = new Map<string, AtletaComAvaliacoes & { somaMedias: number }>()
-      const agora = new Date()
-      let noMes = 0
+    const atletasMap = new Map<string, AtletaComAvaliacoes & { somaMedias: number }>()
+    const agora = new Date()
+    let noMes = 0
 
+    // -------- CBF --------
+    if (!respCBF.error && respCBF.data) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      avaliacoes.forEach((av: any) => {
+      respCBF.data.forEach((av: any) => {
         if (!av.atletas) return
         const atletaId = av.atletas.id
         const mediaCBF = (av.forca + av.velocidade + av.tecnica + av.dinamica + av.inteligencia + av.um_contra_um + av.atitude + av.potencial) / 8
@@ -85,7 +95,7 @@ export default function AvaliacoesPage() {
           atletasMap.set(atletaId, {
             id: atletaId, nome: av.atletas.nome, posicao: av.atletas.posicao, foto_url: av.atletas.foto_url,
             clubes: av.atletas.clubes, total_avaliacoes: 1, ultima_avaliacao: av.data_avaliacao,
-            media_geral: 0, somaMedias: mediaAv,
+            media_geral: 0, somaMedias: mediaAv, tipo: 'cbf',
           })
         } else {
           const atleta = atletasMap.get(atletaId)!
@@ -93,10 +103,44 @@ export default function AvaliacoesPage() {
           atleta.somaMedias += mediaAv
         }
       })
-
-      setAtletas(Array.from(atletasMap.values()).map(a => ({ ...a, media_geral: a.somaMedias / a.total_avaliacoes })))
-      setAvaliacoesNoMes(noMes)
     }
+
+    // -------- Rapidas (modulo Escolinha) --------
+    // Se o atleta ja aparece como CBF, mantem tipo='cbf' (o boletim dele sai CBF).
+    // Se so tem rapida, tipo='rapida' — a media vem das notas rapidas (1-5, escala igual).
+    if (!respRapida.error && respRapida.data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      respRapida.data.forEach((av: any) => {
+        if (!av.atletas) return
+        const atletaId = av.atletas.id
+        const notas = (av.notas ?? {}) as Record<string, number>
+        const vs = Object.values(notas).filter((v): v is number => typeof v === 'number' && v > 0)
+        if (vs.length === 0) return
+        const mediaAv = vs.reduce((a, b) => a + b, 0) / vs.length
+
+        if (av.data_avaliacao) {
+          const d = new Date(av.data_avaliacao)
+          if (d.getFullYear() === agora.getFullYear() && d.getMonth() === agora.getMonth()) noMes++
+        }
+
+        const existente = atletasMap.get(atletaId)
+        if (!existente) {
+          atletasMap.set(atletaId, {
+            id: atletaId, nome: av.atletas.nome, posicao: av.atletas.posicao, foto_url: av.atletas.foto_url,
+            clubes: av.atletas.clubes, total_avaliacoes: 1, ultima_avaliacao: av.data_avaliacao,
+            media_geral: 0, somaMedias: mediaAv, tipo: 'rapida',
+          })
+        } else if (existente.tipo === 'rapida') {
+          // Ja veio de outra rapida (ordem descendente) — acumula.
+          existente.total_avaliacoes++
+          existente.somaMedias += mediaAv
+        }
+        // Se ja veio da CBF, ignora — tipo continua 'cbf'.
+      })
+    }
+
+    setAtletas(Array.from(atletasMap.values()).map(a => ({ ...a, media_geral: a.somaMedias / a.total_avaliacoes })))
+    setAvaliacoesNoMes(noMes)
     setLoading(false)
   }
 
@@ -204,7 +248,12 @@ export default function AvaliacoesPage() {
                             ) : <User className="w-4 h-4 text-faint" />}
                           </div>
                           <div className="min-w-0">
-                            <div className="font-semibold text-strong truncate group-hover:text-brand transition-colors">{atleta.nome}</div>
+                            <div className="font-semibold text-strong truncate group-hover:text-brand transition-colors flex items-center gap-2">
+                              {atleta.nome}
+                              {atleta.tipo === 'rapida' && (
+                                <Badge variant="info" size="sm">Rápida</Badge>
+                              )}
+                            </div>
                             <div className="text-[11px] text-soft truncate sm:hidden">{atleta.posicao || '—'} · {atleta.clubes?.nome}</div>
                           </div>
                         </Link>
