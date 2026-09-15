@@ -27,7 +27,7 @@ import {
 
 const adminMenu: AppMenuItem[] = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', hideForProfessor: true },
-  { href: '/dashboard-atletas', icon: TrendingUp, label: 'Evolucao Atletas', hideForProfessor: true },
+  { href: '/dashboard-atletas', icon: TrendingUp, label: 'Evolucao Atletas' },
   { href: '/dashboard-avaliacoes', icon: Target, label: 'Comparativo', hideForProfessor: true },
   { href: '/comparar-atletas', icon: GitCompare, label: 'Comparar Atletas', hideForProfessor: true },
   { href: '/guia-avaliacao', icon: BookOpen, label: 'Guia de Avaliacao', hideForProfessor: true },
@@ -39,12 +39,12 @@ const adminMenu: AppMenuItem[] = [
   { href: '/prancheta', icon: LayoutTemplate, label: 'Prancheta Tática', hideForProfessor: true },
   { href: '/jogos', icon: Gamepad2, label: 'Jogos', hideForProfessor: true },
   { href: '/analises', icon: FileBarChart, label: 'Analises de Jogo', hideForProfessor: true },
-  { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas', hideForProfessor: true },
-  { href: '/avaliacao-fisica', icon: Activity, label: 'Avaliacao Fisica', hideForProfessor: true },
+  { href: '/avaliacoes', icon: Star, label: 'Avaliacoes Atletas' },
+  { href: '/avaliacao-fisica', icon: Activity, label: 'Avaliacao Fisica' },
   { href: '/usuarios', icon: UserCog, label: 'Usuarios', masterOnly: true },
 ]
 
-const ROTAS_PROFESSOR = ['/atletas', '/comissao-tecnica', '/escalacoes']
+const ROTAS_PROFESSOR = ['/atletas', '/comissao-tecnica', '/escalacoes', '/avaliacoes', '/avaliacao-fisica', '/dashboard-atletas']
 
 const roleLabels: Record<string, string> = {
   master: 'Master',

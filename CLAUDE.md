@@ -105,6 +105,12 @@ Commits recentes: ver `git log` — nao manter lista manual aqui (fica desatuali
 - Buckets do Supabase Storage (todos publicos): `escudos`, `atletas`, `prints`, `comissao`, `anotacoes`, `pranchetas`. Criar via SQL as vezes falha por permissao em `storage.objects` — nesse caso criar manualmente pelo painel (Storage > New bucket > marcar "Public bucket")
 
 ## Proximos Passos / Pendencias
-- [ ] Implementar campos de avaliacao fisica no frontend
 - [ ] Testar responsividade em dispositivos reais
 - [ ] Validar exportacao JPG da escalacao com elenco completo (11 titulares + suplentes + comissao)
+
+## Modulo de evolucao / benchmark (ja existe, nao reconstruir)
+Antes de propor "medir evolucao por idade", checar `src/lib/stats/`: `benchmark.ts` (nivel
+esperado por categoria U11-U17 x posicao, comparacao "acima/dentro/abaixo" nas 20 dimensoes CBF),
+`desenvolvimento.ts` (evolucao fisica no tempo + estimativa de maturacao ossea via Mirwald),
+`percentis.ts` (ranking entre pares da mesma posicao), `dossie.ts` (dossie imprimivel/PDF com
+radar + benchmark + evolucao + parecer). Visao do atleta/familia em `(portal)/portal/evolucao`.

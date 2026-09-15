@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target, Sparkles, Share2, Check, Copy } from 'lucide-react'
+import { Users, TrendingUp, Scale, Ruler, Star, BarChart3, Trophy, Search, Clock, FileDown, Target, Sparkles, Share2, Check, Copy, FileText } from 'lucide-react'
 import Link from 'next/link'
 import {
   calcularEstatisticasJogo,
@@ -28,6 +28,9 @@ import { calcularEficiencia, explicarEficiencia, calcularContextoProducao } from
 import { IndiceCard } from '@/components/app/IndiceCard'
 import { InfoTip } from '@/components/app/InfoTip'
 import { abrirDossieParaImpressao, gerarDossieHTML, type DossieParams } from '@/lib/stats/dossie'
+import { abrirBoletimParaImpressao, gerarBoletimHTML, type BoletimParams } from '@/lib/stats/boletim'
+import { DIMS_20 } from '@/lib/stats/benchmark'
+import type { PontoAvaliacao } from '@/lib/stats/curva'
 import { gerarAnaliseGratis, type DadosAnaliseIA } from '@/lib/stats/ia'
 import { percentilDe, classificarPercentil, corPercentil, type MetricaPercentil } from '@/lib/stats/percentis'
 import { calcularAderenciaPosicao, type DimKey } from '@/lib/stats/perfilPosicao'
@@ -1082,6 +1085,7 @@ export default function DashboardAtletasPage() {
       .from('dossies_publicos')
       .select('id, criado_em')
       .eq('atleta_id', atletaSelecionado)
+      .eq('tipo', 'dossie')
       .order('criado_em', { ascending: false })
     setDossiesAtleta(data || [])
   }, [atletaSelecionado, supabase])
@@ -1117,6 +1121,88 @@ export default function DashboardAtletasPage() {
     if (error) { alert('Não foi possível revogar. Rode a migração 012 (permissão de revogar) no Supabase.'); return }
     setDossiesAtleta(prev => prev.filter(d => d.id !== id))
     if (linkDossie?.endsWith(id)) setLinkDossie(null)
+  }
+
+  // -------------------- Boletim do PAI --------------------
+  // Reusa dossies_publicos (com tipo='boletim'). Linguagem de pai, curva por idade.
+  const montarBoletimParams = (): BoletimParams | null => {
+    if (!atletaAtual) return null
+    const pontos: PontoAvaliacao[] = avaliacoes.map(av => ({
+      data_avaliacao: av.data_avaliacao,
+      valores: DIMS_20.reduce((acc, d) => {
+        const v = Number(av[d.key as keyof typeof av])
+        if (!Number.isNaN(v) && v > 0) acc[d.key] = v
+        return acc
+      }, {} as Record<string, number>),
+    }))
+    return {
+      atleta: {
+        nome: atletaAtual.nome,
+        posicao: atletaAtual.posicao,
+        clube: getClubeName(atletaAtual.clubes),
+        dataNascimento: atletaAtual.data_nascimento,
+        fotoUrl: atletaAtual.foto_url,
+      },
+      pontos,
+      dataAvaliacao: avaliacaoSelecionada?.data_avaliacao ?? null,
+      // Boletim do pai: apenas as 8 dimensoes CBF (as OFE/DEF sao jargao demais pra ele).
+      dimensoesMostrar: DIMS_20.filter(d => d.grupo === 'CBF').map(d => ({ key: d.key, label: d.label })),
+    }
+  }
+
+  const handleExportarBoletim = () => {
+    const params = montarBoletimParams()
+    if (!params) return
+    const ok = abrirBoletimParaImpressao(params)
+    if (!ok) alert('Não foi possível abrir a janela do boletim. Verifique se o bloqueador de pop-ups está desativado.')
+  }
+
+  const [gerandoLinkBoletim, setGerandoLinkBoletim] = useState(false)
+  const [linkBoletim, setLinkBoletim] = useState<string | null>(null)
+  const [boletinsAtleta, setBoletinsAtleta] = useState<{ id: string; criado_em: string }[]>([])
+
+  const carregarBoletins = useCallback(async () => {
+    if (!atletaSelecionado) { setBoletinsAtleta([]); return }
+    const { data } = await supabase
+      .from('dossies_publicos')
+      .select('id, criado_em')
+      .eq('atleta_id', atletaSelecionado)
+      .eq('tipo', 'boletim')
+      .order('criado_em', { ascending: false })
+    setBoletinsAtleta(data || [])
+  }, [atletaSelecionado, supabase])
+
+  useEffect(() => { carregarBoletins() }, [carregarBoletins])
+
+  const handleGerarLinkBoletim = async () => {
+    const params = montarBoletimParams()
+    if (!params || !atletaAtual) return
+    setGerandoLinkBoletim(true)
+    setLinkBoletim(null)
+    try {
+      const html = gerarBoletimHTML(params)
+      const { data, error } = await supabase
+        .from('dossies_publicos')
+        .insert({ atleta_id: atletaAtual.id, atleta_nome: atletaAtual.nome, html, tipo: 'boletim' })
+        .select('id')
+        .single()
+      if (error || !data) throw error || new Error('Sem ID')
+      const url = `${window.location.origin}/boletim/${data.id}`
+      setLinkBoletim(url)
+      try { await navigator.clipboard.writeText(url) } catch { /* clipboard bloqueado */ }
+      carregarBoletins()
+    } catch {
+      alert('Não foi possível gerar o link. Confirme que a migração 020 (boletim_publico) foi rodada no Supabase.')
+    } finally {
+      setGerandoLinkBoletim(false)
+    }
+  }
+
+  const handleRevogarBoletim = async (id: string) => {
+    const { error } = await supabase.from('dossies_publicos').delete().eq('id', id)
+    if (error) { alert('Não foi possível revogar.'); return }
+    setBoletinsAtleta(prev => prev.filter(d => d.id !== id))
+    if (linkBoletim?.endsWith(id)) setLinkBoletim(null)
   }
 
   // Gerar análise por IA
@@ -1470,9 +1556,66 @@ export default function DashboardAtletasPage() {
                       <Share2 className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
                       <span className="hidden sm:inline">{gerandoLink ? 'Gerando...' : 'Gerar link'}</span>
                     </button>
+                    <button
+                      onClick={handleExportarBoletim}
+                      className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors"
+                      style={{ backgroundColor: '#1e3a8a', border: '1px solid #3b82f6', color: '#e2e8f0' }}
+                      title="Gerar boletim do pai (linguagem simples, curva por idade)"
+                    >
+                      <FileText className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+                      <span className="hidden sm:inline">Boletim do pai</span>
+                    </button>
+                    <button
+                      onClick={handleGerarLinkBoletim}
+                      disabled={gerandoLinkBoletim}
+                      className="inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl font-medium text-sm transition-colors disabled:opacity-50"
+                      style={{ backgroundColor: '#1e3a8a', border: '1px solid #3b82f6', color: '#e2e8f0' }}
+                      title="Gerar link compartilhável do boletim (para enviar ao pai)"
+                    >
+                      <Share2 className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+                      <span className="hidden sm:inline">{gerandoLinkBoletim ? 'Gerando...' : 'Link do boletim'}</span>
+                    </button>
                   </div>
                 )}
               </div>
+
+              {/* Link do boletim */}
+              {linkBoletim && (
+                <div className="mt-3 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2" style={{ backgroundColor: '#0f172a', border: '1px solid #10b98155' }}>
+                  <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium shrink-0">
+                    <Check className="w-4 h-4" /> Link do boletim gerado (copiado):
+                  </div>
+                  <input
+                    readOnly
+                    value={linkBoletim}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="flex-1 min-w-0 px-2 py-1.5 text-xs rounded-lg text-slate-200 bg-slate-800 border border-slate-600 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={() => { navigator.clipboard?.writeText(linkBoletim) }} className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors"><Copy className="w-3.5 h-3.5" />Copiar</button>
+                    <a href={linkBoletim} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition-colors">Abrir</a>
+                  </div>
+                </div>
+              )}
+
+              {/* Boletins compartilhados */}
+              {boletinsAtleta.length > 0 && (
+                <div className="mt-3 rounded-xl p-3" style={{ backgroundColor: '#0f172a', border: '1px solid #475569' }}>
+                  <p className="text-[11px] font-medium text-slate-400 mb-2 flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> Boletins do pai deste atleta ({boletinsAtleta.length})</p>
+                  <ul className="space-y-1.5">
+                    {boletinsAtleta.map((d) => (
+                      <li key={d.id} className="flex items-center gap-2 text-xs">
+                        <span className="text-slate-500 tabular-nums shrink-0">{new Date(d.criado_em).toLocaleDateString('pt-BR')} {new Date(d.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-slate-600 truncate flex-1 hidden sm:inline">/boletim/{d.id.slice(0, 8)}…</span>
+                        <a href={`/boletim/${d.id}`} target="_blank" rel="noopener noreferrer" className="px-2 py-1 rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors shrink-0">Abrir</a>
+                        <button onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/boletim/${d.id}`) }} className="px-2 py-1 rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors shrink-0">Copiar</button>
+                        <button onClick={() => handleRevogarBoletim(d.id)} className="px-2 py-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors shrink-0">Revogar</button>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[10px] text-slate-600 mt-2">Revogar apaga o link — quem tiver a URL deixa de conseguir abrir.</p>
+                </div>
+              )}
 
               {/* Link compartilhável gerado */}
               {linkDossie && (

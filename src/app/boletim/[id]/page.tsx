@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-// Página pública (sem login) que mostra o snapshot do dossiê salvo.
-// O link é "não listado": só quem tem o UUID acessa.
-export default function DossiePublicoPage() {
+// Pagina publica (sem login) do BOLETIM DO PAI. Reusa a tabela dossies_publicos
+// filtrando por tipo='boletim'. Link nao listado (UUID impossivel de adivinhar).
+export default function BoletimPublicoPage() {
   const params = useParams()
   const id = params.id as string
   const [html, setHtml] = useState<string | null>(null)
@@ -21,7 +21,7 @@ export default function DossiePublicoPage() {
         .from('dossies_publicos')
         .select('html, tipo')
         .eq('id', id)
-        .eq('tipo', 'dossie')
+        .eq('tipo', 'boletim')
         .single()
       if (error || !data) setErro(true)
       else setHtml((data as { html: string }).html)
@@ -40,7 +40,7 @@ export default function DossiePublicoPage() {
       <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a', color: '#94a3b8', fontFamily: 'system-ui, sans-serif' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: 40, height: 40, border: '3px solid #f59e0b', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 12px', animation: 'spin 0.8s linear infinite' }} />
-          Carregando dossiê...
+          Carregando boletim...
           <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
       </div>
@@ -52,8 +52,8 @@ export default function DossiePublicoPage() {
       <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1a', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 360 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>📄</div>
-          <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Dossiê não encontrado</h1>
-          <p style={{ fontSize: 14, color: '#94a3b8' }}>O link pode ter expirado ou estar incorreto. Peça um novo link ao responsável pela avaliação.</p>
+          <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Boletim não encontrado</h1>
+          <p style={{ fontSize: 14, color: '#94a3b8' }}>O link pode ter expirado ou estar incorreto. Peça um novo link à escolinha do seu filho.</p>
         </div>
       </div>
     )
@@ -73,7 +73,7 @@ export default function DossiePublicoPage() {
       <iframe
         ref={iframeRef}
         srcDoc={html}
-        title="Dossiê do atleta"
+        title="Boletim do atleta"
         style={{ width: '100%', height: 'calc(100dvh - 52px)', border: 'none', background: '#fff' }}
       />
     </div>

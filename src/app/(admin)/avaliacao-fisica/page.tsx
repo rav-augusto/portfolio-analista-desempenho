@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUser } from '@/hooks/useUser'
 import { Activity, Save, Search, Trash2, Pencil, X } from 'lucide-react'
 import { estimarMaturacaoMirwald, idadeCronologicaEm } from '@/lib/stats/desenvolvimento'
 
@@ -76,6 +77,7 @@ function Campo({ label, value, onChange, step, placeholder, dica }: {
 
 export default function AvaliacaoFisicaPage() {
   const supabase = createClient()
+  const { user: usuario } = useUser()
   const [atletas, setAtletas] = useState<Atleta[]>([])
   const [busca, setBusca] = useState('')
   const [atletaSel, setAtletaSel] = useState('')
@@ -168,7 +170,7 @@ export default function AvaliacaoFisicaPage() {
     }
     const { error } = editId
       ? await supabase.from('avaliacoes_fisicas').update(payload).eq('id', editId)
-      : await supabase.from('avaliacoes_fisicas').insert(payload)
+      : await supabase.from('avaliacoes_fisicas').insert({ ...payload, criado_por: usuario?.id ?? null })
     setSaving(false)
     if (error) {
       setMsg({ tipo: 'erro', texto: `Erro ao salvar: ${error.message}` })
